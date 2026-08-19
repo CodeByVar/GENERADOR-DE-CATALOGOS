@@ -1601,6 +1601,514 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       height: 12px;
       fill: currentColor;
     }
+
+    /* ──── SELECTOR INTERACTIVO DE CANTIDADES (CAJAS) ──── */
+    .product-qty-selector {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.05);
+      border: 1.5px solid #CBD5E1;
+      border-radius: 20px;
+      padding: 2px 4px;
+      gap: 2px;
+      transition: all 0.2s ease;
+    }
+    .product-qty-selector:focus-within {
+      border-color: #25D366;
+      box-shadow: 0 0 8px rgba(37, 211, 102, 0.25);
+      background: #FFFFFF;
+    }
+    .btn-qty {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #0F172A;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11pt;
+      font-weight: 800;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .btn-qty:hover {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-color: #0F172A;
+    }
+    .input-qty {
+      width: 32px;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9pt;
+      font-weight: 800;
+      color: #0F172A;
+      outline: none;
+      -moz-appearance: textfield;
+      padding: 0;
+    }
+    .input-qty::-webkit-outer-spin-button,
+    .input-qty::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .product-card.has-ordered {
+      border-color: #25D366 !important;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.25) !important;
+    }
+
+    /* ──── BARRA FLOTANTE DE PEDIDO GENERAL (STICKY / FLOATING) ──── */
+    .floating-cart-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(140%);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50px;
+      padding: 8px 12px 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 92%;
+      color: #FFFFFF;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .floating-cart-bar.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+    .cart-summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .cart-icon-wrapper {
+      position: relative;
+      background: rgba(37, 211, 102, 0.18);
+      color: #25D366;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #EF4444;
+      color: #FFFFFF;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 10px;
+      border: 1.5px solid #0F172A;
+    }
+    .cart-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+    .cart-title {
+      font-size: 9pt;
+      color: #F8FAFC;
+      font-weight: 600;
+    }
+    .cart-title strong {
+      color: #25D366;
+      font-size: 10pt;
+    }
+    .cart-subtitle {
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+    .cart-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-view-order {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+      padding: 8px 14px;
+      border-radius: 25px;
+      font-size: 8.5pt;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-view-order:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .btn-send-whatsapp-order {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 25px;
+      font-size: 9pt;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-send-whatsapp-order:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
+    }
+
+    /* ──── MODAL RESUMEN DE PEDIDO ──── */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8, 12, 20, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 15px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      background: #0F172A;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+      overflow: hidden;
+      color: #FFFFFF;
+      animation: modalSlideUp 0.25s ease-out;
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 11pt;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #25D366;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 13pt;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* ──── MODAL RESUMEN DE PEDIDO (ALTO CONTRASTE Y LEGIBILIDAD) ──── */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4, 7, 13, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      padding: 15px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      background: #0B1120;
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 530px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+      color: #FFFFFF;
+      animation: modalSlideUp 0.25s ease-out;
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .modal-title {
+      font-size: 11pt;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #25D366;
+    }
+    .modal-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #CBD5E1;
+      font-size: 11pt;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #F87171;
+    }
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .customer-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .customer-inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .customer-field {
+      background: #1E293B;
+      border: 1.5px solid #475569;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #FFFFFF !important;
+      font-size: 8.5pt;
+      font-family: inherit;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .customer-field::placeholder {
+      color: #94A3B8;
+      opacity: 1;
+    }
+    .customer-field:focus {
+      border-color: #25D366;
+      background: #0F172A;
+      box-shadow: 0 0 10px rgba(37, 211, 102, 0.25);
+    }
+    .order-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 230px;
+      overflow-y: auto;
+    }
+    .order-items-list::-webkit-scrollbar {
+      width: 5px;
+    }
+    .order-items-list::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .order-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #161F30;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 9px 12px;
+    }
+    .order-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      padding-right: 8px;
+    }
+    .order-item-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      font-weight: 800;
+      color: #25D366;
+    }
+    .order-item-name {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #FFFFFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+    .order-item-meta {
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+    .order-item-row .product-qty-selector {
+      background: #0B1120;
+      border-color: #475569;
+    }
+    .order-item-row .input-qty {
+      color: #FFFFFF !important;
+      font-weight: 800;
+    }
+    .order-item-row .btn-qty {
+      background: #334155;
+      color: #FFFFFF;
+      border-color: #475569;
+    }
+    .order-item-row .btn-qty:hover {
+      background: #25D366;
+      color: #0F172A;
+      border-color: #25D366;
+    }
+    .order-total-banner {
+      background: rgba(37, 211, 102, 0.12);
+      border: 1.5px solid rgba(37, 211, 102, 0.35);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      color: #F8FAFC;
+      font-weight: 600;
+    }
+    .order-total-banner strong {
+      font-size: 11.5pt;
+      color: #25D366;
+      font-weight: 800;
+    }
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .btn-clear-cart {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #F87171;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 8pt;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-clear-cart:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .btn-copy-sheets {
+      background: #1E40AF;
+      border: 1px solid #3B82F6;
+      color: #FFFFFF;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 8.5pt;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+    .btn-copy-sheets:hover {
+      background: #2563EB;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
+      transform: translateY(-1px);
+    }
+    .btn-send-whatsapp-large {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 9pt;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-send-whatsapp-large:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
+    }
+
+    @media print {
+      .floating-cart-bar,
+      .modal-backdrop,
+      .product-qty-selector {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1789,12 +2297,17 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 else:
                     wa_url = f"https://api.whatsapp.com/send?text={wa_msg}"
                 
+                safe_name = str(prod["nombre"]).replace('"', '&quot;').replace("'", "&#39;")
+                safe_brand = str(brand_name).replace('"', '&quot;').replace("'", "&#39;")
+                safe_unit = str(prod["uni"]).replace('"', '&quot;').replace("'", "&#39;")
+                
                 html_out.append('            <div class="card-footer">')
                 html_out.append(f'              <span class="packaging-info">Caja: -- {prod["uni"]}</span>')
-                html_out.append(f'              <a href="{wa_url}" target="_blank" class="btn-whatsapp" title="Cotizar {prod["cod"]} por WhatsApp">')
-                html_out.append('                <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>')
-                html_out.append('                <span>Cotizar</span>')
-                html_out.append('              </a>')
+                html_out.append('              <div class="product-qty-selector" title="Cantidad de cajas a pedir">')
+                html_out.append(f'                <button type="button" class="btn-qty" onclick="changeProductQty(\'{prod["cod"]}\', -1)">−</button>')
+                html_out.append(f'                <input type="number" id="qty_{prod["cod"]}" class="input-qty" value="0" min="0" onchange="onManualQtyChange(\'{prod["cod"]}\', this.value)" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
+                html_out.append(f'                <button type="button" class="btn-qty" onclick="changeProductQty(\'{prod["cod"]}\', 1)">+</button>')
+                html_out.append('              </div>')
                 html_out.append('            </div>')
                 
                 html_out.append('          </div>') # card-body
@@ -1804,7 +2317,286 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             
         html_out.append('  </div>') # brand-section
         
-    html_out.append("""</body>
+    # ─── WIDGETS INTERACTIVOS DE PEDIDO (BARRA FLOTANTE Y MODAL) ───
+    clean_biz_phone = re.sub(r'[^\d]', '', str(whatsapp_phone or ''))
+    html_out.append(f"""
+  <!-- Barra Flotante de Pedido General -->
+  <div id="floating-cart-bar" class="floating-cart-bar">
+    <div class="cart-summary" onclick="openOrderModal()">
+      <div class="cart-icon-wrapper">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span id="cart-badge" class="cart-badge">0</span>
+      </div>
+      <div class="cart-text">
+        <span class="cart-title"><strong id="cart-qty-total">0</strong> cajas seleccionadas</span>
+        <span class="cart-subtitle"><span id="cart-prod-total">0</span> producto(s) en tu lista</span>
+      </div>
+    </div>
+    <div class="cart-actions">
+      <button type="button" class="btn-view-order" onclick="openOrderModal()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <span>Ver Pedido</span>
+      </button>
+      <button type="button" class="btn-send-whatsapp-order" onclick="sendFullOrderWhatsApp()">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        <span>Hacer Pedido</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Resumen de Pedido -->
+  <div id="order-modal-backdrop" class="modal-backdrop" onclick="closeOrderModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span>Resumen de tu Pedido</span>
+        </div>
+        <button type="button" class="modal-close" onclick="closeOrderModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="customer-inputs">
+          <input type="text" id="client-name" placeholder="Nombre / Empresa (ej. Marianela)" class="customer-field" />
+          <div class="customer-inputs-grid">
+            <input type="text" id="client-address" placeholder="Dirección / Zona (ej. Villa Pagador)" class="customer-field" />
+            <input type="text" id="client-phone" placeholder="Celular / WhatsApp (opcional)" class="customer-field" />
+          </div>
+        </div>
+        <div id="order-items-list" class="order-items-list">
+          <!-- Renderizado dinámico -->
+        </div>
+        <div class="order-total-banner">
+          <span>Total Cajas Seleccionadas:</span>
+          <strong id="modal-total-boxes">0 cajas</strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-clear-cart" onclick="clearCart()">Vaciar</button>
+        <button type="button" class="btn-copy-sheets" onclick="copyForGoogleSheets()" title="Copiar filas para pegar directamente en la celda A5 de tu formato en Google Sheets">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>Copiar para Sheets</span>
+        </button>
+        <button type="button" class="btn-send-whatsapp-large" onclick="sendFullOrderWhatsApp()">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          <span>Enviar por WhatsApp</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BUSINESS_PHONE = "{clean_biz_phone}";
+    const cart = {{}};
+
+    function changeProductQty(code, delta) {{
+      const input = document.getElementById('qty_' + code);
+      if (!input) return;
+      let val = parseInt(input.value) || 0;
+      val = Math.max(0, val + delta);
+      input.value = val;
+      onManualQtyChange(code, val);
+    }}
+
+    function onManualQtyChange(code, val) {{
+      const input = document.getElementById('qty_' + code);
+      if (!input) return;
+      let qty = parseInt(val) || 0;
+      qty = Math.max(0, qty);
+      input.value = qty;
+
+      const card = input.closest('.product-card');
+      if (qty > 0) {{
+        cart[code] = {{
+          code: code,
+          qty: qty,
+          name: input.getAttribute('data-name') || code,
+          brand: input.getAttribute('data-brand') || '',
+          unit: input.getAttribute('data-unit') || 'pcs'
+        }};
+        if (card) card.classList.add('has-ordered');
+      }} else {{
+        delete cart[code];
+        if (card) card.classList.remove('has-ordered');
+      }}
+
+      updateCartUI();
+    }}
+
+    function updateCartUI() {{
+      const items = Object.values(cart);
+      const totalProds = items.length;
+      let totalBoxes = 0;
+      items.forEach(it => totalBoxes += it.qty);
+
+      const cartBar = document.getElementById('floating-cart-bar');
+      const badge = document.getElementById('cart-badge');
+      const qtyTotalEl = document.getElementById('cart-qty-total');
+      const prodTotalEl = document.getElementById('cart-prod-total');
+      const modalTotalBoxes = document.getElementById('modal-total-boxes');
+
+      if (badge) badge.innerText = totalProds;
+      if (qtyTotalEl) qtyTotalEl.innerText = totalBoxes;
+      if (prodTotalEl) prodTotalEl.innerText = totalProds;
+      if (modalTotalBoxes) modalTotalBoxes.innerText = totalBoxes + ' cajas';
+
+      if (totalBoxes > 0) {{
+        if (cartBar) cartBar.classList.add('visible');
+      }} else {{
+        if (cartBar) cartBar.classList.remove('visible');
+      }}
+
+      renderModalList();
+    }}
+
+    function openOrderModal() {{
+      const items = Object.values(cart);
+      if (items.length === 0) {{
+        alert("Aún no has seleccionado cantidades para ningún producto. Elige la cantidad de cajas usando los botones + / − en cada producto.");
+        return;
+      }}
+      renderModalList();
+      const modal = document.getElementById('order-modal-backdrop');
+      if (modal) modal.classList.add('open');
+    }}
+
+    function closeOrderModal(e) {{
+      const modal = document.getElementById('order-modal-backdrop');
+      if (modal) modal.classList.remove('open');
+    }}
+
+    function renderModalList() {{
+      const container = document.getElementById('order-items-list');
+      if (!container) return;
+      const items = Object.values(cart);
+      if (items.length === 0) {{
+        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94A3B8; font-size: 8.5pt;">No tienes productos en tu pedido.</div>';
+        return;
+      }}
+
+      let html = '';
+      items.forEach(it => {{
+        html += `
+          <div class="order-item-row">
+            <div class="order-item-info">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="order-item-code">${{it.code}}</span>
+                <span style="font-size: 7.5pt; color: #94A3B8;">${{it.brand}}</span>
+              </div>
+              <div class="order-item-name" title="${{it.name}}">${{it.name}}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div class="product-qty-selector">
+                <button type="button" class="btn-qty" onclick="changeProductQty('${{it.code}}', -1)">−</button>
+                <input type="number" class="input-qty" value="${{it.qty}}" min="0" onchange="onManualQtyChange('${{it.code}}', this.value)" />
+                <button type="button" class="btn-qty" onclick="changeProductQty('${{it.code}}', 1)">+</button>
+              </div>
+              <span style="font-size: 7.5pt; color: #94A3B8; min-width: 32px;">cajas</span>
+            </div>
+          </div>
+        `;
+      }});
+      container.innerHTML = html;
+    }}
+
+    function clearCart() {{
+      Object.keys(cart).forEach(code => {{
+        const input = document.getElementById('qty_' + code);
+        if (input) {{
+          input.value = 0;
+          const card = input.closest('.product-card');
+          if (card) card.classList.remove('has-ordered');
+        }}
+      }});
+      for (const k in cart) delete cart[k];
+      updateCartUI();
+      closeOrderModal();
+    }}
+
+    function copyForGoogleSheets() {{
+      const items = Object.values(cart);
+      if (items.length === 0) {{
+        alert("Primero selecciona la cantidad de cajas de tus productos para copiar.");
+        return;
+      }}
+      
+      // Formato exacto de columnas para pegar en A5 de Google Sheets:
+      // CANT. CAJAS \t CANT. UNI. \t UN/MED \t DETALLE \t CODIGO
+      const lines = items.map(it => {{
+        const cantCajas = it.qty;
+        const cantUni = "";
+        const unMed = it.unit || "UNI";
+        const detalle = it.name;
+        const codigo = it.code;
+        return `${{cantCajas}}\\t${{cantUni}}\\t${{unMed}}\\t${{detalle}}\\t${{codigo}}`;
+      }});
+      
+      const tsvText = lines.join("\\n");
+      if (navigator.clipboard && navigator.clipboard.writeText) {{
+        navigator.clipboard.writeText(tsvText).then(() => {{
+          alert("¡Tabla copiada con éxito!\\n\\n1. Abre tu archivo de Google Sheets.\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar todo el pedido de una sola vez.");
+        }}).catch(() => fallbackCopy(tsvText));
+      }} else {{
+        fallbackCopy(tsvText);
+      }}
+    }}
+
+    function fallbackCopy(text) {{
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("¡Tabla copiada con éxito!\\n\\n1. Abre tu archivo de Google Sheets.\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V.");
+    }}
+
+    function sendFullOrderWhatsApp() {{
+      const items = Object.values(cart);
+      if (items.length === 0) {{
+        alert("Por favor selecciona al menos 1 producto con su cantidad de cajas para enviar el pedido.");
+        return;
+      }}
+
+      const clientName = (document.getElementById('client-name')?.value || '').trim();
+      const clientAddress = (document.getElementById('client-address')?.value || '').trim();
+      const clientPhone = (document.getElementById('client-phone')?.value || '').trim();
+
+      let totalBoxes = 0;
+      items.forEach(it => totalBoxes += it.qty);
+
+      let msg = "🛒 *SOLICITUD DE PEDIDO / COTIZACIÓN*\\n";
+      msg += "*Importadora Rivero*\\n";
+      msg += "──────────────────────────\\n";
+      if (clientName) msg += `👤 *Cliente:* ${{clientName}}\\n`;
+      if (clientAddress) msg += `📍 *Dirección:* ${{clientAddress}}\\n`;
+      if (clientPhone) msg += `📞 *Teléfono:* ${{clientPhone}}\\n`;
+      msg += `📅 *Fecha:* ${{new Date().toLocaleDateString('es-ES')}}\\n\\n`;
+
+      msg += "📦 *DETALLE DEL PEDIDO:*\\n";
+      items.forEach((it, idx) => {{
+        msg += `${{idx + 1}}️⃣ *[${{it.code}}]* ${{it.name}}\\n`;
+        msg += `   • Cantidad: *${{it.qty}} Cajas* (${{it.unit}})\\n`;
+        if (it.brand) msg += `   • Marca: ${{it.brand}}\\n`;
+        msg += "\\n";
+      }});
+
+      msg += "──────────────────────────\\n";
+      msg += `📊 *TOTAL:* *${{totalBoxes}} Cajas* (${{items.length}} productos)\\n`;
+      msg += "──────────────────────────\\n";
+      msg += "_Por favor confirmar disponibilidad y cotización. ¡Muchas gracias!_";
+
+      const encoded = encodeURIComponent(msg);
+      let targetUrl = '';
+      if (BUSINESS_PHONE) {{
+        targetUrl = `https://wa.me/${{BUSINESS_PHONE}}?text=${{encoded}}`;
+      }} else {{
+        targetUrl = `https://api.whatsapp.com/send?text=${{encoded}}`;
+      }}
+
+      window.open(targetUrl, '_blank');
+    }}
+  </script>
+</body>
 </html>""")
     
     html_path = output_filename
