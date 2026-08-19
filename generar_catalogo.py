@@ -1602,33 +1602,61 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       fill: currentColor;
     }
 
-    /* ──── SELECTOR INTERACTIVO DE CANTIDADES (CAJAS) ──── */
+    /* ──── SELECTOR DUAL DE PEDIDOS (CAJAS Y UNIDADES) ──── */
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .order-selectors-dual {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+    .qty-group {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .qty-label {
+      font-size: 7.5pt;
+      font-weight: 800;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
     .product-qty-selector {
       display: inline-flex;
       align-items: center;
-      background: rgba(15, 23, 42, 0.05);
+      background: #F1F5F9;
       border: 1.5px solid #CBD5E1;
-      border-radius: 20px;
-      padding: 2px 4px;
+      border-radius: 18px;
+      padding: 1px 3px;
       gap: 2px;
       transition: all 0.2s ease;
     }
     .product-qty-selector:focus-within {
       border-color: #25D366;
-      box-shadow: 0 0 8px rgba(37, 211, 102, 0.25);
+      box-shadow: 0 0 6px rgba(37, 211, 102, 0.35);
       background: #FFFFFF;
     }
     .btn-qty {
       background: #FFFFFF;
       border: 1px solid #CBD5E1;
       color: #0F172A;
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11pt;
+      font-size: 10.5pt;
       font-weight: 800;
       cursor: pointer;
       line-height: 1;
@@ -1642,17 +1670,18 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       border-color: #0F172A;
     }
     .input-qty {
-      width: 32px;
+      width: 28px;
       border: none;
       background: transparent;
       text-align: center;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9pt;
+      font-size: 8.5pt;
       font-weight: 800;
       color: #0F172A;
       outline: none;
       -moz-appearance: textfield;
       padding: 0;
+      cursor: text;
     }
     .input-qty::-webkit-outer-spin-button,
     .input-qty::-webkit-inner-spin-button {
@@ -1662,6 +1691,152 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .product-card.has-ordered {
       border-color: #25D366 !important;
       box-shadow: 0 6px 20px rgba(37, 211, 102, 0.25) !important;
+    }
+
+    /* ──── BARRA DE BÚSQUEDA EN VIVO PARA EL CLIENTE (STICKY) ──── */
+    .catalog-search-sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 150;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .catalog-search-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-input-box {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+    .search-input-box svg {
+      position: absolute;
+      left: 12px;
+      color: #94A3B8;
+      pointer-events: none;
+    }
+    .search-input-box input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 25px;
+      padding: 9px 34px 9px 36px;
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 9pt;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+    .search-input-box input:focus {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: #F59E0B;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    }
+    .search-input-box input::placeholder {
+      color: #94A3B8;
+      font-size: 8.5pt;
+    }
+    .catalog-search-clear-btn {
+      position: absolute;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.16);
+      border: none;
+      color: #FFFFFF;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 8.5pt;
+      font-weight: 800;
+      transition: all 0.2s;
+      line-height: 1;
+      padding: 0;
+    }
+    .catalog-search-clear-btn:hover {
+      background: #EF4444;
+    }
+    .search-stats-badge {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #F59E0B;
+      background: rgba(245, 158, 11, 0.15);
+      padding: 6px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .brand-filter-chips {
+      max-width: 1200px;
+      margin: 8px auto 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .brand-filter-chips::-webkit-scrollbar {
+      height: 3px;
+    }
+    .brand-filter-chips::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+    .brand-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #CBD5E1;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .brand-chip:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+    }
+    .brand-chip.active {
+      background: #F59E0B;
+      color: #0F172A;
+      border-color: #F59E0B;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
+    .no-results-card {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+      background: #FFFFFF;
+      border-radius: 12px;
+      margin: 30px auto;
+      max-width: 500px;
+      border: 1.5px dashed #CBD5E1;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    @media print {
+      .catalog-search-sticky-bar, .no-results-card {
+        display: none !important;
+      }
     }
 
     /* ──── BARRA FLOTANTE DE PEDIDO GENERAL (STICKY / FLOATING) ──── */
@@ -2178,7 +2353,26 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     html_out.append('    </div>') # cover-content
     html_out.append('  </div>') # cover-page
     
-    # (NOTA: El Índice General / Página 2 ha sido eliminado completamente según la petición del usuario)
+    # ─── BARRA DE BÚSQUEDA INTERACTIVA EN VIVO Y FILTRO POR MARCA ───
+    html_out.append('  <div id="catalog-search-sticky-bar" class="catalog-search-sticky-bar">')
+    html_out.append('    <div class="catalog-search-inner">')
+    html_out.append('      <div class="search-input-box">')
+    html_out.append('        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>')
+    html_out.append('        <input type="text" id="catalog-live-search" placeholder="🔍 Buscar por código, nombre, marca o medida (ej: BOM6044, taladro, 8mm)..." oninput="filterCatalogLive(this.value)" autocomplete="off" />')
+    html_out.append('        <button type="button" id="catalog-search-clear-btn" class="catalog-search-clear-btn" onclick="clearCatalogSearch()">✕</button>')
+    html_out.append('      </div>')
+    html_out.append('      <div class="search-stats-badge">')
+    html_out.append(f'        <span id="search-match-count">{total_prods}</span> productos')
+    html_out.append('      </div>')
+    html_out.append('    </div>')
+    html_out.append('    <div class="brand-filter-chips">')
+    html_out.append(f'      <button type="button" id="chip-brand-all" class="brand-chip active" onclick="filterByBrand(\'all\')">Todas ({total_prods})</button>')
+    for b_name_chip in brands_orden:
+        b_count_chip = sum(len(prods) for prods in brands_prods[b_name_chip].values())
+        safe_b_chip = b_name_chip.replace('"', '&quot;').replace("'", "&#39;")
+        html_out.append(f'      <button type="button" id="chip-brand-{safe_b_chip}" class="brand-chip" onclick="filterByBrand(\'{safe_b_chip}\')">{safe_b_chip} ({b_count_chip})</button>')
+    html_out.append('    </div>')
+    html_out.append('  </div>')
     
     # ─── AGREGAR SECCIONES DE MARCAS ───
     for b_name in brands_orden:
@@ -2215,7 +2409,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             fg_sub = get_color(b_theme["subtitle_color"], "0F172A")
             
         clean_brand_class = f"brand-section-{re.sub(r'[^a-zA-Z0-9]', '-', b_name.lower())}"
-        html_out.append(f'  <div class="brand-section {clean_brand_class}" style="background-color: {sec_bg};">')
+        html_out.append(f'  <div class="brand-section {clean_brand_class}" data-brand-section="{b_name}" style="background-color: {sec_bg};">')
         
         # Crop del logo para el banner de la marca
         logo_path = b_theme.get("logo")
@@ -2269,7 +2463,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             html_out.append(f'      <div class="products-grid" style="--brand-header: {card_hdr_bg}; --brand-header-fg: {card_hdr_fg}; --brand-measure-bg: {card_meas_bg}; --brand-measure-fg: {card_meas_fg};">')
             
             for prod in prods:
-                html_out.append(f'        <div class="{card_class}">')
+                search_text = f"{prod['cod']} {prod['nombre']} {prod['size']} {b_name} {cat}".replace('"', '&quot;')
+                html_out.append(f'        <div class="{card_class}" data-search="{search_text}" data-brand="{b_name}">')
                 html_out.append('          <div class="card-header">')
                 html_out.append(f'            CÓDIGO: {prod["cod"]}')
                 html_out.append('          </div>')
@@ -2292,21 +2487,29 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 # Enlace directo de cotización por WhatsApp
                 wa_msg = urllib.parse.quote(f"Hola Importadora Rivero, deseo cotizar el producto:\n* Código: {prod['cod']}\n* Nombre: {prod['nombre']}\n* Marca: {brand_name}")
                 clean_phone = re.sub(r'[^\d]', '', str(whatsapp_phone or ''))
-                if clean_phone:
-                    wa_url = f"https://wa.me/{clean_phone}?text={wa_msg}"
-                else:
-                    wa_url = f"https://api.whatsapp.com/send?text={wa_msg}"
-                
                 safe_name = str(prod["nombre"]).replace('"', '&quot;').replace("'", "&#39;")
                 safe_brand = str(brand_name).replace('"', '&quot;').replace("'", "&#39;")
                 safe_unit = str(prod["uni"]).replace('"', '&quot;').replace("'", "&#39;")
-                
+
                 html_out.append('            <div class="card-footer">')
                 html_out.append(f'              <span class="packaging-info">Unidad: {prod["uni"]}</span>')
-                html_out.append('              <div class="product-qty-selector" title="Cantidad a pedir">')
-                html_out.append(f'                <button type="button" class="btn-qty" onclick="changeProductQty(\'{prod["cod"]}\', -1)">−</button>')
-                html_out.append(f'                <input type="number" id="qty_{prod["cod"]}" class="input-qty" value="0" min="0" onchange="onManualQtyChange(\'{prod["cod"]}\', this.value)" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
-                html_out.append(f'                <button type="button" class="btn-qty" onclick="changeProductQty(\'{prod["cod"]}\', 1)">+</button>')
+                html_out.append('              <div class="order-selectors-dual">')
+                html_out.append('                <div class="qty-group" title="Escribe la cantidad de Cajas o usa + / −">')
+                html_out.append('                  <span class="qty-label">Caja:</span>')
+                html_out.append('                  <div class="product-qty-selector">')
+                html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'cajas\', -1)">−</button>')
+                html_out.append(f'                    <input type="number" id="cajas_{prod["cod"]}" class="input-qty" value="0" min="0" oninput="onDirectInput(\'{prod["cod"]}\')" onchange="onDirectInput(\'{prod["cod"]}\')" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
+                html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'cajas\', 1)">+</button>')
+                html_out.append('                  </div>')
+                html_out.append('                </div>')
+                html_out.append('                <div class="qty-group" title="Escribe la cantidad de Unidades sueltas o usa + / −">')
+                html_out.append('                  <span class="qty-label">Uni:</span>')
+                html_out.append('                  <div class="product-qty-selector">')
+                html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'uni\', -1)">−</button>')
+                html_out.append(f'                    <input type="number" id="uni_{prod["cod"]}" class="input-qty" value="0" min="0" oninput="onDirectInput(\'{prod["cod"]}\')" onchange="onDirectInput(\'{prod["cod"]}\')" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
+                html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'uni\', 1)">+</button>')
+                html_out.append('                  </div>')
+                html_out.append('                </div>')
                 html_out.append('              </div>')
                 html_out.append('            </div>')
                 
@@ -2319,6 +2522,14 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         
     # ─── WIDGETS INTERACTIVOS DE PEDIDO (BARRA FLOTANTE Y MODAL) ───
     clean_biz_phone = re.sub(r'[^\d]', '', str(whatsapp_phone or ''))
+    html_out.append('  <!-- Tarjeta de aviso de no resultados de búsqueda -->')
+    html_out.append('  <div id="no-search-results-box" class="no-results-card" style="display: none;">')
+    html_out.append('    <div style="font-size: 26pt; margin-bottom: 8px;">🔍</div>')
+    html_out.append('    <div style="font-weight: 800; font-size: 11pt; color: #0F172A; margin-bottom: 4px;">No encontramos productos coincidentes</div>')
+    html_out.append('    <div style="font-size: 8.5pt; color: #64748B; margin-bottom: 12px;">Intenta buscando con otra palabra, código o marca.</div>')
+    html_out.append('    <button type="button" onclick="clearCatalogSearch()" style="background: #0F172A; color: #FFFFFF; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 700; font-size: 8pt; cursor: pointer;">Ver todos los productos</button>')
+    html_out.append('  </div>')
+    
     html_out.append(f"""
   <!-- Barra Flotante de Pedido General -->
   <div id="floating-cart-bar" class="floating-cart-bar">
@@ -2328,7 +2539,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         <span id="cart-badge" class="cart-badge">0</span>
       </div>
       <div class="cart-text">
-        <span class="cart-title"><strong id="cart-qty-total">0</strong> unidades seleccionadas</span>
+        <span class="cart-title"><strong id="cart-qty-total">0 items</strong> seleccionados</span>
         <span class="cart-subtitle"><span id="cart-prod-total">0</span> producto(s) en tu lista</span>
       </div>
     </div>
@@ -2366,8 +2577,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           <!-- Renderizado dinámico -->
         </div>
         <div class="order-total-banner">
-          <span>Total Unidades Seleccionadas:</span>
-          <strong id="modal-total-boxes">0 unidades</strong>
+          <span>Total en tu Pedido:</span>
+          <strong id="modal-total-boxes">0 items</strong>
         </div>
       </div>
       <div class="modal-footer">
@@ -2383,31 +2594,110 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
   <script>
     const BUSINESS_PHONE = "{clean_biz_phone}";
     const cart = {{}};
+    let currentBrandFilter = 'all';
 
-    function changeProductQty(code, delta) {{
-      const input = document.getElementById('qty_' + code);
+    function filterCatalogLive(query) {{
+      const q = (query || '').trim().toUpperCase();
+      const clearBtn = document.getElementById('catalog-search-clear-btn');
+      if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+
+      const words = q ? q.split(/\\s+/) : [];
+      const cards = document.querySelectorAll('.product-card');
+      let visibleCount = 0;
+
+      cards.forEach(card => {{
+        const searchTarget = (card.getAttribute('data-search') || '').toUpperCase();
+        const cardBrand = card.getAttribute('data-brand') || '';
+
+        const matchesBrand = (currentBrandFilter === 'all' || cardBrand === currentBrandFilter);
+        const matchesQuery = words.length === 0 || words.every(w => searchTarget.includes(w));
+
+        const isVisible = matchesBrand && matchesQuery;
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+      }});
+
+      // Ocultar categorías vacías
+      document.querySelectorAll('.category-section').forEach(sec => {{
+        const hasVisible = Array.from(sec.querySelectorAll('.product-card')).some(c => c.style.display !== 'none');
+        sec.style.display = hasVisible ? '' : 'none';
+      }});
+
+      // Ocultar secciones de marca vacías
+      document.querySelectorAll('.brand-section').forEach(sec => {{
+        const hasVisible = Array.from(sec.querySelectorAll('.product-card')).some(c => c.style.display !== 'none');
+        sec.style.display = hasVisible ? '' : 'none';
+      }});
+
+      const countEl = document.getElementById('search-match-count');
+      if (countEl) countEl.innerText = visibleCount;
+
+      const noResultsBox = document.getElementById('no-search-results-box');
+      if (noResultsBox) noResultsBox.style.display = (visibleCount === 0) ? 'block' : 'none';
+    }}
+
+    function clearCatalogSearch() {{
+      const input = document.getElementById('catalog-live-search');
+      if (input) input.value = '';
+      currentBrandFilter = 'all';
+      document.querySelectorAll('.brand-chip').forEach(btn => {{
+        btn.classList.toggle('active', btn.id === 'chip-brand-all');
+      }});
+      filterCatalogLive('');
+    }}
+
+    function filterByBrand(brand) {{
+      currentBrandFilter = brand;
+      document.querySelectorAll('.brand-chip').forEach(btn => {{
+        const isMatch = (brand === 'all' && btn.id === 'chip-brand-all') || (btn.id === 'chip-brand-' + brand);
+        btn.classList.toggle('active', isMatch);
+      }});
+      const input = document.getElementById('catalog-live-search');
+      filterCatalogLive(input ? input.value : '');
+
+      if (brand !== 'all') {{
+        const sec = document.querySelector(`.brand-section[data-brand-section="${{brand}}"]`);
+        if (sec) {{
+          const stickyBar = document.getElementById('catalog-search-sticky-bar');
+          const offset = stickyBar ? stickyBar.offsetHeight + 10 : 80;
+          const pos = sec.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({{ top: pos, behavior: 'smooth' }});
+        }}
+      }}
+    }}
+
+    function stepProductQty(code, type, delta) {{
+      const input = document.getElementById(type + '_' + code);
       if (!input) return;
       let val = parseInt(input.value) || 0;
       val = Math.max(0, val + delta);
       input.value = val;
-      onManualQtyChange(code, val);
+      onDirectInput(code);
     }}
 
-    function onManualQtyChange(code, val) {{
-      const input = document.getElementById('qty_' + code);
-      if (!input) return;
-      let qty = parseInt(val) || 0;
-      qty = Math.max(0, qty);
-      input.value = qty;
+    function onDirectInput(code) {{
+      const inputCajas = document.getElementById('cajas_' + code);
+      const inputUni = document.getElementById('uni_' + code);
+      const ref = inputCajas || inputUni;
+      if (!ref) return;
 
-      const card = input.closest('.product-card');
-      if (qty > 0) {{
+      let cajas = parseInt(inputCajas?.value) || 0;
+      let uni = parseInt(inputUni?.value) || 0;
+      cajas = Math.max(0, cajas);
+      uni = Math.max(0, uni);
+
+      if (inputCajas && inputCajas.value !== '' && parseInt(inputCajas.value) < 0) inputCajas.value = 0;
+      if (inputUni && inputUni.value !== '' && parseInt(inputUni.value) < 0) inputUni.value = 0;
+
+      const card = ref.closest('.product-card');
+      if (cajas > 0 || uni > 0) {{
         cart[code] = {{
           code: code,
-          qty: qty,
-          name: input.getAttribute('data-name') || code,
-          brand: input.getAttribute('data-brand') || '',
-          unit: input.getAttribute('data-unit') || 'pcs'
+          cajas: cajas,
+          uni: uni,
+          name: ref.getAttribute('data-name') || code,
+          brand: ref.getAttribute('data-brand') || '',
+          unit: ref.getAttribute('data-unit') || 'pcs'
         }};
         if (card) card.classList.add('has-ordered');
       }} else {{
@@ -2421,8 +2711,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     function updateCartUI() {{
       const items = Object.values(cart);
       const totalProds = items.length;
-      let totalBoxes = 0;
-      items.forEach(it => totalBoxes += it.qty);
+      let totalCajas = 0;
+      let totalUni = 0;
+      items.forEach(it => {{
+        totalCajas += it.cajas;
+        totalUni += it.uni;
+      }});
 
       const cartBar = document.getElementById('floating-cart-bar');
       const badge = document.getElementById('cart-badge');
@@ -2431,11 +2725,17 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const modalTotalBoxes = document.getElementById('modal-total-boxes');
 
       if (badge) badge.innerText = totalProds;
-      if (qtyTotalEl) qtyTotalEl.innerText = totalBoxes;
-      if (prodTotalEl) prodTotalEl.innerText = totalProds;
-      if (modalTotalBoxes) modalTotalBoxes.innerText = totalBoxes + ' cajas';
+      
+      let summaryText = [];
+      if (totalCajas > 0) summaryText.push(totalCajas + ' caja' + (totalCajas > 1 ? 's' : ''));
+      if (totalUni > 0) summaryText.push(totalUni + ' unid');
+      const displayText = summaryText.length > 0 ? summaryText.join(' + ') : '0 items';
 
-      if (totalBoxes > 0) {{
+      if (qtyTotalEl) qtyTotalEl.innerText = displayText;
+      if (prodTotalEl) prodTotalEl.innerText = totalProds;
+      if (modalTotalBoxes) modalTotalBoxes.innerText = displayText;
+
+      if (totalCajas > 0 || totalUni > 0) {{
         if (cartBar) cartBar.classList.add('visible');
       }} else {{
         if (cartBar) cartBar.classList.remove('visible');
@@ -2447,7 +2747,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     function openOrderModal() {{
       const items = Object.values(cart);
       if (items.length === 0) {{
-        alert("Aún no has seleccionado cantidades para ningún producto. Elige la cantidad de cajas usando los botones + / − en cada producto.");
+        alert("Aún no has seleccionado cantidades para ningún producto. Escribe o usa + / − en Cajas o Unidades.");
         return;
       }}
       renderModalList();
@@ -2480,13 +2780,23 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
               </div>
               <div class="order-item-name" title="${{it.name}}">${{it.name}}</div>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <div class="product-qty-selector">
-                <button type="button" class="btn-qty" onclick="changeProductQty('${{it.code}}', -1)">−</button>
-                <input type="number" class="input-qty" value="${{it.qty}}" min="0" onchange="onManualQtyChange('${{it.code}}', this.value)" />
-                <button type="button" class="btn-qty" onclick="changeProductQty('${{it.code}}', 1)">+</button>
+            <div class="order-selectors-dual">
+              <div class="qty-group">
+                <span class="qty-label">Caja</span>
+                <div class="product-qty-selector">
+                  <button type="button" class="btn-qty" onclick="stepProductQty('${{it.code}}', 'cajas', -1)">−</button>
+                  <input type="number" class="input-qty" value="${{it.cajas}}" min="0" oninput="onModalDirectInput('${{it.code}}', 'cajas', this.value)" />
+                  <button type="button" class="btn-qty" onclick="stepProductQty('${{it.code}}', 'cajas', 1)">+</button>
+                </div>
               </div>
-              <span style="font-size: 7.5pt; color: #94A3B8; min-width: 28px;">${{it.unit}}</span>
+              <div class="qty-group">
+                <span class="qty-label">Uni</span>
+                <div class="product-qty-selector">
+                  <button type="button" class="btn-qty" onclick="stepProductQty('${{it.code}}', 'uni', -1)">−</button>
+                  <input type="number" class="input-qty" value="${{it.uni}}" min="0" oninput="onModalDirectInput('${{it.code}}', 'uni', this.value)" />
+                  <button type="button" class="btn-qty" onclick="stepProductQty('${{it.code}}', 'uni', 1)">+</button>
+                </div>
+              </div>
             </div>
           </div>
         `;
@@ -2494,14 +2804,23 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       container.innerHTML = html;
     }}
 
+    function onModalDirectInput(code, type, val) {{
+      const cardInput = document.getElementById(type + '_' + code);
+      if (cardInput) {{
+        cardInput.value = Math.max(0, parseInt(val) || 0);
+      }}
+      onDirectInput(code);
+    }}
+
     function clearCart() {{
       Object.keys(cart).forEach(code => {{
-        const input = document.getElementById('qty_' + code);
-        if (input) {{
-          input.value = 0;
-          const card = input.closest('.product-card');
-          if (card) card.classList.remove('has-ordered');
-        }}
+        const inputCajas = document.getElementById('cajas_' + code);
+        const inputUni = document.getElementById('uni_' + code);
+        if (inputCajas) inputCajas.value = 0;
+        if (inputUni) inputUni.value = 0;
+        const ref = inputCajas || inputUni;
+        const card = ref?.closest('.product-card');
+        if (card) card.classList.remove('has-ordered');
       }});
       for (const k in cart) delete cart[k];
       updateCartUI();
@@ -2519,6 +2838,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const clientAddress = (document.getElementById('client-address')?.value || '').trim();
       const clientPhone = (document.getElementById('client-phone')?.value || '').trim();
 
+      let totalCajas = 0;
+      let totalUni = 0;
+      items.forEach(it => {{
+        totalCajas += it.cajas;
+        totalUni += it.uni;
+      }});
+
       let msg = "*SOLICITUD DE PEDIDO / COTIZACION*\\n";
       msg += "*Importadora Rivero*\\n";
       msg += "----------------------------------------\\n";
@@ -2529,14 +2855,21 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       msg += "*DETALLE DEL PEDIDO:*\\n";
       items.forEach((it, idx) => {{
+        let cantParts = [];
+        if (it.cajas > 0) cantParts.push(`*${{it.cajas}} Cajas*`);
+        if (it.uni > 0) cantParts.push(`*${{it.uni}} Unidades*`);
+        const cantFinal = cantParts.length > 0 ? cantParts.join(' y ') : '*0*';
         msg += `${{idx + 1}}. [${{it.code}}] ${{it.name}}\\n`;
-        msg += `   - Cantidad: *${{it.qty}}* (${{it.unit}})\\n`;
+        msg += `   - Cantidad: ${{cantFinal}} (${{it.unit}})\\n`;
         if (it.brand) msg += `   - Marca: ${{it.brand}}\\n`;
         msg += "\\n";
       }});
 
       msg += "----------------------------------------\\n";
-      msg += `*TOTAL:* *${{totalQty}}* articulos (${{items.length}} productos)\\n`;
+      let totalParts = [];
+      if (totalCajas > 0) totalParts.push(`*${{totalCajas}} Cajas*`);
+      if (totalUni > 0) totalParts.push(`*${{totalUni}} Unidades*`);
+      msg += `*TOTAL:* ${{totalParts.join(' y ')}} (${{items.length}} productos)\\n`;
       msg += "----------------------------------------\\n";
       msg += "_Por favor confirmar disponibilidad y cotizacion. Muchas gracias!_";
 

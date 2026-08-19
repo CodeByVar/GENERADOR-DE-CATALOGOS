@@ -1519,14 +1519,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           currentItemName = line.replace(/^[0-9]+[️⃣\\.\\)\\-]*\\s*/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
         }}
 
-        const mQty = line.match(/(?:Cantidad|Cant|Pedir|Cajas|Unidades)\\s*[:•\\-]?\\s*\\*?(\\d+)\\*?/i);
-        if (mQty && currentItemCode) {{
-          const qty = parseInt(mQty[1]) || 1;
+        const mCajas = line.match(/(\\d+)\\s*Caja/i);
+        const mUni = line.match(/(\\d+)\\s*Unid/i);
+        const mGeneral = line.match(/(?:Cantidad|Cant|Pedir)\\s*[:•\\-]?\\s*\\*?(\\d+)\\*?/i);
+
+        if ((mCajas || mUni || mGeneral) && currentItemCode) {{
+          const cajas = mCajas ? parseInt(mCajas[1]) : 0;
+          const uni = mUni ? parseInt(mUni[1]) : 0;
+          const generalQty = mGeneral ? parseInt(mGeneral[1]) : (cajas || uni || 1);
+          
           const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === currentItemCode) || {{}};
           items.push({{
             code: currentItemCode,
-            qty: qty,
-            uni: prodInfo.uni || 'UNI',
+            cajas: cajas,
+            uni: uni,
+            qty: generalQty,
+            unitType: prodInfo.uni || 'UNI',
             name: prodInfo.nombre || currentItemName || currentItemCode,
             brand: prodInfo.marca || ''
           }});
@@ -1539,8 +1547,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === simpleCode) || {{}};
           items.push({{
             code: simpleCode,
+            cajas: simpleQty,
+            uni: 0,
             qty: simpleQty,
-            uni: prodInfo.uni || 'UNI',
+            unitType: prodInfo.uni || 'UNI',
             name: prodInfo.nombre || simpleCode,
             brand: prodInfo.marca || ''
           }});
@@ -1572,10 +1582,15 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       if (tbody) {{
         let tbodyHtml = '';
         items.forEach(it => {{
+          let cantDisplay = [];
+          if (it.cajas > 0) cantDisplay.push(it.cajas + ' Cj');
+          if (it.uni > 0) cantDisplay.push(it.uni + ' Uni');
+          const finalCant = cantDisplay.length > 0 ? cantDisplay.join(' + ') : it.qty;
+
           tbodyHtml += `
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-              <td style="padding: 3px 6px; font-weight: 800; color: #25D366;">${{it.qty}}</td>
-              <td style="padding: 3px 6px; color: var(--text-muted);">${{it.uni}}</td>
+              <td style="padding: 3px 6px; font-weight: 800; color: #25D366;">${{finalCant}}</td>
+              <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
               <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
               <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
             </tr>
@@ -1602,7 +1617,8 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       // Formato IR01XX (4 Columnas):
       // CANTIDAD (A) \t UN/MED (B) \t DETALLE (C) \t CODIGO (D)
       const rows = currentParsedOrder.items.map(it => {{
-        return `${{it.qty}}\\t${{it.uni || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
+        const qtyVal = it.cajas > 0 ? it.cajas : (it.uni > 0 ? it.uni : it.qty);
+        return `${{qtyVal}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
       }});
 
       const tsv = rows.join('\\n');
@@ -1629,7 +1645,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       // Formato IR01ML (5 Columnas):
       // CANT. CAJAS (A) \t CANT. UNI. (B) \t UN/MED (C) \t DETALLE (D) \t CODIGO (E)
       const rows = currentParsedOrder.items.map(it => {{
-        return `${{it.qty}}\\t\\t${{it.uni || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
+        const cajasVal = it.cajas > 0 ? it.cajas : (it.uni === 0 ? it.qty : '');
+        const uniVal = it.uni > 0 ? it.uni : '';
+        return `${{cajasVal}}\\t${{uniVal}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
       }});
 
       const tsv = rows.join('\\n');
