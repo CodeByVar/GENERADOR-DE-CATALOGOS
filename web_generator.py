@@ -1024,14 +1024,20 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             </table>
           </div>
 
-          <div style="display: flex; gap: 6px;">
-            <button class="btn-chip" onclick="copiarParaGoogleSheetsDesdePanel()" style="flex-grow: 1; background: #2563EB; color: white; border: none; padding: 8px 12px; font-weight: 800; font-size: 8pt; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <span>📋 Copiar Todo para Google Sheets (Pegar en A5)</span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button class="btn-chip" onclick="copiarFormatoCantidad()" style="background: #2563EB; color: white; border: none; padding: 8px 10px; font-weight: 800; font-size: 8pt; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);" title="Formato IR01XX (4 columnas: CANTIDAD | UN/MED | DETALLE | CODIGO)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>1. Por Cantidad (4 Col)</span>
             </button>
-            <button class="btn-chip" onclick="cargarPedidoAlGenerador()" title="Cargar códigos a la lista para generar catálogo" style="background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 4px;">
+            <button class="btn-chip" onclick="copiarFormatoCajas()" style="background: #D97706; color: white; border: none; padding: 8px 10px; font-weight: 800; font-size: 8pt; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);" title="Formato IR01ML (5 columnas: CAJAS | CANT. UNI | UN/MED | DETALLE | CODIGO)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>2. Por Cajas (5 Col)</span>
+            </button>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-chip" onclick="cargarPedidoAlGenerador()" title="Cargar códigos a la lista para generar catálogo" style="flex-grow: 1; background: rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 6px 10px;">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-              <span>Generar Catálogo</span>
+              <span>Cargar estos códigos al Generador</span>
             </button>
           </div>
         </div>
@@ -1513,7 +1519,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           currentItemName = line.replace(/^[0-9]+[️⃣\\.\\)\\-]*\\s*/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
         }}
 
-        const mQty = line.match(/(?:Cantidad|Cant|Pedir)?\\s*[:•\\-]?\\s*\\*?(\\d+)\\*?\\s*(?:Cajas|Caja|Cj|Cjas|cj)/i);
+        const mQty = line.match(/(?:Cantidad|Cant|Pedir|Cajas|Unidades)\\s*[:•\\-]?\\s*\\*?(\\d+)\\*?/i);
         if (mQty && currentItemCode) {{
           const qty = parseInt(mQty[1]) || 1;
           const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === currentItemCode) || {{}};
@@ -1587,22 +1593,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }});
     }}
 
-    function copiarParaGoogleSheetsDesdePanel() {{
+    function copiarFormatoCantidad() {{
       if (!currentParsedOrder.items || currentParsedOrder.items.length === 0) {{
         alert("No hay productos detectados en el texto para copiar.");
         return;
       }}
 
-      // Columnas exactas de Google Sheets:
-      // CANT. CAJAS (A) \t CANT. UNI. (B) \t UN/MED (C) \t DETALLE (D) \t CODIGO (E)
+      // Formato IR01XX (4 Columnas):
+      // CANTIDAD (A) \t UN/MED (B) \t DETALLE (C) \t CODIGO (D)
       const rows = currentParsedOrder.items.map(it => {{
-        return `${{it.qty}}\\t\\t${{it.uni || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
+        return `${{it.qty}}\\t${{it.uni || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
       }});
 
       const tsv = rows.join('\\n');
       navigator.clipboard.writeText(tsv).then(() => {{
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados con éxito!\\n\\n1. Ve a tu Google Sheets.\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar todo el pedido de una sola vez.`);
-        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para pegar en Google Sheets (A5).`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cantidad!\n\n1. Ve a tu Google Sheets (formato IR01XX).\n2. Haz clic en la celda A5 (CANTIDAD).\n3. Presiona Ctrl + V para pegar.`);
+        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cantidad (4 col).`);
       }}).catch(() => {{
         const ta = document.createElement("textarea");
         ta.value = tsv;
@@ -1610,7 +1616,34 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         ta.select();
         document.execCommand("copy");
         document.body.removeChild(ta);
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\\n\\nVe a tu Google Sheets en la celda A5 y presiona Ctrl + V.`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\n\nVe a tu Google Sheets en celda A5 y presiona Ctrl + V.`);
+      }});
+    }}
+
+    function copiarFormatoCajas() {{
+      if (!currentParsedOrder.items || currentParsedOrder.items.length === 0) {{
+        alert("No hay productos detectados en el texto para copiar.");
+        return;
+      }}
+
+      // Formato IR01ML (5 Columnas):
+      // CANT. CAJAS (A) \t CANT. UNI. (B) \t UN/MED (C) \t DETALLE (D) \t CODIGO (E)
+      const rows = currentParsedOrder.items.map(it => {{
+        return `${{it.qty}}\\t\\t${{it.uni || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
+      }});
+
+      const tsv = rows.join('\\n');
+      navigator.clipboard.writeText(tsv).then(() => {{
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cajas!\n\n1. Ve a tu Google Sheets (formato IR01ML).\n2. Haz clic en la celda A5 (CANT. CAJAS).\n3. Presiona Ctrl + V para pegar.`);
+        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cajas (5 col).`);
+      }}).catch(() => {{
+        const ta = document.createElement("textarea");
+        ta.value = tsv;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\n\nVe a tu Google Sheets en celda A5 y presiona Ctrl + V.`);
       }});
     }}
 

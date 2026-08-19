@@ -2302,8 +2302,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 safe_unit = str(prod["uni"]).replace('"', '&quot;').replace("'", "&#39;")
                 
                 html_out.append('            <div class="card-footer">')
-                html_out.append(f'              <span class="packaging-info">Caja: -- {prod["uni"]}</span>')
-                html_out.append('              <div class="product-qty-selector" title="Cantidad de cajas a pedir">')
+                html_out.append(f'              <span class="packaging-info">Unidad: {prod["uni"]}</span>')
+                html_out.append('              <div class="product-qty-selector" title="Cantidad a pedir">')
                 html_out.append(f'                <button type="button" class="btn-qty" onclick="changeProductQty(\'{prod["cod"]}\', -1)">−</button>')
                 html_out.append(f'                <input type="number" id="qty_{prod["cod"]}" class="input-qty" value="0" min="0" onchange="onManualQtyChange(\'{prod["cod"]}\', this.value)" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
                 html_out.append(f'                <button type="button" class="btn-qty" onclick="changeProductQty(\'{prod["cod"]}\', 1)">+</button>')
@@ -2328,7 +2328,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         <span id="cart-badge" class="cart-badge">0</span>
       </div>
       <div class="cart-text">
-        <span class="cart-title"><strong id="cart-qty-total">0</strong> cajas seleccionadas</span>
+        <span class="cart-title"><strong id="cart-qty-total">0</strong> unidades seleccionadas</span>
         <span class="cart-subtitle"><span id="cart-prod-total">0</span> producto(s) en tu lista</span>
       </div>
     </div>
@@ -2366,8 +2366,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           <!-- Renderizado dinámico -->
         </div>
         <div class="order-total-banner">
-          <span>Total Cajas Seleccionadas:</span>
-          <strong id="modal-total-boxes">0 cajas</strong>
+          <span>Total Unidades Seleccionadas:</span>
+          <strong id="modal-total-boxes">0 unidades</strong>
         </div>
       </div>
       <div class="modal-footer">
@@ -2486,7 +2486,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 <input type="number" class="input-qty" value="${{it.qty}}" min="0" onchange="onManualQtyChange('${{it.code}}', this.value)" />
                 <button type="button" class="btn-qty" onclick="changeProductQty('${{it.code}}', 1)">+</button>
               </div>
-              <span style="font-size: 7.5pt; color: #94A3B8; min-width: 32px;">cajas</span>
+              <span style="font-size: 7.5pt; color: #94A3B8; min-width: 28px;">${{it.unit}}</span>
             </div>
           </div>
         `;
@@ -2508,48 +2508,10 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       closeOrderModal();
     }}
 
-    function copyForGoogleSheets() {{
-      const items = Object.values(cart);
-      if (items.length === 0) {{
-        alert("Primero selecciona la cantidad de cajas de tus productos para copiar.");
-        return;
-      }}
-      
-      // Formato exacto de columnas para pegar en A5 de Google Sheets:
-      // CANT. CAJAS \t CANT. UNI. \t UN/MED \t DETALLE \t CODIGO
-      const lines = items.map(it => {{
-        const cantCajas = it.qty;
-        const cantUni = "";
-        const unMed = it.unit || "UNI";
-        const detalle = it.name;
-        const codigo = it.code;
-        return `${{cantCajas}}\\t${{cantUni}}\\t${{unMed}}\\t${{detalle}}\\t${{codigo}}`;
-      }});
-      
-      const tsvText = lines.join("\\n");
-      if (navigator.clipboard && navigator.clipboard.writeText) {{
-        navigator.clipboard.writeText(tsvText).then(() => {{
-          alert("¡Tabla copiada con éxito!\\n\\n1. Abre tu archivo de Google Sheets.\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar todo el pedido de una sola vez.");
-        }}).catch(() => fallbackCopy(tsvText));
-      }} else {{
-        fallbackCopy(tsvText);
-      }}
-    }}
-
-    function fallbackCopy(text) {{
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      alert("¡Tabla copiada con éxito!\\n\\n1. Abre tu archivo de Google Sheets.\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V.");
-    }}
-
     function sendFullOrderWhatsApp() {{
       const items = Object.values(cart);
       if (items.length === 0) {{
-        alert("Por favor selecciona al menos 1 producto con su cantidad de cajas para enviar el pedido.");
+        alert("Por favor selecciona al menos 1 producto con su cantidad para enviar el pedido.");
         return;
       }}
 
@@ -2557,29 +2519,26 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const clientAddress = (document.getElementById('client-address')?.value || '').trim();
       const clientPhone = (document.getElementById('client-phone')?.value || '').trim();
 
-      let totalBoxes = 0;
-      items.forEach(it => totalBoxes += it.qty);
-
-      let msg = "🛒 *SOLICITUD DE PEDIDO / COTIZACIÓN*\\n";
+      let msg = "*SOLICITUD DE PEDIDO / COTIZACION*\\n";
       msg += "*Importadora Rivero*\\n";
-      msg += "──────────────────────────\\n";
-      if (clientName) msg += `👤 *Cliente:* ${{clientName}}\\n`;
-      if (clientAddress) msg += `📍 *Dirección:* ${{clientAddress}}\\n`;
-      if (clientPhone) msg += `📞 *Teléfono:* ${{clientPhone}}\\n`;
-      msg += `📅 *Fecha:* ${{new Date().toLocaleDateString('es-ES')}}\\n\\n`;
+      msg += "----------------------------------------\\n";
+      if (clientName) msg += `*Cliente:* ${{clientName}}\\n`;
+      if (clientAddress) msg += `*Direccion:* ${{clientAddress}}\\n`;
+      if (clientPhone) msg += `*Telefono:* ${{clientPhone}}\\n`;
+      msg += `*Fecha:* ${{new Date().toLocaleDateString('es-ES')}}\\n\\n`;
 
-      msg += "📦 *DETALLE DEL PEDIDO:*\\n";
+      msg += "*DETALLE DEL PEDIDO:*\\n";
       items.forEach((it, idx) => {{
-        msg += `${{idx + 1}}️⃣ *[${{it.code}}]* ${{it.name}}\\n`;
-        msg += `   • Cantidad: *${{it.qty}} Cajas* (${{it.unit}})\\n`;
-        if (it.brand) msg += `   • Marca: ${{it.brand}}\\n`;
+        msg += `${{idx + 1}}. [${{it.code}}] ${{it.name}}\\n`;
+        msg += `   - Cantidad: *${{it.qty}}* (${{it.unit}})\\n`;
+        if (it.brand) msg += `   - Marca: ${{it.brand}}\\n`;
         msg += "\\n";
       }});
 
-      msg += "──────────────────────────\\n";
-      msg += `📊 *TOTAL:* *${{totalBoxes}} Cajas* (${{items.length}} productos)\\n`;
-      msg += "──────────────────────────\\n";
-      msg += "_Por favor confirmar disponibilidad y cotización. ¡Muchas gracias!_";
+      msg += "----------------------------------------\\n";
+      msg += `*TOTAL:* *${{totalQty}}* articulos (${{items.length}} productos)\\n`;
+      msg += "----------------------------------------\\n";
+      msg += "_Por favor confirmar disponibilidad y cotizacion. Muchas gracias!_";
 
       const encoded = encodeURIComponent(msg);
       let targetUrl = '';
