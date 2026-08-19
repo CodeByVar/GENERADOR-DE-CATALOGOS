@@ -105,6 +105,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             sync_raw = query_params.get('sync', ['true'])[0]
             layout_raw = query_params.get('layout', ['desktop'])[0]
             force_images_raw = query_params.get('force_images', ['false'])[0]
+            whatsapp_raw = query_params.get('whatsapp', [''])[0]
             
             descargar_nube = (sync_raw.lower() == 'true')
             forzar_imagenes = (force_images_raw.lower() == 'true')
@@ -127,13 +128,28 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 try:
                     import importlib
                     importlib.reload(generar_catalogo)
-                    generar_catalogo.generar(descargar_nube=descargar_nube, codigos_custom=codigos_custom, layout=layout_raw, forzar_imagenes=forzar_imagenes)
+                    generar_catalogo.generar(descargar_nube=descargar_nube, codigos_custom=codigos_custom, layout=layout_raw, forzar_imagenes=forzar_imagenes, whatsapp_phone=whatsapp_raw)
                     # Enviar señal de éxito final
                     writer.write("EVENT_SUCCESS: Proceso finalizado con éxito.\n")
                 except BaseException as e:
                     import traceback
                     traceback.print_exc(file=writer)
                     writer.write("EVENT_ERROR: Ocurrió un error al procesar el catálogo.\n")
+            return
+
+        # 1.5 Endpoint API para obtener el resumen de inventario (Buscador, Marcas y Plantillas)
+        elif parsed_url.path == "/api/productos":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            try:
+                import importlib
+                importlib.reload(generar_catalogo)
+                data = generar_catalogo.obtener_resumen_inventario()
+                self.wfile.write(json.dumps(data).encode('utf-8'))
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e), "productos": [], "marcas": {}, "categorias": {}}).encode('utf-8'))
             return
 
         # 2. Servir el PDF de catálogo
@@ -212,17 +228,17 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     
     :root {{
       --bg-dark: #080C14;
-      --bg-panel: rgba(13, 18, 30, 0.75);
+      --bg-panel: rgba(13, 18, 30, 0.85);
       --bg-console: #030509;
       --border-glow: rgba(245, 158, 11, 0.3);
       --primary: #F59E0B;
       --primary-hover: #D97706;
       --accent: #F59E0B;
       --success: #10B981;
-      --success-bg: rgba(16, 185, 129, 0.1);
+      --success-bg: rgba(16, 185, 129, 0.12);
       --text-main: #F8FAFC;
       --text-muted: #94A3B8;
-      --border-panel: rgba(255, 255, 255, 0.06);
+      --border-panel: rgba(255, 255, 255, 0.08);
     }}
 
     body {{
@@ -237,18 +253,16 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       overflow-x: hidden;
     }}
 
-    /* Header Bar */
     header {{
-      background: rgba(8, 12, 20, 0.9);
+      background: rgba(8, 12, 20, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-panel);
-      padding: 15px 30px;
+      padding: 12px 25px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
-      z-index: 100;
     }}
 
     .header-left {{
@@ -258,15 +272,15 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     }}
 
     .header-logo {{
-      max-height: 50px;
+      max-height: 44px;
       object-fit: contain;
       border-radius: 4px;
       background: white;
-      padding: 4px 8px;
+      padding: 3px 6px;
     }}
 
     .header-title-container h1 {{
-      font-size: 16pt;
+      font-size: 15pt;
       font-weight: 800;
       margin: 0;
       letter-spacing: 0.5px;
@@ -274,9 +288,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     }}
 
     .header-title-container p {{
-      font-size: 8.5pt;
+      font-size: 8pt;
       color: var(--accent);
-      margin: 2px 0 0 0;
+      margin: 1px 0 0 0;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -290,7 +304,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       color: var(--success);
       padding: 6px 12px;
       border-radius: 20px;
-      font-size: 9pt;
+      font-size: 8.5pt;
       font-weight: 700;
       border: 1px solid rgba(16, 185, 129, 0.2);
     }}
@@ -309,25 +323,23 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       100% {{ transform: scale(0.95); opacity: 0.5; }}
     }}
 
-    /* Main Grid Layout */
     .dashboard-container {{
       display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 20px;
-      padding: 20px;
+      grid-template-columns: 490px 1fr;
+      gap: 18px;
+      padding: 16px;
       flex-grow: 1;
-      height: calc(100vh - 90px);
+      height: calc(100vh - 78px);
       box-sizing: border-box;
     }}
 
     .glass-panel {{
       background: var(--bg-panel);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-panel);
-      border-radius: 16px;
-      padding: 22px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -335,141 +347,391 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       overflow: hidden;
     }}
 
-    /* Control Panel Form (Left) */
     .control-panel {{
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 12px;
+      overflow-y: auto;
+    }}
+
+    .control-panel::-webkit-scrollbar {{
+      width: 6px;
+    }}
+    .control-panel::-webkit-scrollbar-thumb {{
+      background: #334155;
+      border-radius: 3px;
     }}
 
     .section-title {{
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 800;
       color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin: 0 0 10px 0;
+      margin: 0;
       display: flex;
       align-items: center;
-      gap: 8px;
-    }}
-
-    .textarea-container {{
-      display: flex;
-      flex-direction: column;
       gap: 6px;
     }}
 
-    .label-text {{
-      font-size: 9pt;
-      font-weight: 600;
+    .smart-tabs {{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-panel);
+    }}
+
+    .smart-tab-btn {{
+      background: transparent;
+      border: none;
       color: var(--text-muted);
+      padding: 8px 4px;
+      border-radius: 7px;
+      font-family: inherit;
+      font-size: 8pt;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.2s ease;
+    }}
+
+    .smart-tab-btn:hover {{
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }}
+
+    .smart-tab-btn.active {{
+      background: var(--primary);
+      color: #0F172A;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }}
+
+    .tab-content {{
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }}
+    .tab-content.active {{
+      display: flex;
+    }}
+
+    .active-banner {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }}
+    .active-badge {{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9pt;
+      font-weight: 800;
+      color: var(--primary);
+    }}
+    .active-actions {{
+      display: flex;
+      gap: 6px;
+    }}
+    .btn-chip {{
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }}
+    .btn-chip:hover {{
+      background: rgba(255, 255, 255, 0.16);
+    }}
+    .btn-chip.danger:hover {{
+      background: rgba(239, 68, 68, 0.3);
+      color: #F87171;
+    }}
+
+    .search-input-wrapper {{
+      position: relative;
+      display: flex;
+      align-items: center;
+    }}
+    .search-input {{
+      width: 100%;
+      background: var(--bg-console);
+      border: 1px solid var(--border-panel);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 10px 32px 10px 12px;
+      font-family: inherit;
+      font-size: 9pt;
+      outline: none;
+      box-sizing: border-box;
+      transition: border 0.2s;
+    }}
+    .search-input:focus {{
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--border-glow);
+    }}
+    .search-clear-btn {{
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11pt;
+      display: none;
+    }}
+
+    .product-results-list {{
+      max-height: 180px;
+      overflow-y: auto;
+      background: var(--bg-console);
+      border: 1px solid var(--border-panel);
+      border-radius: 8px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }}
+    .product-results-list::-webkit-scrollbar {{
+      width: 5px;
+    }}
+    .product-results-list::-webkit-scrollbar-thumb {{
+      background: #334155;
+      border-radius: 3px;
+    }}
+
+    .product-item-row {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background 0.15s;
+    }}
+    .product-item-row:hover {{
+      background: rgba(255, 255, 255, 0.06);
+    }}
+    .product-item-info {{
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }}
+    .product-item-code {{
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      font-weight: 700;
+      color: var(--primary);
+    }}
+    .product-item-name {{
+      font-size: 8pt;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }}
+    .btn-item-add {{
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 7.5pt;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }}
+    .btn-item-add:hover {{
+      background: var(--primary);
+      color: #0F172A;
+    }}
+    .btn-item-add.added {{
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34D399;
+    }}
+
+    .brands-grid {{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }}
+
+    .brand-card-btn {{
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-panel);
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      font-family: inherit;
+      transition: all 0.2s;
+    }}
+    .brand-card-btn:hover {{
+      border-color: var(--primary);
+      background: rgba(245, 158, 11, 0.08);
+    }}
+    .brand-card-name {{
+      font-size: 8pt;
+      font-weight: 700;
+    }}
+    .brand-card-count {{
+      font-size: 7.5pt;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }}
+
+    .templates-list {{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+    }}
+    .template-item {{
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-panel);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }}
+    .template-info {{
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }}
+    .template-name {{
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: var(--text-main);
+    }}
+    .template-count {{
+      font-size: 7.5pt;
+      color: var(--text-muted);
+    }}
+    .template-actions {{
+      display: flex;
+      gap: 4px;
     }}
 
     textarea {{
       background: var(--bg-console);
       border: 1px solid var(--border-panel);
-      border-radius: 10px;
+      border-radius: 8px;
       color: var(--text-main);
-      padding: 12px;
+      padding: 10px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5pt;
+      font-size: 9pt;
       resize: none;
-      height: 90px;
+      height: 85px;
       outline: none;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      width: 100%;
     }}
-
     textarea:focus {{
       border-color: var(--primary);
       box-shadow: 0 0 10px var(--border-glow);
     }}
 
-    /* Toggle Switch */
     .toggle-row {{
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: rgba(15, 23, 42, 0.4);
-      padding: 10px 14px;
-      border-radius: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.03);
     }}
 
     .switch {{
       position: relative;
       display: inline-block;
-      width: 44px;
-      height: 24px;
+      width: 40px;
+      height: 22px;
     }}
-
     .switch input {{
       opacity: 0;
       width: 0;
       height: 0;
     }}
-
     .slider {{
       position: absolute;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background-color: #334155;
       transition: .3s;
-      border-radius: 24px;
+      border-radius: 22px;
     }}
-
     .slider:before {{
       position: absolute;
       content: "";
-      height: 16px;
-      width: 16px;
+      height: 14px;
+      width: 14px;
       left: 4px;
       bottom: 4px;
       background-color: white;
       transition: .3s;
       border-radius: 50%;
     }}
-
     input:checked + .slider {{
       background-color: var(--primary);
     }}
-
     input:checked + .slider:before {{
-      transform: translateX(20px);
+      transform: translateX(18px);
     }}
 
-    /* Start Button */
     .btn-generate {{
       background: linear-gradient(135deg, var(--primary) 0%, #D97706 100%);
       color: #0F172A;
       border: none;
-      border-radius: 10px;
-      padding: 14px 20px;
+      border-radius: 9px;
+      padding: 12px 18px;
       font-family: inherit;
-      font-size: 11pt;
+      font-size: 10.5pt;
       font-weight: 800;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
     }}
-
     .btn-generate:hover {{
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
       background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
     }}
-
-    .btn-generate:active {{
-      transform: translateY(1px);
-    }}
-
     .btn-generate:disabled {{
       background: #334155;
       color: var(--text-muted);
@@ -478,165 +740,76 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       box-shadow: none;
     }}
 
-    /* Activity Console Box */
     .console-panel {{
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+      min-height: 110px;
       overflow: hidden;
     }}
 
     .console-output {{
       background: var(--bg-console);
       border: 1px solid var(--border-panel);
-      border-radius: 10px;
-      padding: 15px;
+      border-radius: 8px;
+      padding: 10px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9pt;
+      font-size: 8.5pt;
       color: #CBD5E1;
       overflow-y: auto;
       flex-grow: 1;
       white-space: pre-wrap;
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
-      line-height: 1.5;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+      line-height: 1.4;
     }}
 
-    .console-output::-webkit-scrollbar {{
-      width: 8px;
-    }}
-
-    .console-output::-webkit-scrollbar-track {{
-      background: var(--bg-console);
-    }}
-
-    .console-output::-webkit-scrollbar-thumb {{
-      background: #334155;
-      border-radius: 4px;
-    }}
-
-    .console-output::-webkit-scrollbar-thumb:hover {{
-      background: #475569;
-    }}
-
-    .log-line {{
-      margin-bottom: 4px;
-    }}
-
+    .log-line {{ margin-bottom: 3px; }}
     .log-success {{ color: var(--success); font-weight: 700; }}
     .log-error {{ color: #EF4444; font-weight: 700; }}
     .log-info {{ color: var(--primary); }}
     .log-warning {{ color: #F59E0B; }}
 
-    /* Quick Action Buttons (Results) */
-    .results-row {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 5px;
-    }}
-
-    .btn-action {{
-      border: none;
-      border-radius: 8px;
-      padding: 11px;
-      font-family: inherit;
-      font-size: 9.5pt;
-      font-weight: 700;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }}
-
-    .btn-action-pdf {{
-      background-color: #EF4444;
-    }}
-    .btn-action-pdf:hover {{
-      background-color: #DC2626;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-    }}
-
-    .btn-action-folder {{
-      background-color: #475569;
-    }}
-    .btn-action-folder:hover {{
-      background-color: #334155;
-      box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
-    }}
-
-    .btn-action:disabled {{
-      background: #1E293B;
-      color: #475569;
-      cursor: not-allowed;
-      box-shadow: none;
-    }}
-
-    /* Preview Section (Right) */
     .preview-panel {{
       display: flex;
       flex-direction: column;
       position: relative;
     }}
-
     .preview-header-bar {{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }}
-
     .preview-title {{
-      font-size: 12pt;
+      font-size: 11pt;
       font-weight: 800;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 10px;
-    }}
-
-    .device-selectors {{
-      display: flex;
-      gap: 6px;
-      background: rgba(15, 23, 42, 0.5);
-      padding: 3px;
-      border-radius: 8px;
-      border: 1px solid var(--border-panel);
+      gap: 8px;
     }}
 
     .device-btn {{
       background: transparent;
       border: none;
       color: var(--text-muted);
+      padding: 5px 10px;
       border-radius: 6px;
-      padding: 4px 10px;
+      font-family: inherit;
       font-size: 8.5pt;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
     }}
-
-    .device-btn.active {{
-      background: var(--primary);
-      color: #0F172A;
+    .device-btn:hover {{
+      color: var(--text-main);
     }}
-    
-    .mini-icon {{
-      display: inline-block;
-      vertical-align: middle;
-      width: 1.1em;
-      height: 1.1em;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      flex-shrink: 0;
+    .device-btn.active {{
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
     }}
 
     .preview-viewport-wrapper {{
@@ -646,7 +819,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       align-items: center;
       background: var(--bg-console);
       border: 1px solid var(--border-panel);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
       position: relative;
     }}
@@ -656,16 +829,15 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       height: 100%;
       border: none;
       background: white;
-      transition: width 0.4s ease;
+      transition: width 0.3s ease;
     }}
 
-    /* Mobile view styling */
     .view-mobile {{
-      width: 420px;
-      height: 90%;
-      border: 10px solid #334155;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      width: 400px;
+      height: 92%;
+      border: 8px solid #334155;
+      border-radius: 18px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
     }}
 
     .no-preview {{
@@ -673,10 +845,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
       color: var(--text-muted);
       text-align: center;
-      padding: 40px;
+      padding: 30px;
       position: absolute;
       width: 100%;
       height: 100%;
@@ -684,21 +856,15 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       z-index: 10;
     }}
 
-    .no-preview-icon {{
-      font-size: 40pt;
-      color: #334155;
-    }}
-
     .spinner {{
       border: 3px solid rgba(255, 255, 255, 0.1);
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       border-left-color: white;
       animation: spin 0.8s linear infinite;
       display: none;
     }}
-
     @keyframes spin {{
       0% {{ transform: rotate(0deg); }}
       100% {{ transform: rotate(360deg); }}
@@ -713,76 +879,148 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       <img class="header-logo" src="Logo Impor.png" alt="Importadora Rivero" onerror="this.style.display='none'">
       <div class="header-title-container">
         <h1>IMPORTADORA RIVERO</h1>
-        <p>Generador de Catálogos Premium</p>
+        <p>Generador de Catálogos Inteligente</p>
       </div>
     </div>
     
     <div class="status-badge">
       <div class="status-dot"></div>
-      Servidor Activo (Puerto {PORT})
+      Servidor Conectado
     </div>
   </header>
 
   <!-- Dashboard Principal -->
   <main class="dashboard-container">
     
-    <!-- Lado Izquierdo: Controles y Consola -->
+    <!-- Lado Izquierdo: Controles Inteligentes -->
     <div class="glass-panel control-panel">
       
-      <div class="section-title">
-        <svg class="mini-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        Configuración de Generación
+      <!-- Pestañas Inteligentes -->
+      <div class="smart-tabs">
+        <button class="smart-tab-btn active" onclick="switchSmartTab('manual')">
+          <span>📝</span>
+          <span>Pegado</span>
+        </button>
+        <button class="smart-tab-btn" onclick="switchSmartTab('search')">
+          <span>🔍</span>
+          <span>Buscador</span>
+        </button>
+        <button class="smart-tab-btn" onclick="switchSmartTab('brands')">
+          <span>🏷️</span>
+          <span>Marcas</span>
+        </button>
+        <button class="smart-tab-btn" onclick="switchSmartTab('templates')">
+          <span>💾</span>
+          <span>Plantillas</span>
+        </button>
       </div>
-      
-      <!-- Entrada de códigos -->
-      <div class="textarea-container">
-        <label class="label-text" for="codes">Códigos de productos a incluir:</label>
-        <textarea id="codes" placeholder="Pega los códigos aquí (uno por línea)...&#10;Ejemplo:&#10;ACC014&#10;ACC017&#10;ACT080&#10;Deja vacío para procesar todo lo de la nube."></textarea>
+
+      <!-- Barra de Estado de Selección Activa -->
+      <div class="active-banner">
+        <div class="active-badge">
+          <span>🛒</span>
+          <span id="badge-count-text">0 códigos listos</span>
+        </div>
+        <div class="active-actions">
+          <button class="btn-chip" onclick="copiarListaSeleccionada()" title="Copiar códigos">📋 Copiar</button>
+          <button class="btn-chip" onclick="guardarComoPlantillaPrompt()" title="Guardar plantilla">💾 Guardar</button>
+          <button class="btn-chip danger" onclick="limpiarSeleccion()" title="Vaciar selección">🗑️ Limpiar</button>
+        </div>
       </div>
-      
-      <!-- Sincronización en la Nube -->
+
+      <!-- TAB 1: Pegado Manual -->
+      <div class="tab-content active" id="tab-manual">
+        <textarea id="codes" placeholder="Pega los códigos aquí (uno por línea o separados por comas)...&#10;Ejemplo:&#10;DSM02-100&#10;FF02-100&#10;Deja vacío para procesar todo el inventario." oninput="onTextareaChanged()"></textarea>
+      </div>
+
+      <!-- TAB 2: Buscador Visual Predictivo -->
+      <div class="tab-content" id="tab-search">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="search-input" placeholder="🔍 Escribe para buscar (ej. amoladora, taladro, dsm)..." oninput="onSearchInput(this.value)">
+          <button class="search-clear-btn" id="search-clear" onclick="clearSearch()">✕</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5pt; color: var(--text-muted);">
+          <span id="search-results-count">Cargando inventario...</span>
+          <button class="btn-chip" id="btn-add-all-search" onclick="addAllSearchResults()" style="display: none;">⚡ Agregar todos los visibles</button>
+        </div>
+        <div class="product-results-list" id="search-results-list">
+          <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 8.5pt;">Escribe en el buscador para ver productos instantáneamente...</div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Filtro Rápido por Marcas y Categorías -->
+      <div class="tab-content" id="tab-brands">
+        <div style="font-size: 8pt; color: var(--text-muted);">Selecciona una marca para agregar todos sus productos o categorías:</div>
+        <div class="brands-grid" id="brands-grid-container">
+          <div style="grid-column: span 2; text-align: center; padding: 15px; color: var(--text-muted); font-size: 8.5pt;">Cargando marcas del inventario...</div>
+        </div>
+        <div id="brand-categories-wrapper" style="display: none; background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 8px; border: 1px solid var(--border-panel); flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="selected-brand-title" style="font-size: 8.5pt; font-weight: 800; color: var(--primary);"></span>
+            <button class="btn-chip" id="btn-add-entire-brand" onclick="addEntireBrand()">⚡ Agregar toda la marca</button>
+          </div>
+          <div id="brand-categories-chips" style="display: flex; flex-wrap: wrap; gap: 4px; max-height: 80px; overflow-y: auto;"></div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Plantillas Guardadas -->
+      <div class="tab-content" id="tab-templates">
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="new-template-name" placeholder="Nombre de la plantilla..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 6px 10px; border-radius: 6px; font-size: 8.5pt; outline: none;">
+          <button class="btn-chip" onclick="guardarPlantillaDesdeInput()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px;">+ Guardar</button>
+        </div>
+        <div class="templates-list" id="templates-list-container"></div>
+      </div>
+
+      <!-- Ajustes de Generación -->
       <div class="toggle-row">
-        <span class="label-text" style="color: var(--text-main); font-weight: 600;">Sincronizar base de datos desde Google Drive</span>
+        <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">Sincronizar base de datos desde Google Drive</span>
         <label class="switch">
           <input type="checkbox" id="sync" checked>
           <span class="slider"></span>
         </label>
       </div>
       
-      <!-- Forzar imágenes -->
       <div class="toggle-row">
-        <span class="label-text" style="color: var(--accent); font-weight: 700;">Forzar regeneración de imágenes</span>
+        <span class="label-text" style="color: var(--accent); font-weight: 700; font-size: 8.5pt;">Forzar regeneración de imágenes</span>
         <label class="switch">
           <input type="checkbox" id="force_images">
           <span class="slider"></span>
         </label>
       </div>
       
-      <!-- Formato de Diseño PDF -->
       <div class="toggle-row">
-        <span class="label-text" style="color: var(--text-main); font-weight: 600;">Diseño del PDF / Folleto</span>
-        <select id="layout" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 6px 10px; border-radius: 8px; font-family: inherit; font-size: 9.5pt; outline: none; cursor: pointer; font-weight: 700;">
+        <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">Diseño del Folleto</span>
+        <select id="layout" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 5px 8px; border-radius: 6px; font-family: inherit; font-size: 8.5pt; outline: none; cursor: pointer; font-weight: 700;">
           <option value="desktop" selected>A4 Impresora (2 Columnas)</option>
           <option value="mobile">Celular / WhatsApp (1 Columna)</option>
         </select>
+      </div>
+
+      <!-- Teléfono de WhatsApp para pedidos -->
+      <div class="toggle-row">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">WhatsApp Pedidos</span>
+        </div>
+        <input type="text" id="whatsapp" placeholder="Ej: +59170000000" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #25D366; padding: 5px 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; width: 140px; outline: none; font-weight: 700;">
       </div>
       
       <!-- Botón de Generar -->
       <button class="btn-generate" id="btn-run" onclick="iniciarGeneracion()">
         <span class="spinner" id="btn-spinner"></span>
-        <svg class="mini-icon" viewBox="0 0 24 24" style="stroke-width: 2.5; width: 1.2em; height: 1.2em; fill: currentColor; stroke: none; margin-right: 2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         <span id="btn-text">Empezar Generación</span>
       </button>
       
       <!-- Actividad y Logs (Consola) -->
       <div class="console-panel">
-        <div class="section-title" style="margin-top: 10px;">
-          <svg class="mini-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line><line x1="12" y1="17" x2="12" y2="20"></line></svg>
-          Actividad del Servidor
+        <div class="section-title" style="margin-bottom: 6px;">
+          <span>⚡</span>
+          <span>Actividad del Servidor</span>
         </div>
-        <div class="console-output" id="console">Log de actividad listo. Presiona 'Empezar Generación' para iniciar el proceso...</div>
+        <div class="console-output" id="console">Panel listo. Selecciona tus productos y presiona 'Empezar Generación'...</div>
       </div>
-      
 
     </div>
 
@@ -791,28 +1029,23 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       
       <div class="preview-header-bar">
         <div class="preview-title">
-          <svg class="mini-icon" viewBox="0 0 24 24" style="width: 1.15em; height: 1.15em;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           Vista Previa del Catálogo ({mes_año_actual})
         </div>
         
-        <!-- Selectores de pantalla desktop/mobile y Ver Completo -->
         <div class="device-selectors" style="display: flex; gap: 6px;">
           <div style="display: flex; gap: 3px; background: rgba(15, 23, 42, 0.5); padding: 3px; border-radius: 8px; border: 1px solid var(--border-panel);">
             <button class="device-btn active" id="btn-device-desktop" onclick="setDevice('desktop')">
-              <svg class="mini-icon" viewBox="0 0 24 24" style="width: 1.1em; height: 1.1em;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
               Escritorio
             </button>
             <button class="device-btn" id="btn-device-mobile" onclick="setDevice('mobile')">
-              <svg class="mini-icon" viewBox="0 0 24 24" style="width: 1.1em; height: 1.1em;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
               Celular
             </button>
           </div>
           <button class="device-btn" id="btn-full-preview" onclick="verCompleto()" style="background-color: rgba(245, 158, 11, 0.15); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3);" {"" if preview_available == "true" else "disabled"}>
-            <svg class="mini-icon" viewBox="0 0 24 24" style="width: 1.1em; height: 1.1em;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             Ver Completo
           </button>
           <a id="btn-download-html" href="#" download="catalogos_desktop.html" class="device-btn" style="background-color: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); text-decoration: none; display: flex; align-items: center; gap: 6px; pointer-events: none; opacity: 0.5;" onclick="return document.getElementById('btn-download-html').getAttribute('href') !== '#'">
-            <svg class="mini-icon" viewBox="0 0 24 24" style="width: 1.1em; height: 1.1em;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Descargar HTML
           </a>
         </div>
@@ -821,9 +1054,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       <!-- Contenedor del Iframe -->
       <div class="preview-viewport-wrapper">
         <div class="no-preview" id="no-preview" style="display: {'none' if preview_available == 'true' else 'flex'};">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px; opacity: 0.3;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          <h3>El folleto aún no ha sido generado</h3>
-          <p>Los resultados de la vista previa aparecerán en este panel una vez se complete la generación de los productos.</p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px; opacity: 0.3;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <h3 style="margin: 0;">El folleto aún no ha sido generado</h3>
+          <p style="margin: 0; font-size: 9pt;">Los resultados aparecerán aquí una vez inicies la generación.</p>
         </div>
         
         <iframe id="preview-iframe" src="{"catalogos_desktop.html" if desktop_available == "true" else ("catalogos.html" if preview_available == "true" else "about:blank")}" style="display: {'block' if preview_available == 'true' else 'none'};"></iframe>
@@ -840,18 +1073,340 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     const btnSpinner = document.getElementById('btn-spinner');
     const noPreview = document.getElementById('no-preview');
     const iframe = document.getElementById('preview-iframe');
+    const textareaCodes = document.getElementById('codes');
     
     let hasDesktopFile = {desktop_available};
     let hasMobileFile = {mobile_available};
     let currentDevice = 'desktop';
 
+    // ─── ESTADO GLOBAL DE PRODUCTOS Y PLANTILLAS ───
+    let allInventoryProducts = [];
+    let inventoryBrands = {{}};
+    let inventoryCategories = {{}};
+    let selectedCodesSet = new Set();
+    let currentSearchResults = [];
+    let activeBrandSelected = null;
+
+    // Cargar inventario desde API al inicio
+    async function cargarInventarioAPI() {{
+      try {{
+        const res = await fetch('/api/productos');
+        const data = await res.json();
+        allInventoryProducts = data.productos || [];
+        inventoryBrands = data.marcas || {{}};
+        inventoryCategories = data.categorias || {{}};
+        
+        renderBrandsGrid();
+        document.getElementById('search-results-count').innerText = `${{allInventoryProducts.length}} productos disponibles`;
+        initSelectedFromTextarea();
+      }} catch(err) {{
+        console.error("Error al cargar inventario:", err);
+      }}
+    }}
+
+    // Sincronizar códigos activos desde el textarea
+    function initSelectedFromTextarea() {{
+      selectedCodesSet.clear();
+      const raw = textareaCodes.value;
+      const tokens = raw.split(/[\\r\\n,;\\t]+/).map(s => s.trim()).filter(Boolean);
+      tokens.forEach(c => selectedCodesSet.add(c.toUpperCase()));
+      updateActiveCounter();
+    }}
+
+    function onTextareaChanged() {{
+      initSelectedFromTextarea();
+      refreshVisibleSearchButtons();
+    }}
+
+    function syncSetToTextarea() {{
+      textareaCodes.value = Array.from(selectedCodesSet).join('\\n');
+      updateActiveCounter();
+      refreshVisibleSearchButtons();
+    }}
+
+    function updateActiveCounter() {{
+      const count = selectedCodesSet.size;
+      document.getElementById('badge-count-text').innerText = count === 0 ? 'Todo el inventario (0 seleccionados)' : `${{count}} código(s) listos`;
+    }}
+
+    function switchSmartTab(tabId) {{
+      const tabs = ['manual', 'search', 'brands', 'templates'];
+      tabs.forEach(t => {{
+        document.getElementById('tab-' + t).classList.toggle('active', t === tabId);
+      }});
+      
+      const buttons = document.querySelectorAll('.smart-tab-btn');
+      buttons.forEach((btn, idx) => {{
+        btn.classList.toggle('active', tabs[idx] === tabId);
+      }});
+
+      if (tabId === 'templates') renderTemplatesList();
+      if (tabId === 'search') refreshVisibleSearchButtons();
+    }}
+
+    // ─── 1. BÚSQUEDA PREDICTIVA ───
+    function onSearchInput(query) {{
+      const q = query.trim().toUpperCase();
+      const clearBtn = document.getElementById('search-clear');
+      const addAllBtn = document.getElementById('btn-add-all-search');
+      clearBtn.style.display = q ? 'block' : 'none';
+
+      if (!q) {{
+        currentSearchResults = [];
+        document.getElementById('search-results-count').innerText = `${{allInventoryProducts.length}} productos disponibles`;
+        document.getElementById('search-results-list').innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 8.5pt;">Escribe para buscar por código, nombre o medida...</div>';
+        addAllBtn.style.display = 'none';
+        return;
+      }}
+
+      // Búsqueda multi-palabra
+      const words = q.split(/\\s+/);
+      currentSearchResults = allInventoryProducts.filter(p => {{
+        const target = `${{p.cod}} ${{p.nombre}} ${{p.marca}} ${{p.categoria}} ${{p.size}}`.toUpperCase();
+        return words.every(w => target.includes(w));
+      }}).slice(0, 40); // Mostrar máximo 40 resultados por fluidez
+
+      document.getElementById('search-results-count').innerText = `${{currentSearchResults.length}} resultado(s) encontrado(s)`;
+      addAllBtn.style.display = currentSearchResults.length > 0 ? 'inline-block' : 'none';
+
+      renderSearchResultsList(currentSearchResults);
+    }}
+
+    function renderSearchResultsList(items) {{
+      const container = document.getElementById('search-results-list');
+      if (items.length === 0) {{
+        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #EF4444; font-size: 8.5pt;">No se encontraron productos coincidentes.</div>';
+        return;
+      }}
+
+      let html = '';
+      items.forEach(p => {{
+        const isAdded = selectedCodesSet.has(p.cod.toUpperCase());
+        html += `
+          <div class="product-item-row">
+            <div class="product-item-info">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="product-item-code">${{p.cod}}</span>
+                <span style="font-size: 7pt; background: rgba(245,158,11,0.12); color: var(--primary); padding: 1px 5px; border-radius: 4px;">${{p.marca}}</span>
+                ${{p.size ? `<span style="font-size: 7pt; color: #94A3B8;">${{p.size}}</span>` : ''}}
+              </div>
+              <div class="product-item-name" title="${{p.nombre}}">${{p.nombre}}</div>
+            </div>
+            <button class="btn-item-add ${{isAdded ? 'added' : ''}}" onclick="toggleProductCode('${{p.cod}}', this)">
+              ${{isAdded ? '✓ Agregado' : '+ Agregar'}}
+            </button>
+          </div>
+        `;
+      }});
+      container.innerHTML = html;
+    }}
+
+    function toggleProductCode(code, btn) {{
+      const upper = code.toUpperCase();
+      if (selectedCodesSet.has(upper)) {{
+        selectedCodesSet.delete(upper);
+        if (btn) {{ btn.classList.remove('added'); btn.innerText = '+ Agregar'; }}
+      }} else {{
+        selectedCodesSet.add(upper);
+        if (btn) {{ btn.classList.add('added'); btn.innerText = '✓ Agregado'; }}
+      }}
+      syncSetToTextarea();
+    }}
+
+    function addAllSearchResults() {{
+      currentSearchResults.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+      syncSetToTextarea();
+      renderSearchResultsList(currentSearchResults);
+    }}
+
+    function clearSearch() {{
+      const input = document.getElementById('search-input');
+      input.value = '';
+      onSearchInput('');
+      input.focus();
+    }}
+
+    function refreshVisibleSearchButtons() {{
+      if (currentSearchResults.length > 0) {{
+        renderSearchResultsList(currentSearchResults);
+      }}
+    }}
+
+    // ─── 2. FILTRO POR MARCAS Y CATEGORÍAS ───
+    function renderBrandsGrid() {{
+      const container = document.getElementById('brands-grid-container');
+      const brandKeys = Object.keys(inventoryBrands);
+      if (brandKeys.length === 0) {{
+        container.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 15px; color: var(--text-muted); font-size: 8.5pt;">No se detectaron marcas en el Excel.</div>';
+        return;
+      }}
+
+      let html = '';
+      brandKeys.forEach(brand => {{
+        const count = inventoryBrands[brand];
+        html += `
+          <button class="brand-card-btn" onclick="selectBrandFilter('${{brand}}')">
+            <span class="brand-card-name">${{brand}}</span>
+            <span class="brand-card-count">${{count}}</span>
+          </button>
+        `;
+      }});
+      container.innerHTML = html;
+    }}
+
+    function selectBrandFilter(brand) {{
+      activeBrandSelected = brand;
+      const wrapper = document.getElementById('brand-categories-wrapper');
+      wrapper.style.display = 'flex';
+      document.getElementById('selected-brand-title').innerText = `${{brand}} (${{inventoryBrands[brand]}} productos)`;
+
+      const catsObj = inventoryCategories[brand] || {{}};
+      let chipsHtml = '';
+      Object.keys(catsObj).forEach(cat => {{
+        const cnt = catsObj[cat];
+        chipsHtml += `
+          <button class="btn-chip" onclick="addCategoryProducts('${{brand}}', '${{cat}}')">
+            + ${{cat}} (${{cnt}})
+          </button>
+        `;
+      }});
+      document.getElementById('brand-categories-chips').innerHTML = chipsHtml;
+    }}
+
+    function addEntireBrand() {{
+      if (!activeBrandSelected) return;
+      const prods = allInventoryProducts.filter(p => p.marca.toUpperCase() === activeBrandSelected.toUpperCase());
+      prods.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+      syncSetToTextarea();
+      log(`[INFO] Se agregaron ${{prods.length}} productos de ${{activeBrandSelected}} a la selección.`);
+    }}
+
+    function addCategoryProducts(brand, cat) {{
+      const prods = allInventoryProducts.filter(p => p.marca.toUpperCase() === brand.toUpperCase() && p.categoria.toUpperCase() === cat.toUpperCase());
+      prods.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+      syncSetToTextarea();
+      log(`[INFO] Se agregaron ${{prods.length}} productos de ${{brand}} > ${{cat}}.`);
+    }}
+
+    // ─── 3. GESTOR DE PLANTILLAS ───
+    function getStoredTemplates() {{
+      const defaultTemplates = [
+        {{ name: '🌟 Top Ventas General', codes: ['ACC014', 'ACC017', 'ACT080', 'DSM02-100'] }},
+        {{ name: '⚡ Herramientas DongCheng & Crown', codes: ['DSM02-100', 'FF02-100', 'CT10128'] }}
+      ];
+      try {{
+        const stored = localStorage.getItem('rivero_catalog_templates');
+        return stored ? JSON.parse(stored) : defaultTemplates;
+      }} catch(e) {{
+        return defaultTemplates;
+      }}
+    }}
+
+    function saveStoredTemplates(templates) {{
+      localStorage.setItem('rivero_catalog_templates', JSON.stringify(templates));
+      renderTemplatesList();
+    }}
+
+    function renderTemplatesList() {{
+      const container = document.getElementById('templates-list-container');
+      const templates = getStoredTemplates();
+      if (templates.length === 0) {{
+        container.innerHTML = '<div style="text-align: center; padding: 15px; color: var(--text-muted); font-size: 8.5pt;">No tienes plantillas guardadas.</div>';
+        return;
+      }}
+
+      let html = '';
+      templates.forEach((t, idx) => {{
+        html += `
+          <div class="template-item">
+            <div class="template-info">
+              <span class="template-name">${{t.name}}</span>
+              <span class="template-count">${{t.codes.length}} producto(s)</span>
+            </div>
+            <div class="template-actions">
+              <button class="btn-chip" onclick="loadTemplateByIndex(${{idx}})" style="background: rgba(245, 158, 11, 0.2); color: var(--primary); border-color: rgba(245, 158, 11, 0.3);">Cargar</button>
+              <button class="btn-chip danger" onclick="deleteTemplateByIndex(${{idx}})">✕</button>
+            </div>
+          </div>
+        `;
+      }});
+      container.innerHTML = html;
+    }}
+
+    function guardarPlantillaDesdeInput() {{
+      const input = document.getElementById('new-template-name');
+      const name = input.value.trim();
+      if (!name) {{
+        alert("Escribe un nombre para la plantilla.");
+        return;
+      }}
+      if (selectedCodesSet.size === 0) {{
+        alert("Primero selecciona o pega códigos para guardar en la plantilla.");
+        return;
+      }}
+
+      const templates = getStoredTemplates();
+      templates.unshift({{ name: name, codes: Array.from(selectedCodesSet) }});
+      saveStoredTemplates(templates);
+      input.value = '';
+      log(`[OK] Plantilla '${{name}}' guardada exitosamente con ${{selectedCodesSet.size}} productos.`);
+    }}
+
+    function guardarComoPlantillaPrompt() {{
+      if (selectedCodesSet.size === 0) {{
+        alert("No tienes códigos seleccionados para guardar.");
+        return;
+      }}
+      const name = prompt("Escribe el nombre de la nueva plantilla:", "Catálogo " + new Date().toLocaleDateString('es-ES'));
+      if (name && name.trim()) {{
+        const templates = getStoredTemplates();
+        templates.unshift({{ name: name.trim(), codes: Array.from(selectedCodesSet) }});
+        saveStoredTemplates(templates);
+        log(`[OK] Plantilla '${{name.trim()}}' guardada exitosamente.`);
+      }}
+    }}
+
+    function loadTemplateByIndex(idx) {{
+      const templates = getStoredTemplates();
+      const t = templates[idx];
+      if (t && t.codes) {{
+        selectedCodesSet.clear();
+        t.codes.forEach(c => selectedCodesSet.add(c.toUpperCase()));
+        syncSetToTextarea();
+        log(`[OK] Plantilla '${{t.name}}' cargada con ${{t.codes.length}} productos.`);
+      }}
+    }}
+
+    function deleteTemplateByIndex(idx) {{
+      if (!confirm("¿Deseas eliminar esta plantilla guardada?")) return;
+      const templates = getStoredTemplates();
+      templates.splice(idx, 1);
+      saveStoredTemplates(templates);
+    }}
+
+    function limpiarSeleccion() {{
+      selectedCodesSet.clear();
+      textareaCodes.value = '';
+      updateActiveCounter();
+      refreshVisibleSearchButtons();
+      log("[INFO] Selección de productos vaciada.");
+    }}
+
+    function copiarListaSeleccionada() {{
+      const text = Array.from(selectedCodesSet).join('\\n');
+      if (!text) {{
+        alert("No hay códigos para copiar.");
+        return;
+      }}
+      navigator.clipboard.writeText(text).then(() => {{
+        alert(`¡Copiados ${{selectedCodesSet.size}} códigos al portapapeles!`);
+      }});
+    }}
+
+    // ─── GENERACIÓN Y VISTA PREVIA ───
     function getHtmlUrl(device) {{
-      if (device === 'mobile' && hasMobileFile) {{
-        return 'catalogos_mobile.html';
-      }}
-      if (device === 'desktop' && hasDesktopFile) {{
-        return 'catalogos_desktop.html';
-      }}
+      if (device === 'mobile' && hasMobileFile) return 'catalogos_mobile.html';
+      if (device === 'desktop' && hasDesktopFile) return 'catalogos_desktop.html';
       return 'catalogos.html';
     }}
 
@@ -895,38 +1450,29 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         iframe.src = fileUrl + '?t=' + Date.now();
       }}
       
-      if (device === 'mobile') {{
-        iframe.className = 'view-mobile';
-      }} else {{
-        iframe.className = '';
-      }}
-      
+      iframe.className = (device === 'mobile') ? 'view-mobile' : '';
       updateDownloadHtmlLink();
     }}
     
     function iniciarGeneracion() {{
-      const codes = document.getElementById('codes').value;
+      const codes = textareaCodes.value;
       const sync = document.getElementById('sync').checked;
       const layout = document.getElementById('layout').value;
       const forceImages = document.getElementById('force_images').checked;
+      const whatsapp = document.getElementById('whatsapp').value;
       
-      // Limpiar consola
       consoleDiv.innerHTML = '';
       log(">>> Iniciando petición al backend...");
       
-      // Bloquear controles
       btnRun.disabled = true;
       btnText.innerText = "Procesando...";
       btnSpinner.style.display = "block";
       
-      // Conectar mediante EventSource (SSE)
-      const url = `/generar?codes=${{encodeURIComponent(codes)}}&sync=${{sync}}&layout=${{layout}}&force_images=${{forceImages}}`;
+      const url = `/generar?codes=${{encodeURIComponent(codes)}}&sync=${{sync}}&layout=${{layout}}&force_images=${{forceImages}}&whatsapp=${{encodeURIComponent(whatsapp)}}`;
       const source = new EventSource(url);
       
       source.onmessage = function(event) {{
         const msg = event.data;
-        
-        // Manejar señales especiales de fin
         if (msg.startsWith("EVENT_SUCCESS:")) {{
           log(msg.replace("EVENT_SUCCESS:", ""), "success");
           source.close();
@@ -959,11 +1505,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         
         noPreview.style.display = 'none';
         iframe.style.display = 'block';
-        
-        // Cargar según el dispositivo seleccionado actualmente
         setDevice(currentDevice);
-        
-        // Habilitar botón de pantalla completa
         document.getElementById('btn-full-preview').disabled = false;
       }}
     }}
@@ -972,10 +1514,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const fileUrl = getHtmlUrl(currentDevice);
       window.open(fileUrl + '?t=' + Date.now(), '_blank');
     }}
-    
-    // Funciones de escritorio desactivadas por seguridad en red local
-    
-    // Inicializar el link de descarga al cargar la página
+
+    // Iniciar carga del inventario y estado
+    cargarInventarioAPI();
     updateDownloadHtmlLink();
   </script>
 </body>

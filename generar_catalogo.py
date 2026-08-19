@@ -694,9 +694,10 @@ def exportar_a_pdf(excel_path, pdf_path, sheet_name, forzar_imagenes=False):
     print("\n>>> Iniciando exportación rápida a PDF desde base de datos...")
     return generar(descargar_nube=False, forzar_imagenes=forzar_imagenes)
 
-def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", output_filename="catalogos.html", forzar_imagenes=False, db_norm=None, db_clean=None):
+def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", output_filename="catalogos.html", forzar_imagenes=False, db_norm=None, db_clean=None, whatsapp_phone=None):
     import os
     import re
+    import urllib.parse
     def to_base64_src(path_or_bytes, default_mime="image/png"):
         if not path_or_bytes:
             return ""
@@ -1573,6 +1574,33 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       padding: 10px 14px;
       font-weight: 700;
     }
+    
+    /* WhatsApp Direct Contact Button */
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #25D366;
+      color: #FFFFFF !important;
+      text-decoration: none;
+      font-size: 8.5pt;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-whatsapp:hover {
+      background: #20BA5A;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.45);
+    }
+    .btn-whatsapp svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
   </style>
 </head>
 <body>
@@ -1753,9 +1781,20 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append(f'              Medida: {prod["size"]}')
                 html_out.append('            </div>')
                 
+                # Enlace directo de cotización por WhatsApp
+                wa_msg = urllib.parse.quote(f"Hola Importadora Rivero, deseo cotizar el producto:\n* Código: {prod['cod']}\n* Nombre: {prod['nombre']}\n* Marca: {brand_name}")
+                clean_phone = re.sub(r'[^\d]', '', str(whatsapp_phone or ''))
+                if clean_phone:
+                    wa_url = f"https://wa.me/{clean_phone}?text={wa_msg}"
+                else:
+                    wa_url = f"https://api.whatsapp.com/send?text={wa_msg}"
+                
                 html_out.append('            <div class="card-footer">')
                 html_out.append(f'              <span class="packaging-info">Caja: -- {prod["uni"]}</span>')
-                html_out.append('              <span class="availability-pill">Disponible</span>')
+                html_out.append(f'              <a href="{wa_url}" target="_blank" class="btn-whatsapp" title="Cotizar {prod["cod"]} por WhatsApp">')
+                html_out.append('                <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>')
+                html_out.append('                <span>Cotizar</span>')
+                html_out.append('              </a>')
                 html_out.append('            </div>')
                 
                 html_out.append('          </div>') # card-body
@@ -1781,11 +1820,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             print(f"  [AVISO] No se pudo guardar el archivo de hashes de imágenes: {e}")
         
     if no_encontrados:
-        print(f"\n  AVISO: Códigos no encontrados en la base de datos: {no_encontrados}")
+        print(f"\n  [AVISO] {len(no_encontrados)} producto(s) NO encontrado(s) en la base de datos:")
+        for no_cod in no_encontrados:
+            print(f"    - Código: {no_cod}")
+    else:
+        print(f"\n  [OK] ¡Los {len(codigos)} productos solicitados fueron encontrados y generados con éxito!")
         
     return html_path, total_prods
 
-def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False):
+def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None):
     # Copiar Excel local de la raíz si existe y es más nuevo que la caché
     local_root_excel = "catalogos.xlsx"
     if os.path.exists(local_root_excel):
@@ -1951,27 +1994,108 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
             print(f"  [AVISO] No se pudo optimizar el tamaño de '{ARCHIVO_EXCEL}': {e}")
 
     # 5. Generar HTML y extraer fotos a disco (primero el layout seleccionado)
-    html_file, total_prods = generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=layout, output_filename="catalogos.html", forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean)
+    html_file, total_prods = generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=layout, output_filename="catalogos.html", forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean, whatsapp_phone=whatsapp_phone)
 
     # También generar copias de ambos layouts
     try:
         otro_layout = "mobile" if layout == "desktop" else "desktop"
         otro_filename = f"catalogos_{otro_layout}.html"
-        generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=otro_layout, output_filename=otro_filename, forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean)
+        generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=otro_layout, output_filename=otro_filename, forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean, whatsapp_phone=whatsapp_phone)
         # Guardar el diseño actual con su nombre específico también
-        generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=layout, output_filename=f"catalogos_{layout}.html", forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean)
+        generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=layout, output_filename=f"catalogos_{layout}.html", forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean, whatsapp_phone=whatsapp_phone)
         print(f"  [HTML] Generadas copias específicas: 'catalogos_desktop.html' y 'catalogos_mobile.html'")
     except Exception as e:
         print(f"  [AVISO] No se pudo generar la copia del diseño alternativo: {e}")
 
     # 6. Proceso completado exitosamente (Solo HTML)
+    total_no_encontrados = len([c for c in codigos if not buscar_producto_en_db(c, db, db_norm, db_clean)])
     print(f"\n[OK] ¡Proceso completado exitosamente!")
     print(f"  Catálogo HTML: {html_file}")
-    print(f"  Total productos: {total_prods}")
+    print(f"  Total productos generados: {total_prods}")
+    if total_no_encontrados > 0:
+        print(f"  Total productos NO encontrados: {total_no_encontrados} (revisa el listado de avisos arriba)")
+    else:
+        print(f"  Todos los productos fueron encontrados correctamente.")
 
-# Meses diccionario global para generar_html_y_imagenes
-mes_nombres = {1:"ENERO",2:"FEBRERO",3:"MARZO",4:"ABRIL",5:"MAYO",6:"JUNIO",
-               7:"JULIO",8:"AGOSTO",9:"SEPTIEMBRE",10:"OCTUBRE",11:"NOVIEMBRE",12:"DICIEMBRE"}
+def obtener_resumen_inventario():
+    """
+    Lee el archivo Excel disponible y retorna un resumen ligero de productos, marcas y categorías
+    para alimentar el buscador predictivo y los filtros del panel web.
+    """
+    excel_path = ARCHIVO_EXCEL
+    if not os.path.exists(excel_path):
+        if os.path.exists("catalogos.xlsx"):
+            excel_path = "catalogos.xlsx"
+        else:
+            return {"productos": [], "marcas": {}, "categorias": {}, "total": 0}
+            
+    try:
+        wb = load_workbook(excel_path, data_only=True)
+    except Exception:
+        return {"productos": [], "marcas": {}, "categorias": {}, "total": 0}
+        
+    hojas_inv = detectar_hojas_inventario(wb)
+    productos = []
+    marcas = {}
+    categorias = {}
+    vistos = set()
+    
+    for ws_cur in hojas_inv:
+        cols_cfg, fila_inicio = detectar_columnas(ws_cur)
+        col_c = cols_cfg["codigo"]
+        col_cat = cols_cfg["categoria"]
+        col_tip = cols_cfg["tipo"]
+        col_nom = cols_cfg["nombre"]
+        col_siz = cols_cfg["size"]
+        col_det = cols_cfg["detalle"]
+        col_uni = cols_cfg["uni"]
+        
+        consecutive_empty = 0
+        max_r = min(ws_cur.max_row + 50, 30000) if ws_cur.max_row else 15000
+        
+        for row in range(fila_inicio, max_r):
+            cod_val = ws_cur.cell(row=row, column=col_c).value
+            if cod_val is None or str(cod_val).strip() == "":
+                consecutive_empty += 1
+                if consecutive_empty >= 150:
+                    break
+                continue
+            
+            consecutive_empty = 0
+            cod_str = normalizar_codigo(cod_val)
+            if not cod_str or cod_str.upper() in vistos:
+                continue
+            vistos.add(cod_str.upper())
+            
+            nombre_str = str(ws_cur.cell(row=row, column=col_nom).value or "").strip()
+            cat_str = str(ws_cur.cell(row=row, column=col_cat).value or "Sin Categoría").strip() or "Sin Categoría"
+            tipo_str = str(ws_cur.cell(row=row, column=col_tip).value or "OTRO").strip() or "OTRO"
+            size_str = str(ws_cur.cell(row=row, column=col_siz).value or "").strip()
+            uni_str = str(ws_cur.cell(row=row, column=col_uni).value or "pcs").strip()
+            
+            brand_theme = get_brand_theme(tipo_str)
+            brand_name = brand_theme["display_name"]
+            
+            productos.append({
+                "cod": cod_str,
+                "nombre": nombre_str,
+                "categoria": cat_str,
+                "marca": brand_name,
+                "size": size_str,
+                "uni": uni_str
+            })
+            
+            marcas[brand_name] = marcas.get(brand_name, 0) + 1
+            if brand_name not in categorias:
+                categorias[brand_name] = {}
+            categorias[brand_name][cat_str] = categorias[brand_name].get(cat_str, 0) + 1
+            
+    return {
+        "productos": productos,
+        "marcas": marcas,
+        "categorias": categorias,
+        "total": len(productos)
+    }
 
 if __name__ == "__main__":
     generar()
