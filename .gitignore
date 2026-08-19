@@ -1,0 +1,22 @@
+# Entornos virtuales y caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Archivos pesados que superan el límite de 100MB de GitHub
+*.xlsx
+*.xls
+505AC000
+
+# Carpeta temporal de imágenes descargadas / generadas
+temp_imgs/
+
+# Archivos PDF generados (para no sobrecargar el repositorio)
+*.pdf
+
+# Archivos del sistema
+Thumbs.db
+.DS_Store
