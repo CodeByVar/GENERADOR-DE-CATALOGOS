@@ -898,19 +898,19 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       <!-- Pestañas Inteligentes -->
       <div class="smart-tabs">
         <button class="smart-tab-btn active" onclick="switchSmartTab('manual')">
-          <span>📝</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
           <span>Pegado</span>
         </button>
         <button class="smart-tab-btn" onclick="switchSmartTab('search')">
-          <span>🔍</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <span>Buscador</span>
         </button>
         <button class="smart-tab-btn" onclick="switchSmartTab('brands')">
-          <span>🏷️</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
           <span>Marcas</span>
         </button>
         <button class="smart-tab-btn" onclick="switchSmartTab('templates')">
-          <span>💾</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
           <span>Plantillas</span>
         </button>
       </div>
@@ -918,13 +918,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       <!-- Barra de Estado de Selección Activa -->
       <div class="active-banner">
         <div class="active-badge">
-          <span>🛒</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
           <span id="badge-count-text">0 códigos listos</span>
         </div>
         <div class="active-actions">
-          <button class="btn-chip" onclick="copiarListaSeleccionada()" title="Copiar códigos">📋 Copiar</button>
-          <button class="btn-chip" onclick="guardarComoPlantillaPrompt()" title="Guardar plantilla">💾 Guardar</button>
-          <button class="btn-chip danger" onclick="limpiarSeleccion()" title="Vaciar selección">🗑️ Limpiar</button>
+          <button class="btn-chip" onclick="copiarListaSeleccionada()" title="Copiar códigos" style="display: flex; align-items: center; gap: 4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copiar</span>
+          </button>
+          <button class="btn-chip" onclick="guardarComoPlantillaPrompt()" title="Guardar plantilla" style="display: flex; align-items: center; gap: 4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline></svg>
+            <span>Guardar</span>
+          </button>
+          <button class="btn-chip danger" onclick="limpiarSeleccion()" title="Vaciar selección" style="display: flex; align-items: center; gap: 4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Limpiar</span>
+          </button>
         </div>
       </div>
 
@@ -935,16 +944,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       <!-- TAB 2: Buscador Visual Predictivo -->
       <div class="tab-content" id="tab-search">
-        <div class="search-input-wrapper">
-          <input type="text" class="search-input" id="search-input" placeholder="🔍 Escribe para buscar (ej. amoladora, taladro, dsm)..." oninput="onSearchInput(this.value)">
-          <button class="search-clear-btn" id="search-clear" onclick="clearSearch()">✕</button>
+        <div class="search-input-wrapper" style="position: relative;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 10px; color: var(--text-muted);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-input" id="search-input" placeholder="Buscar por código, nombre o medida..." style="padding-left: 32px;" oninput="onSearchInput(this.value)">
+          <button class="search-clear-btn" id="search-clear" onclick="clearSearch()" style="display: none; align-items: center; justify-content: center;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5pt; color: var(--text-muted);">
           <span id="search-results-count">Cargando inventario...</span>
-          <button class="btn-chip" id="btn-add-all-search" onclick="addAllSearchResults()" style="display: none;">⚡ Agregar todos los visibles</button>
+          <button class="btn-chip" id="btn-add-all-search" onclick="addAllSearchResults()" style="display: none; align-items: center; gap: 4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Agregar visibles</span>
+          </button>
         </div>
         <div class="product-results-list" id="search-results-list">
-          <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 8.5pt;">Escribe en el buscador para ver productos instantáneamente...</div>
+          <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 8.5pt;">Escribe para buscar productos al instante...</div>
         </div>
       </div>
 
@@ -957,7 +972,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         <div id="brand-categories-wrapper" style="display: none; background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 8px; border: 1px solid var(--border-panel); flex-direction: column; gap: 6px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span id="selected-brand-title" style="font-size: 8.5pt; font-weight: 800; color: var(--primary);"></span>
-            <button class="btn-chip" id="btn-add-entire-brand" onclick="addEntireBrand()">⚡ Agregar toda la marca</button>
+            <button class="btn-chip" id="btn-add-entire-brand" onclick="addEntireBrand()" style="display: flex; align-items: center; gap: 4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Agregar toda la marca</span>
+            </button>
           </div>
           <div id="brand-categories-chips" style="display: flex; flex-wrap: wrap; gap: 4px; max-height: 80px; overflow-y: auto;"></div>
         </div>
@@ -967,7 +985,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       <div class="tab-content" id="tab-templates">
         <div style="display: flex; gap: 6px;">
           <input type="text" id="new-template-name" placeholder="Nombre de la plantilla..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 6px 10px; border-radius: 6px; font-size: 8.5pt; outline: none;">
-          <button class="btn-chip" onclick="guardarPlantillaDesdeInput()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px;">+ Guardar</button>
+          <button class="btn-chip" onclick="guardarPlantillaDesdeInput()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px; font-weight: 800;">Guardar</button>
         </div>
         <div class="templates-list" id="templates-list-container"></div>
       </div>
@@ -1009,14 +1027,14 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       <!-- Botón de Generar -->
       <button class="btn-generate" id="btn-run" onclick="iniciarGeneracion()">
         <span class="spinner" id="btn-spinner"></span>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         <span id="btn-text">Empezar Generación</span>
       </button>
       
       <!-- Actividad y Logs (Consola) -->
       <div class="console-panel">
         <div class="section-title" style="margin-bottom: 6px;">
-          <span>⚡</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
           <span>Actividad del Servidor</span>
         </div>
         <div class="console-output" id="console">Panel listo. Selecciona tus productos y presiona 'Empezar Generación'...</div>
@@ -1029,24 +1047,28 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       
       <div class="preview-header-bar">
         <div class="preview-title">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           Vista Previa del Catálogo ({mes_año_actual})
         </div>
         
         <div class="device-selectors" style="display: flex; gap: 6px;">
           <div style="display: flex; gap: 3px; background: rgba(15, 23, 42, 0.5); padding: 3px; border-radius: 8px; border: 1px solid var(--border-panel);">
-            <button class="device-btn active" id="btn-device-desktop" onclick="setDevice('desktop')">
-              Escritorio
+            <button class="device-btn active" id="btn-device-desktop" onclick="setDevice('desktop')" style="display: flex; align-items: center; gap: 5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <span>Escritorio</span>
             </button>
-            <button class="device-btn" id="btn-device-mobile" onclick="setDevice('mobile')">
-              Celular
+            <button class="device-btn" id="btn-device-mobile" onclick="setDevice('mobile')" style="display: flex; align-items: center; gap: 5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <span>Celular</span>
             </button>
           </div>
-          <button class="device-btn" id="btn-full-preview" onclick="verCompleto()" style="background-color: rgba(245, 158, 11, 0.15); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3);" {"" if preview_available == "true" else "disabled"}>
-            Ver Completo
+          <button class="device-btn" id="btn-full-preview" onclick="verCompleto()" style="background-color: rgba(245, 158, 11, 0.15); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; gap: 5px;" {"" if preview_available == "true" else "disabled"}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            <span>Ver Completo</span>
           </button>
-          <a id="btn-download-html" href="#" download="catalogos_desktop.html" class="device-btn" style="background-color: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); text-decoration: none; display: flex; align-items: center; gap: 6px; pointer-events: none; opacity: 0.5;" onclick="return document.getElementById('btn-download-html').getAttribute('href') !== '#'">
-            Descargar HTML
+          <a id="btn-download-html" href="#" download="catalogos_desktop.html" class="device-btn" style="background-color: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); text-decoration: none; display: flex; align-items: center; gap: 5px; pointer-events: none; opacity: 0.5;" onclick="return document.getElementById('btn-download-html').getAttribute('href') !== '#'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Descargar HTML</span>
           </a>
         </div>
       </div>
@@ -1192,8 +1214,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
               </div>
               <div class="product-item-name" title="${{p.nombre}}">${{p.nombre}}</div>
             </div>
-            <button class="btn-item-add ${{isAdded ? 'added' : ''}}" onclick="toggleProductCode('${{p.cod}}', this)">
-              ${{isAdded ? '✓ Agregado' : '+ Agregar'}}
+            <button class="btn-item-add ${{isAdded ? 'added' : ''}}" onclick="toggleProductCode('${{p.cod}}', this)" style="display: flex; align-items: center; gap: 4px;">
+              ${{isAdded 
+                ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Agregado</span>' 
+                : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Agregar</span>'}}
             </button>
           </div>
         `;
@@ -1205,10 +1229,16 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const upper = code.toUpperCase();
       if (selectedCodesSet.has(upper)) {{
         selectedCodesSet.delete(upper);
-        if (btn) {{ btn.classList.remove('added'); btn.innerText = '+ Agregar'; }}
+        if (btn) {{
+          btn.classList.remove('added');
+          btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Agregar</span>';
+        }}
       }} else {{
         selectedCodesSet.add(upper);
-        if (btn) {{ btn.classList.add('added'); btn.innerText = '✓ Agregado'; }}
+        if (btn) {{
+          btn.classList.add('added');
+          btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Agregado</span>';
+        }}
       }}
       syncSetToTextarea();
     }}
@@ -1265,8 +1295,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       Object.keys(catsObj).forEach(cat => {{
         const cnt = catsObj[cat];
         chipsHtml += `
-          <button class="btn-chip" onclick="addCategoryProducts('${{brand}}', '${{cat}}')">
-            + ${{cat}} (${{cnt}})
+          <button class="btn-chip" onclick="addCategoryProducts('${{brand}}', '${{cat}}')" style="display: flex; align-items: center; gap: 4px;">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>${{cat}} (${{cnt}})</span>
           </button>
         `;
       }});
@@ -1291,8 +1322,8 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     // ─── 3. GESTOR DE PLANTILLAS ───
     function getStoredTemplates() {{
       const defaultTemplates = [
-        {{ name: '🌟 Top Ventas General', codes: ['ACC014', 'ACC017', 'ACT080', 'DSM02-100'] }},
-        {{ name: '⚡ Herramientas DongCheng & Crown', codes: ['DSM02-100', 'FF02-100', 'CT10128'] }}
+        {{ name: 'Top Ventas General', codes: ['ACC014', 'ACC017', 'ACT080', 'DSM02-100'] }},
+        {{ name: 'Herramientas DongCheng & Crown', codes: ['DSM02-100', 'FF02-100', 'CT10128'] }}
       ];
       try {{
         const stored = localStorage.getItem('rivero_catalog_templates');
@@ -1324,8 +1355,13 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
               <span class="template-count">${{t.codes.length}} producto(s)</span>
             </div>
             <div class="template-actions">
-              <button class="btn-chip" onclick="loadTemplateByIndex(${{idx}})" style="background: rgba(245, 158, 11, 0.2); color: var(--primary); border-color: rgba(245, 158, 11, 0.3);">Cargar</button>
-              <button class="btn-chip danger" onclick="deleteTemplateByIndex(${{idx}})">✕</button>
+              <button class="btn-chip" onclick="loadTemplateByIndex(${{idx}})" style="background: rgba(245, 158, 11, 0.2); color: var(--primary); border-color: rgba(245, 158, 11, 0.3); display: flex; align-items: center; gap: 4px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                <span>Cargar</span>
+              </button>
+              <button class="btn-chip danger" onclick="deleteTemplateByIndex(${{idx}})" title="Eliminar" style="display: flex; align-items: center; justify-content: center; padding: 4px 6px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
             </div>
           </div>
         `;
