@@ -1609,36 +1609,40 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       align-items: center;
       margin-top: auto;
       padding-top: 8px;
-      gap: 6px;
-      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .packaging-info {
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #64748B;
+      white-space: nowrap;
     }
     .order-selectors-dual {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-wrap: wrap;
       margin-left: auto;
     }
     .qty-group {
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
     }
     .qty-label {
       font-size: 7.5pt;
       font-weight: 800;
-      color: #64748B;
+      color: #475569;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
     }
     .product-qty-selector {
       display: inline-flex;
       align-items: center;
       background: #F1F5F9;
       border: 1.5px solid #CBD5E1;
-      border-radius: 18px;
+      border-radius: 16px;
       padding: 1px 3px;
-      gap: 2px;
+      gap: 1px;
       transition: all 0.2s ease;
     }
     .product-qty-selector:focus-within {
@@ -1650,13 +1654,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: #FFFFFF;
       border: 1px solid #CBD5E1;
       color: #0F172A;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10.5pt;
+      font-size: 10pt;
       font-weight: 800;
       cursor: pointer;
       line-height: 1;
@@ -1670,12 +1674,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       border-color: #0F172A;
     }
     .input-qty {
-      width: 28px;
+      width: 24px;
       border: none;
       background: transparent;
       text-align: center;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 8.5pt;
+      font-size: 8pt;
       font-weight: 800;
       color: #0F172A;
       outline: none;
@@ -1693,19 +1697,23 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       box-shadow: 0 6px 20px rgba(37, 211, 102, 0.25) !important;
     }
 
-    /* ──── BARRA DE BÚSQUEDA EN VIVO PARA EL CLIENTE (STICKY) ──── */
+    /* ──── BARRA DE BÚSQUEDA EN VIVO PARA EL CLIENTE (STICKY FLOTANTE REDONDEADA) ──── */
     .catalog-search-sticky-bar {
       position: sticky;
-      top: 0;
+      top: 12px;
       z-index: 150;
       background: rgba(15, 23, 42, 0.94);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      padding: 12px 18px;
+      margin: 16px auto 24px auto;
+      max-width: 1200px;
+      width: calc(100% - 32px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
       font-family: 'Plus Jakarta Sans', sans-serif;
+      box-sizing: border-box;
     }
     .catalog-search-inner {
       max-width: 1200px;
@@ -2366,11 +2374,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     html_out.append('      </div>')
     html_out.append('    </div>')
     html_out.append('    <div class="brand-filter-chips">')
-    html_out.append(f'      <button type="button" id="chip-brand-all" class="brand-chip active" onclick="filterByBrand(\'all\')">Todas ({total_prods})</button>')
+    html_out.append(f'      <button type="button" class="brand-chip active" data-brand-chip="all" onclick="filterByBrand(\'all\')">Todas ({total_prods})</button>')
     for b_name_chip in brands_orden:
         b_count_chip = sum(len(prods) for prods in brands_prods[b_name_chip].values())
         safe_b_chip = b_name_chip.replace('"', '&quot;').replace("'", "&#39;")
-        html_out.append(f'      <button type="button" id="chip-brand-{safe_b_chip}" class="brand-chip" onclick="filterByBrand(\'{safe_b_chip}\')">{safe_b_chip} ({b_count_chip})</button>')
+        html_out.append(f'      <button type="button" class="brand-chip" data-brand-chip="{safe_b_chip}" onclick="filterByBrand(\'{safe_b_chip}\')">{safe_b_chip} ({b_count_chip})</button>')
     html_out.append('    </div>')
     html_out.append('  </div>')
     
@@ -2464,7 +2472,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             
             for prod in prods:
                 search_text = f"{prod['cod']} {prod['nombre']} {prod['size']} {b_name} {cat}".replace('"', '&quot;')
-                html_out.append(f'        <div class="{card_class}" data-search="{search_text}" data-brand="{b_name}">')
+                html_out.append(f'        <div class="{card_class} product-card" data-search="{search_text}" data-brand="{b_name}">')
                 html_out.append('          <div class="card-header">')
                 html_out.append(f'            CÓDIGO: {prod["cod"]}')
                 html_out.append('          </div>')
@@ -2601,29 +2609,31 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const clearBtn = document.getElementById('catalog-search-clear-btn');
       if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
 
-      const words = q ? q.split(/\\s+/) : [];
+      const words = q ? q.split(/\\s+/).filter(w => w.length > 0) : [];
       const cards = document.querySelectorAll('.product-card');
       let visibleCount = 0;
 
+      const activeBrand = (currentBrandFilter || 'all').trim().toUpperCase();
+
       cards.forEach(card => {{
         const searchTarget = (card.getAttribute('data-search') || '').toUpperCase();
-        const cardBrand = card.getAttribute('data-brand') || '';
+        const cardBrand = (card.getAttribute('data-brand') || '').trim().toUpperCase();
 
-        const matchesBrand = (currentBrandFilter === 'all' || cardBrand === currentBrandFilter);
-        const matchesQuery = words.length === 0 || words.every(w => searchTarget.includes(w));
+        const matchesBrand = (activeBrand === 'ALL' || cardBrand === activeBrand);
+        const matchesQuery = (words.length === 0) || words.every(w => searchTarget.includes(w));
 
         const isVisible = matchesBrand && matchesQuery;
         card.style.display = isVisible ? '' : 'none';
         if (isVisible) visibleCount++;
       }});
 
-      // Ocultar categorías vacías
+      // Ocultar categorías sin productos visibles
       document.querySelectorAll('.category-section').forEach(sec => {{
         const hasVisible = Array.from(sec.querySelectorAll('.product-card')).some(c => c.style.display !== 'none');
         sec.style.display = hasVisible ? '' : 'none';
       }});
 
-      // Ocultar secciones de marca vacías
+      // Ocultar marcas sin productos visibles
       document.querySelectorAll('.brand-section').forEach(sec => {{
         const hasVisible = Array.from(sec.querySelectorAll('.product-card')).some(c => c.style.display !== 'none');
         sec.style.display = hasVisible ? '' : 'none';
@@ -2641,27 +2651,34 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       if (input) input.value = '';
       currentBrandFilter = 'all';
       document.querySelectorAll('.brand-chip').forEach(btn => {{
-        btn.classList.toggle('active', btn.id === 'chip-brand-all');
+        const chipVal = btn.getAttribute('data-brand-chip') || '';
+        btn.classList.toggle('active', chipVal.toUpperCase() === 'ALL');
       }});
       filterCatalogLive('');
     }}
 
     function filterByBrand(brand) {{
       currentBrandFilter = brand;
+      const targetBrand = (brand || 'all').trim().toUpperCase();
       document.querySelectorAll('.brand-chip').forEach(btn => {{
-        const isMatch = (brand === 'all' && btn.id === 'chip-brand-all') || (btn.id === 'chip-brand-' + brand);
-        btn.classList.toggle('active', isMatch);
+        const chipVal = (btn.getAttribute('data-brand-chip') || '').trim().toUpperCase();
+        btn.classList.toggle('active', chipVal === targetBrand);
       }});
       const input = document.getElementById('catalog-live-search');
       filterCatalogLive(input ? input.value : '');
 
-      if (brand !== 'all') {{
-        const sec = document.querySelector(`.brand-section[data-brand-section="${{brand}}"]`);
-        if (sec) {{
-          const stickyBar = document.getElementById('catalog-search-sticky-bar');
-          const offset = stickyBar ? stickyBar.offsetHeight + 10 : 80;
-          const pos = sec.getBoundingClientRect().top + window.pageYOffset - offset;
-          window.scrollTo({{ top: pos, behavior: 'smooth' }});
+      if (targetBrand !== 'ALL') {{
+        const brandSecs = document.querySelectorAll('.brand-section');
+        for (let i = 0; i < brandSecs.length; i++) {{
+          const sec = brandSecs[i];
+          const secBrand = (sec.getAttribute('data-brand-section') || '').trim().toUpperCase();
+          if (secBrand === targetBrand) {{
+            const stickyBar = document.getElementById('catalog-search-sticky-bar');
+            const offset = stickyBar ? stickyBar.offsetHeight + 24 : 90;
+            const pos = sec.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({{ top: pos, behavior: 'smooth' }});
+            break;
+          }}
         }}
       }}
     }}
