@@ -913,6 +913,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
           <span>Plantillas</span>
         </button>
+        <button class="smart-tab-btn" onclick="switchSmartTab('order')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Procesar Pedido</span>
+        </button>
       </div>
 
       <!-- Barra de Estado de Selección Activa -->
@@ -988,6 +992,49 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <button class="btn-chip" onclick="guardarPlantillaDesdeInput()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px; font-weight: 800;">Guardar</button>
         </div>
         <div class="templates-list" id="templates-list-container"></div>
+      </div>
+
+      <!-- TAB 5: Procesar Pedido de WhatsApp para Google Sheets -->
+      <div class="tab-content" id="tab-order">
+        <div style="font-size: 8pt; color: var(--text-muted); margin-bottom: 6px;">
+          Pega el texto del pedido recibido por WhatsApp para generar las filas de Google Sheets:
+        </div>
+        <textarea id="order-raw-input" placeholder="Pega aquí el mensaje del cliente recibido en WhatsApp...&#10;&#10;Ejemplo:&#10;1. [BOM6044] BOMBIN TUBO METAL - Cantidad: 4 Cajas&#10;2. [MSS011] MASCARA SOLDAR - Cantidad: 1 Cajas" style="height: 90px;" oninput="parseWhatsAppOrder(this.value)"></textarea>
+        
+        <div id="order-parsed-result" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">
+          <div style="background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.25); border-radius: 6px; padding: 6px 10px; font-size: 8pt; color: #F8FAFC; display: flex; justify-content: space-between; align-items: center;">
+            <span id="order-parsed-client-info" style="font-weight: 600;">Cliente</span>
+            <button class="btn-chip" onclick="copiarInfoCliente()" title="Copiar datos del cliente" style="display: flex; align-items: center; gap: 3px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copiar Cliente</span>
+            </button>
+          </div>
+
+          <div style="max-height: 120px; overflow-y: auto; background: var(--bg-console); border: 1px solid var(--border-panel); border-radius: 6px; padding: 4px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 7.5pt; text-align: left;">
+              <thead>
+                <tr style="color: var(--text-muted); border-bottom: 1px solid var(--border-panel);">
+                  <th style="padding: 3px 6px;">CAJAS</th>
+                  <th style="padding: 3px 6px;">UNI</th>
+                  <th style="padding: 3px 6px;">DETALLE</th>
+                  <th style="padding: 3px 6px;">CÓDIGO</th>
+                </tr>
+              </thead>
+              <tbody id="order-parsed-table-body"></tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-chip" onclick="copiarParaGoogleSheetsDesdePanel()" style="flex-grow: 1; background: #2563EB; color: white; border: none; padding: 8px 12px; font-weight: 800; font-size: 8pt; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>📋 Copiar Todo para Google Sheets (Pegar en A5)</span>
+            </button>
+            <button class="btn-chip" onclick="cargarPedidoAlGenerador()" title="Cargar códigos a la lista para generar catálogo" style="background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              <span>Generar Catálogo</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Ajustes de Generación -->
@@ -1152,9 +1199,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     }}
 
     function switchSmartTab(tabId) {{
-      const tabs = ['manual', 'search', 'brands', 'templates'];
+      const tabs = ['manual', 'search', 'brands', 'templates', 'order'];
       tabs.forEach(t => {{
-        document.getElementById('tab-' + t).classList.toggle('active', t === tabId);
+        const el = document.getElementById('tab-' + t);
+        if (el) el.classList.toggle('active', t === tabId);
       }});
       
       const buttons = document.querySelectorAll('.smart-tab-btn');
@@ -1164,6 +1212,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       if (tabId === 'templates') renderTemplatesList();
       if (tabId === 'search') refreshVisibleSearchButtons();
+      if (tabId === 'order') {{
+        const raw = document.getElementById('order-raw-input')?.value;
+        if (raw) parseWhatsAppOrder(raw);
+      }}
     }}
 
     // ─── 1. BÚSQUEDA PREDICTIVA ───
@@ -1418,6 +1470,157 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const templates = getStoredTemplates();
       templates.splice(idx, 1);
       saveStoredTemplates(templates);
+    }}
+
+    // ─── 4. PROCESADOR DE PEDIDOS DE WHATSAPP PARA GOOGLE SHEETS ───
+    let currentParsedOrder = {{ client: {{}}, items: [] }};
+
+    function parseWhatsAppOrder(raw) {{
+      const container = document.getElementById('order-parsed-result');
+      if (!raw || !raw.trim()) {{
+        if (container) container.style.display = 'none';
+        currentParsedOrder = {{ client: {{}}, items: [] }};
+        return;
+      }}
+
+      const lines = raw.split(/\\r?\\n/);
+      let clientName = '';
+      let clientAddress = '';
+      let clientPhone = '';
+      const items = [];
+
+      lines.forEach(line => {{
+        const mName = line.match(/(?:Cliente|Nombre|Cliente:)\\s*[:\\*]?\\s*([^\\n\\*_]+)/i);
+        if (mName && !clientName) clientName = mName[1].trim();
+
+        const mAddr = line.match(/(?:Dirección|Direccion|Zona|Destino)\\s*[:\\*]?\\s*([^\\n\\*_]+)/i);
+        if (mAddr && !clientAddress) clientAddress = mAddr[1].trim();
+
+        const mPhone = line.match(/(?:Teléfono|Telefono|Celular|WhatsApp|Telf)\\s*[:\\*]?\\s*([^\\n\\*_]+)/i);
+        if (mPhone && !clientPhone) clientPhone = mPhone[1].trim();
+      }});
+
+      let currentItemCode = null;
+      let currentItemName = '';
+
+      for (let i = 0; i < lines.length; i++) {{
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const mCode = line.match(/\\[([A-Za-z0-9_\\-\\./]+)\\]/);
+        if (mCode) {{
+          currentItemCode = mCode[1].trim().toUpperCase();
+          currentItemName = line.replace(/^[0-9]+[️⃣\\.\\)\\-]*\\s*/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
+        }}
+
+        const mQty = line.match(/(?:Cantidad|Cant|Pedir)?\\s*[:•\\-]?\\s*\\*?(\\d+)\\*?\\s*(?:Cajas|Caja|Cj|Cjas|cj)/i);
+        if (mQty && currentItemCode) {{
+          const qty = parseInt(mQty[1]) || 1;
+          const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === currentItemCode) || {{}};
+          items.push({{
+            code: currentItemCode,
+            qty: qty,
+            uni: prodInfo.uni || 'UNI',
+            name: prodInfo.nombre || currentItemName || currentItemCode,
+            brand: prodInfo.marca || ''
+          }});
+          currentItemCode = null;
+          currentItemName = '';
+        }} else if (!mCode && line.match(/^[A-Za-z0-9_\\-\\./]+\\s+\\d+/)) {{
+          const parts = line.split(/\\s+/);
+          const simpleCode = parts[0].toUpperCase();
+          const simpleQty = parseInt(parts[1]) || 1;
+          const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === simpleCode) || {{}};
+          items.push({{
+            code: simpleCode,
+            qty: simpleQty,
+            uni: prodInfo.uni || 'UNI',
+            name: prodInfo.nombre || simpleCode,
+            brand: prodInfo.marca || ''
+          }});
+        }}
+      }}
+
+      currentParsedOrder = {{
+        client: {{ name: clientName, address: clientAddress, phone: clientPhone }},
+        items: items
+      }};
+
+      if (items.length === 0 && !clientName) {{
+        if (container) container.style.display = 'none';
+        return;
+      }}
+
+      if (container) container.style.display = 'flex';
+      
+      const infoParts = [];
+      if (clientName) infoParts.push(`<strong>${{clientName}}</strong>`);
+      if (clientAddress) infoParts.push(`📍 ${{clientAddress}}`);
+      if (clientPhone) infoParts.push(`📞 ${{clientPhone}}`);
+      const clientInfoEl = document.getElementById('order-parsed-client-info');
+      if (clientInfoEl) {{
+        clientInfoEl.innerHTML = infoParts.length > 0 ? infoParts.join(' • ') : 'Pedido recibido';
+      }}
+
+      const tbody = document.getElementById('order-parsed-table-body');
+      if (tbody) {{
+        let tbodyHtml = '';
+        items.forEach(it => {{
+          tbodyHtml += `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+              <td style="padding: 3px 6px; font-weight: 800; color: #25D366;">${{it.qty}}</td>
+              <td style="padding: 3px 6px; color: var(--text-muted);">${{it.uni}}</td>
+              <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
+              <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
+            </tr>
+          `;
+        }});
+        tbody.innerHTML = tbodyHtml;
+      }}
+    }}
+
+    function copiarInfoCliente() {{
+      const c = currentParsedOrder.client;
+      const text = `CLIENTE: ${{c.name || ''}}\\tDIRECCION: ${{c.address || ''}}\\tTELF: ${{c.phone || ''}}`;
+      navigator.clipboard.writeText(text).then(() => {{
+        log(`[OK] Datos del cliente copiados: ${{c.name || ''}} (${{c.address || ''}})`);
+      }});
+    }}
+
+    function copiarParaGoogleSheetsDesdePanel() {{
+      if (!currentParsedOrder.items || currentParsedOrder.items.length === 0) {{
+        alert("No hay productos detectados en el texto para copiar.");
+        return;
+      }}
+
+      // Columnas exactas de Google Sheets:
+      // CANT. CAJAS (A) \t CANT. UNI. (B) \t UN/MED (C) \t DETALLE (D) \t CODIGO (E)
+      const rows = currentParsedOrder.items.map(it => {{
+        return `${{it.qty}}\\t\\t${{it.uni || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
+      }});
+
+      const tsv = rows.join('\\n');
+      navigator.clipboard.writeText(tsv).then(() => {{
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados con éxito!\\n\\n1. Ve a tu Google Sheets.\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar todo el pedido de una sola vez.`);
+        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para pegar en Google Sheets (A5).`);
+      }}).catch(() => {{
+        const ta = document.createElement("textarea");
+        ta.value = tsv;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\\n\\nVe a tu Google Sheets en la celda A5 y presiona Ctrl + V.`);
+      }});
+    }}
+
+    function cargarPedidoAlGenerador() {{
+      if (!currentParsedOrder.items || currentParsedOrder.items.length === 0) return;
+      selectedCodesSet.clear();
+      currentParsedOrder.items.forEach(it => selectedCodesSet.add(it.code.toUpperCase()));
+      syncSetToTextarea();
+      switchSmartTab('manual');
+      log(`[OK] ${{currentParsedOrder.items.length}} códigos del pedido cargados al generador.`);
     }}
 
     function limpiarSeleccion() {{
