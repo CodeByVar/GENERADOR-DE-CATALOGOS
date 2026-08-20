@@ -1558,7 +1558,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         const mCode = line.match(/\\[([A-Za-z0-9_\\-\\./]+)\\]/);
         if (mCode) {{
           currentItemCode = mCode[1].trim().toUpperCase();
-          currentItemName = line.replace(/^[0-9]+[️⃣\\.\\)\\-]*\\s*/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
+          currentItemName = line.replace(/^[0-9\\u20E3\\uFE0F\\.\\)\\-\\s]+/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
         }}
 
         const mCajas = line.match(/(\\d+)\\s*Caja/i);
@@ -1665,7 +1665,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       const tsv = rows.join('\\n');
       navigator.clipboard.writeText(tsv).then(() => {{
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cantidad!\n\n1. Ve a tu Google Sheets (formato IR01XX).\n2. Haz clic en la celda A5 (CANTIDAD).\n3. Presiona Ctrl + V para pegar.`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cantidad!\\n\\n1. Ve a tu Google Sheets (formato IR01XX).\\n2. Haz clic en la celda A5 (CANTIDAD).\\n3. Presiona Ctrl + V para pegar.`);
         log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cantidad (4 col).`);
       }}).catch(() => {{
         const ta = document.createElement("textarea");
@@ -1674,7 +1674,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         ta.select();
         document.execCommand("copy");
         document.body.removeChild(ta);
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\n\nVe a tu Google Sheets en celda A5 y presiona Ctrl + V.`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\\n\\nVe a tu Google Sheets en celda A5 y presiona Ctrl + V.`);
       }});
     }}
 
@@ -1694,7 +1694,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       const tsv = rows.join('\\n');
       navigator.clipboard.writeText(tsv).then(() => {{
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cajas!\n\n1. Ve a tu Google Sheets (formato IR01ML).\n2. Haz clic en la celda A5 (CANT. CAJAS).\n3. Presiona Ctrl + V para pegar.`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cajas!\\n\\n1. Ve a tu Google Sheets (formato IR01ML).\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar.`);
         log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cajas (5 col).`);
       }}).catch(() => {{
         const ta = document.createElement("textarea");
@@ -1703,7 +1703,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         ta.select();
         document.execCommand("copy");
         document.body.removeChild(ta);
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\n\nVe a tu Google Sheets en celda A5 y presiona Ctrl + V.`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados!\\n\\nVe a tu Google Sheets en celda A5 y presiona Ctrl + V.`);
       }});
     }}
 
@@ -1865,7 +1865,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           btnPublish.disabled = false;
           btnPublish.style.opacity = '1';
           log(">>> [VERCEL] ¡PUBLICACIÓN EXITOSA! Tu catálogo ya está en la nube.", 'success');
-          alert("🎉 ¡Catálogo publicado con éxito en Vercel!\nEn unos 15 segundos estará disponible en vivo en tu enlace web.");
+          alert("🎉 ¡Catálogo publicado con éxito en Vercel!\\nEn unos 15 segundos estará disponible en vivo en tu enlace web.");
         }} else if (e.data.startsWith('EVENT_ERROR')) {{
           evtSource.close();
           btnPublish.disabled = false;
