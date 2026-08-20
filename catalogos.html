@@ -1423,10 +1423,10 @@
       box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
     }
 
-    /* ──── OPTIMIZACIÓN RESPONSIVA MÓVIL Y TABLET (4 COLUMNAS) ──── */
+    /* ──── OPTIMIZACIÓN RESPONSIVA MÓVIL Y TABLET (3 COLUMNAS EN CELULAR) ──── */
     @media (max-width: 1024px) {
       .products-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         gap: 8px !important;
       }
       .brand-section {
@@ -1450,79 +1450,90 @@
       .card-vibrant .card-header,
       .card-dark-luxury .card-header {
         font-size: 7.5pt !important;
-        padding: 5px 6px 2px 6px !important;
+        padding: 6px 8px 3px 8px !important;
+        text-align: left !important;
       }
       .card-tech .card-body,
       .card-bold .card-body,
       .card-vibrant .card-body,
       .card-dark-luxury .card-body {
-        padding: 6px !important;
+        padding: 8px 6px !important;
       }
       .product-card .product-name,
       .card-tech .product-name,
       .card-bold .product-name,
       .card-vibrant .product-name,
       .card-dark-luxury .product-name {
-        font-size: 7.5pt !important;
-        height: 2.5em !important;
-        margin-bottom: 5px !important;
-        line-height: 1.2 !important;
+        font-size: 7.8pt !important;
+        height: 2.6em !important;
+        margin-bottom: 6px !important;
+        line-height: 1.25 !important;
       }
       .product-card .image-container,
       .card-tech .image-container,
       .card-bold .image-container,
       .card-vibrant .image-container,
       .card-dark-luxury .image-container {
-        height: 100px !important;
-        padding: 4px !important;
-        margin-bottom: 5px !important;
-        border-radius: 6px !important;
+        height: 120px !important;
+        padding: 6px !important;
+        margin-bottom: 6px !important;
+        border-radius: 8px !important;
       }
       .product-card .measure-pill,
       .card-tech .measure-pill,
       .card-bold .measure-pill,
       .card-vibrant .measure-pill,
       .card-dark-luxury .measure-pill {
-        font-size: 7pt !important;
-        padding: 2px 4px !important;
-        margin-bottom: 5px !important;
+        font-size: 7.5pt !important;
+        padding: 3px 6px !important;
+        margin-bottom: 6px !important;
+        border-radius: 12px !important;
       }
       .card-tech .card-footer,
       .card-bold .card-footer,
       .card-vibrant .card-footer,
       .card-dark-luxury .card-footer {
-        flex-direction: column !important;
-        gap: 3px !important;
-        padding-top: 4px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
         align-items: center !important;
+        padding-top: 4px !important;
+        gap: 2px !important;
       }
       .packaging-info {
         font-size: 6.5pt !important;
-        text-align: center !important;
+        white-space: nowrap !important;
       }
       .order-selectors-dual {
-        margin-left: 0 !important;
+        display: flex !important;
+        align-items: center !important;
         gap: 3px !important;
-        justify-content: center !important;
+        margin-left: auto !important;
       }
       .qty-group {
+        display: flex !important;
+        align-items: center !important;
         gap: 1px !important;
       }
       .qty-label {
         font-size: 6pt !important;
+        font-weight: 800 !important;
       }
       .product-qty-selector {
+        display: inline-flex !important;
+        align-items: center !important;
         padding: 1px 2px !important;
-        gap: 1px !important;
+        border-radius: 12px !important;
       }
       .btn-qty {
-        width: 16px !important;
-        height: 16px !important;
+        width: 15px !important;
+        height: 15px !important;
         font-size: 8.5pt !important;
       }
       .input-qty {
-        width: 18px !important;
+        width: 16px !important;
         font-size: 7.5pt !important;
+        font-weight: 800 !important;
       }
       
       /* BARRA FLOTANTE DE COMPRA EN MÓVIL */
@@ -1631,86 +1642,82 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 480px) {
       .products-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        gap: 5px !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 6px !important;
       }
       .brand-section {
-        padding: 6px 3px !important;
+        padding: 6px 4px !important;
       }
       .card-tech .card-header,
       .card-bold .card-header,
       .card-vibrant .card-header,
       .card-dark-luxury .card-header {
-        font-size: 6pt !important;
-        padding: 3px 3px 1px 3px !important;
+        font-size: 6.8pt !important;
+        padding: 4px 5px 2px 5px !important;
       }
       .card-tech .card-body,
       .card-bold .card-body,
       .card-vibrant .card-body,
       .card-dark-luxury .card-body {
-        padding: 4px 3px !important;
+        padding: 5px 4px !important;
       }
       .product-card .product-name,
       .card-tech .product-name,
       .card-bold .product-name,
       .card-vibrant .product-name,
       .card-dark-luxury .product-name {
-        font-size: 6.5pt !important;
-        height: 2.4em !important;
-        margin-bottom: 3px !important;
-        line-height: 1.15 !important;
+        font-size: 6.8pt !important;
+        height: 2.5em !important;
+        margin-bottom: 4px !important;
+        line-height: 1.2 !important;
       }
       .product-card .image-container,
       .card-tech .image-container,
       .card-bold .image-container,
       .card-vibrant .image-container,
       .card-dark-luxury .image-container {
-        height: 75px !important;
-        padding: 2px !important;
-        margin-bottom: 3px !important;
+        height: 100px !important;
+        padding: 4px !important;
+        margin-bottom: 4px !important;
       }
       .product-card .measure-pill,
       .card-tech .measure-pill,
       .card-bold .measure-pill,
       .card-vibrant .measure-pill,
       .card-dark-luxury .measure-pill {
-        font-size: 6pt !important;
-        padding: 1px 3px !important;
-        margin-bottom: 3px !important;
+        font-size: 6.5pt !important;
+        padding: 2px 4px !important;
+        margin-bottom: 4px !important;
       }
       .card-tech .card-footer,
       .card-bold .card-footer,
       .card-vibrant .card-footer,
       .card-dark-luxury .card-footer {
-        flex-direction: column !important;
-        gap: 2px !important;
-        padding-top: 2px !important;
+        gap: 1px !important;
+        padding-top: 3px !important;
       }
       .packaging-info {
-        font-size: 5.5pt !important;
+        font-size: 5.8pt !important;
       }
       .order-selectors-dual {
         gap: 2px !important;
       }
-      .qty-group {
-        gap: 1px !important;
-      }
       .qty-label {
-        font-size: 5pt !important;
+        font-size: 5.2pt !important;
       }
       .product-qty-selector {
         padding: 0 1px !important;
       }
       .btn-qty {
-        width: 14px !important;
-        height: 14px !important;
+        width: 13px !important;
+        height: 13px !important;
         font-size: 7.5pt !important;
       }
       .input-qty {
-        width: 14px !important;
-        font-size: 6.5pt !important;
+        width: 13px !important;
+        font-size: 6.8pt !important;
       }
     }
 
