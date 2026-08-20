@@ -2291,24 +2291,27 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
     }
 
-    /* ──── OPTIMIZACIÓN RESPONSIVA MÓVIL Y TABLET (3 COLUMNAS EN CELULAR) ──── */
+    /* ──── OPTIMIZACIÓN RESPONSIVA MÓVIL Y TABLET (3 COLUMNAS EN CELULAR - ESTILO FOTO 2) ──── */
     @media (max-width: 1024px) {
       .products-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         gap: 8px !important;
       }
       .brand-section {
-        padding: 10px 8px !important;
+        padding: 12px 6px !important;
       }
       .cover-page {
-        padding: 24px 20px !important;
+        padding: 22px 18px !important;
         border-radius: 14px !important;
+        min-height: auto !important;
       }
       .cover-main-title {
-        font-size: 20pt !important;
+        font-size: 18pt !important;
+        line-height: 1.2 !important;
       }
       .cover-description {
-        font-size: 9.5pt !important;
+        font-size: 8.5pt !important;
+        line-height: 1.35 !important;
       }
       .card-tech, .card-bold, .card-vibrant, .card-dark-luxury {
         border-radius: 10px !important;
@@ -2318,33 +2321,36 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       .card-vibrant .card-header,
       .card-dark-luxury .card-header {
         font-size: 7.5pt !important;
-        padding: 6px 8px 3px 8px !important;
+        font-weight: 800 !important;
+        padding: 5px 6px 4px 6px !important;
         text-align: left !important;
+        letter-spacing: 0.2px !important;
       }
       .card-tech .card-body,
       .card-bold .card-body,
       .card-vibrant .card-body,
       .card-dark-luxury .card-body {
-        padding: 8px 6px !important;
+        padding: 6px 6px !important;
       }
       .product-card .product-name,
       .card-tech .product-name,
       .card-bold .product-name,
       .card-vibrant .product-name,
       .card-dark-luxury .product-name {
-        font-size: 7.8pt !important;
-        height: 2.6em !important;
-        margin-bottom: 6px !important;
+        font-size: 7.5pt !important;
+        height: 2.7em !important;
+        margin-bottom: 5px !important;
         line-height: 1.25 !important;
+        font-weight: 700 !important;
       }
       .product-card .image-container,
       .card-tech .image-container,
       .card-bold .image-container,
       .card-vibrant .image-container,
       .card-dark-luxury .image-container {
-        height: 120px !important;
-        padding: 6px !important;
-        margin-bottom: 6px !important;
+        height: 115px !important;
+        padding: 5px !important;
+        margin-bottom: 5px !important;
         border-radius: 8px !important;
       }
       .product-card .measure-pill,
@@ -2352,10 +2358,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       .card-bold .measure-pill,
       .card-vibrant .measure-pill,
       .card-dark-luxury .measure-pill {
-        font-size: 7.5pt !important;
-        padding: 3px 6px !important;
-        margin-bottom: 6px !important;
-        border-radius: 12px !important;
+        font-size: 7pt !important;
+        font-weight: 700 !important;
+        padding: 2.5px 6px !important;
+        margin-bottom: 5px !important;
+        border-radius: 10px !important;
       }
       .card-tech .card-footer,
       .card-bold .card-footer,
@@ -2370,6 +2377,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }
       .packaging-info {
         font-size: 6.5pt !important;
+        font-weight: 600 !important;
         white-space: nowrap !important;
       }
       .order-selectors-dual {
@@ -2384,22 +2392,23 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         gap: 1px !important;
       }
       .qty-label {
-        font-size: 6pt !important;
+        font-size: 6.5pt !important;
         font-weight: 800 !important;
       }
       .product-qty-selector {
         display: inline-flex !important;
         align-items: center !important;
         padding: 1px 2px !important;
-        border-radius: 12px !important;
+        border-radius: 6px !important;
       }
       .btn-qty {
-        width: 15px !important;
-        height: 15px !important;
+        width: 16px !important;
+        height: 16px !important;
         font-size: 8.5pt !important;
+        line-height: 1 !important;
       }
       .input-qty {
-        width: 16px !important;
+        width: 15px !important;
         font-size: 7.5pt !important;
         font-weight: 800 !important;
       }
@@ -2409,28 +2418,28 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         bottom: 12px !important;
         width: calc(100% - 20px) !important;
         max-width: 100% !important;
-        padding: 10px 14px !important;
+        padding: 8px 12px !important;
         gap: 8px !important;
-        border-radius: 24px !important;
+        border-radius: 20px !important;
         justify-content: space-between !important;
       }
       .cart-icon-wrapper {
-        width: 44px !important;
-        height: 44px !important;
+        width: 38px !important;
+        height: 38px !important;
       }
       .cart-text-main {
-        font-size: 11pt !important;
+        font-size: 9.5pt !important;
       }
       .cart-text-sub {
-        font-size: 8pt !important;
+        font-size: 7.5pt !important;
       }
       .btn-view-order {
-        padding: 8px 12px !important;
-        font-size: 9pt !important;
+        padding: 7px 11px !important;
+        font-size: 8.5pt !important;
       }
       .btn-whatsapp-order {
-        padding: 10px 14px !important;
-        font-size: 9.5pt !important;
+        padding: 8px 12px !important;
+        font-size: 9pt !important;
       }
       
       /* MODAL RESUMEN DE PEDIDO EN MÓVIL */
@@ -2440,152 +2449,73 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }
       .modal-card {
         max-width: 100% !important;
-        border-radius: 22px 22px 14px 14px !important;
+        border-radius: 20px 20px 12px 12px !important;
         max-height: 90vh !important;
       }
       .modal-header {
-        padding: 18px 20px !important;
+        padding: 14px 16px !important;
       }
       .modal-title {
-        font-size: 13pt !important;
+        font-size: 11.5pt !important;
       }
       .modal-body {
-        padding: 16px 18px !important;
-        gap: 14px !important;
+        padding: 14px 16px !important;
+        gap: 12px !important;
       }
       .customer-inputs-grid {
         grid-template-columns: 1fr !important;
-        gap: 10px !important;
+        gap: 8px !important;
       }
       .customer-field {
-        font-size: 11pt !important;
-        padding: 12px 14px !important;
-        border-radius: 10px !important;
+        font-size: 9.5pt !important;
+        padding: 10px 12px !important;
+        border-radius: 8px !important;
       }
       .order-item-row {
-        padding: 12px 14px !important;
+        padding: 10px 12px !important;
       }
       .order-item-name {
-        font-size: 10pt !important;
-        max-width: 180px !important;
+        font-size: 9pt !important;
+        max-width: 160px !important;
       }
       .order-item-code {
-        font-size: 9.5pt !important;
+        font-size: 8.5pt !important;
       }
       .order-item-row .btn-qty {
-        width: 26px !important;
-        height: 26px !important;
-        font-size: 12pt !important;
+        width: 22px !important;
+        height: 22px !important;
+        font-size: 10pt !important;
       }
       .order-item-row .input-qty {
-        width: 32px !important;
-        font-size: 10.5pt !important;
+        width: 26px !important;
+        font-size: 9pt !important;
       }
       .order-total-banner {
-        font-size: 11pt !important;
-        padding: 14px 18px !important;
-        border-radius: 12px !important;
+        font-size: 9.5pt !important;
+        padding: 11px 14px !important;
+        border-radius: 10px !important;
       }
       .order-total-banner strong {
-        font-size: 14pt !important;
+        font-size: 12pt !important;
       }
       .modal-footer {
-        padding: 14px 18px !important;
-        gap: 10px !important;
+        padding: 12px 16px !important;
+        gap: 8px !important;
       }
       .btn-send-whatsapp-large {
         width: 100% !important;
         justify-content: center !important;
-        padding: 14px 20px !important;
-        font-size: 11.5pt !important;
-        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 10pt !important;
+        border-radius: 10px !important;
       }
       .btn-clear-cart {
-        font-size: 9.5pt !important;
-        padding: 10px 14px !important;
+        font-size: 8.5pt !important;
+        padding: 8px 12px !important;
       }
       .btn-copy-sheets {
-        font-size: 9.5pt !important;
-        padding: 10px 14px !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .products-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 6px !important;
-      }
-      .brand-section {
-        padding: 6px 4px !important;
-      }
-      .card-tech .card-header,
-      .card-bold .card-header,
-      .card-vibrant .card-header,
-      .card-dark-luxury .card-header {
-        font-size: 6.8pt !important;
-        padding: 4px 5px 2px 5px !important;
-      }
-      .card-tech .card-body,
-      .card-bold .card-body,
-      .card-vibrant .card-body,
-      .card-dark-luxury .card-body {
-        padding: 5px 4px !important;
-      }
-      .product-card .product-name,
-      .card-tech .product-name,
-      .card-bold .product-name,
-      .card-vibrant .product-name,
-      .card-dark-luxury .product-name {
-        font-size: 6.8pt !important;
-        height: 2.5em !important;
-        margin-bottom: 4px !important;
-        line-height: 1.2 !important;
-      }
-      .product-card .image-container,
-      .card-tech .image-container,
-      .card-bold .image-container,
-      .card-vibrant .image-container,
-      .card-dark-luxury .image-container {
-        height: 100px !important;
-        padding: 4px !important;
-        margin-bottom: 4px !important;
-      }
-      .product-card .measure-pill,
-      .card-tech .measure-pill,
-      .card-bold .measure-pill,
-      .card-vibrant .measure-pill,
-      .card-dark-luxury .measure-pill {
-        font-size: 6.5pt !important;
-        padding: 2px 4px !important;
-        margin-bottom: 4px !important;
-      }
-      .card-tech .card-footer,
-      .card-bold .card-footer,
-      .card-vibrant .card-footer,
-      .card-dark-luxury .card-footer {
-        gap: 1px !important;
-        padding-top: 3px !important;
-      }
-      .packaging-info {
-        font-size: 5.8pt !important;
-      }
-      .order-selectors-dual {
-        gap: 2px !important;
-      }
-      .qty-label {
-        font-size: 5.2pt !important;
-      }
-      .product-qty-selector {
-        padding: 0 1px !important;
-      }
-      .btn-qty {
-        width: 13px !important;
-        height: 13px !important;
-        font-size: 7.5pt !important;
-      }
-      .input-qty {
-        width: 13px !important;
-        font-size: 6.8pt !important;
+        font-size: 8.5pt !important;
+        padding: 8px 12px !important;
       }
     }
 
@@ -3308,8 +3238,31 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
                         break
 
     if not codigos:
+        # Si no se ingresaron códigos manuales ni en Vista_Catalogo, procesar automáticamente todo el inventario
+        print(">>> No se ingresaron códigos específicos: Cargando todo el inventario...")
+        hojas_temp = detectar_hojas_inventario(wb)
+        vistos_set = set()
+        for ws_cur in hojas_temp:
+            cols_cfg, fila_inicio = detectar_columnas(ws_cur)
+            col_c = cols_cfg["codigo"]
+            consecutive_empty = 0
+            max_r = min(ws_cur.max_row + 50, 30000) if ws_cur.max_row else 15000
+            for row in range(fila_inicio, max_r):
+                val = ws_cur.cell(row=row, column=col_c).value
+                if val and str(val).strip():
+                    c_norm = normalizar_codigo(val)
+                    if c_norm and c_norm.upper() not in vistos_set:
+                        vistos_set.add(c_norm.upper())
+                        codigos.append(c_norm)
+                    consecutive_empty = 0
+                else:
+                    consecutive_empty += 1
+                    if consecutive_empty >= 100:
+                        break
+
+    if not codigos:
         print(f"No se encontraron códigos de producto a procesar.")
-        raise ValueError(f"No se encontraron códigos de producto a procesar.")
+        raise ValueError(f"No se encontraron códigos de producto en las hojas de inventario ni en Vista_Catalogo.")
 
     print(f"Códigos a procesar: {len(codigos)}")
 
