@@ -875,6 +875,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo de Productos - Importadora Rivero</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap');
@@ -2283,6 +2284,161 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .btn-send-whatsapp-large:hover {
       transform: scale(1.02);
       box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
+    }
+
+    /* ──── OPTIMIZACIÓN EXCLUSIVA PARA MÓVILES (PANTALLA TÁCTIL) ──── */
+    @media (max-width: 680px) {
+      .products-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      .brand-section {
+        padding: 12px 14px !important;
+      }
+      .cover-page {
+        padding: 24px 20px !important;
+        border-radius: 14px !important;
+      }
+      .cover-main-title {
+        font-size: 20pt !important;
+      }
+      .cover-description {
+        font-size: 9.5pt !important;
+      }
+      .product-card .product-name {
+        font-size: 11pt !important;
+      }
+      .product-card .image-container {
+        height: 200px !important;
+      }
+      .product-card .measure-pill {
+        font-size: 10.5pt !important;
+        padding: 7px 12px !important;
+      }
+      .packaging-info {
+        font-size: 9pt !important;
+      }
+      .qty-label {
+        font-size: 9pt !important;
+      }
+      .product-qty-selector {
+        padding: 3px 6px !important;
+        gap: 4px !important;
+      }
+      .btn-qty {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 13pt !important;
+      }
+      .input-qty {
+        width: 32px !important;
+        font-size: 10pt !important;
+      }
+      
+      /* BARRA FLOTANTE DE COMPRA EN MÓVIL */
+      .floating-cart-bar {
+        bottom: 12px !important;
+        width: calc(100% - 20px) !important;
+        max-width: 100% !important;
+        padding: 10px 14px !important;
+        gap: 8px !important;
+        border-radius: 24px !important;
+        justify-content: space-between !important;
+      }
+      .cart-icon-wrapper {
+        width: 44px !important;
+        height: 44px !important;
+      }
+      .cart-text-main {
+        font-size: 11pt !important;
+      }
+      .cart-text-sub {
+        font-size: 8pt !important;
+      }
+      .btn-view-order {
+        padding: 8px 12px !important;
+        font-size: 9pt !important;
+      }
+      .btn-whatsapp-order {
+        padding: 10px 14px !important;
+        font-size: 9.5pt !important;
+      }
+      
+      /* MODAL RESUMEN DE PEDIDO EN MÓVIL (GRANDE Y CÓMODO) */
+      .modal-backdrop {
+        padding: 8px !important;
+        align-items: flex-end !important;
+      }
+      .modal-card {
+        max-width: 100% !important;
+        border-radius: 22px 22px 14px 14px !important;
+        max-height: 90vh !important;
+      }
+      .modal-header {
+        padding: 18px 20px !important;
+      }
+      .modal-title {
+        font-size: 13pt !important;
+      }
+      .modal-body {
+        padding: 16px 18px !important;
+        gap: 14px !important;
+      }
+      .customer-inputs-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+      .customer-field {
+        font-size: 11pt !important;
+        padding: 12px 14px !important;
+        border-radius: 10px !important;
+      }
+      .order-item-row {
+        padding: 12px 14px !important;
+      }
+      .order-item-name {
+        font-size: 10pt !important;
+        max-width: 180px !important;
+      }
+      .order-item-code {
+        font-size: 9.5pt !important;
+      }
+      .order-item-row .btn-qty {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 12pt !important;
+      }
+      .order-item-row .input-qty {
+        width: 32px !important;
+        font-size: 10.5pt !important;
+      }
+      .order-total-banner {
+        font-size: 11pt !important;
+        padding: 14px 18px !important;
+        border-radius: 12px !important;
+      }
+      .order-total-banner strong {
+        font-size: 14pt !important;
+      }
+      .modal-footer {
+        padding: 14px 18px !important;
+        gap: 10px !important;
+      }
+      .btn-send-whatsapp-large {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 14px 20px !important;
+        font-size: 11.5pt !important;
+        border-radius: 12px !important;
+      }
+      .btn-clear-cart {
+        font-size: 9.5pt !important;
+        padding: 10px 14px !important;
+      }
+      .btn-copy-sheets {
+        font-size: 9.5pt !important;
+        padding: 10px 14px !important;
+      }
     }
 
     @media print {
