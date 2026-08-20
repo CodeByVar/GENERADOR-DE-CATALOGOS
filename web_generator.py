@@ -1883,6 +1883,21 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }};
     }}
 
+    // Escuchar eliminaciones en vivo desde la vista previa interactiva
+    window.addEventListener('message', function(event) {{
+      if (event.data && event.data.type === 'REMOVE_CATALOG_ITEM') {{
+        const code = (event.data.code || '').toUpperCase();
+        if (selectedCodesSet.size === 0 && allInventoryProducts.length > 0) {{
+          allInventoryProducts.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+        }}
+        if (selectedCodesSet.has(code)) {{
+          selectedCodesSet.delete(code);
+          syncSetToTextarea();
+          log(`[EDITOR EN VIVO] Producto '${{code}}' quitado de la selección directamente desde el catálogo.`, 'success');
+        }}
+      }}
+    }});
+
     updateDownloadHtmlLink();
   </script>
 </body>

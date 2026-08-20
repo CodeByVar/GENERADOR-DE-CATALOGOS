@@ -1132,6 +1132,40 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       gap: 18px;
       margin-bottom: 20px;
     }
+
+    .product-card {
+      position: relative;
+      transition: transform 0.2s ease, opacity 0.3s ease, border-color 0.2s ease;
+    }
+    .btn-card-remove-live {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #EF4444;
+      color: #FFFFFF;
+      border: 2px solid #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+      line-height: 1;
+      padding: 0;
+    }
+    .product-card:hover .btn-card-remove-live {
+      display: flex;
+    }
+    .btn-card-remove-live:hover {
+      background: #B91C1C;
+      transform: scale(1.25);
+    }
     
     /* ──── 1. TECH CARD (DongCheng, etc.) ──── */
     .card-tech {
@@ -1150,7 +1184,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: rgba(15, 23, 42, 0.01);
       color: var(--brand-header);
       padding: 7px 9px 3px 9px;
-      font-size: 8pt;
+      font-size: 9pt;
       font-weight: 800;
       text-align: left;
     }
@@ -1161,8 +1195,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       flex-grow: 1;
     }
     .card-tech .product-name {
-      font-size: 8.5pt;
-      font-weight: 700;
+      font-size: 9.5pt;
+      font-weight: 800;
       color: #1E293B;
       margin: 0 0 8px 0;
       line-height: 1.25;
@@ -1190,8 +1224,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }
     .card-tech .measure-pill {
       text-align: center;
-      font-size: 8pt;
-      font-weight: 700;
+      font-size: 8.5pt;
+      font-weight: 800;
       padding: 4px 8px;
       border-radius: 20px;
       margin-bottom: 8px;
@@ -1209,15 +1243,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       gap: 3px;
     }
     .card-tech .packaging-info {
-      font-size: 7.5pt;
-      font-weight: 600;
+      font-size: 8pt;
+      font-weight: 800;
       color: #64748B;
     }
     .card-tech .availability-pill {
       background: #DCFCE7;
       color: #15803D;
-      font-size: 7.5pt;
-      font-weight: 700;
+      font-size: 8pt;
+      font-weight: 800;
       padding: 3px 8px;
       border-radius: 12px;
     }
@@ -1237,8 +1271,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .card-bold .card-header {
       background: #0F172A;
       color: var(--brand-header);
-      padding: 6px 9px;
-      font-size: 8pt;
+      padding: 7px 9px;
+      font-size: 9pt;
       font-weight: 800;
       text-align: center;
       letter-spacing: 0.5px;
@@ -1250,7 +1284,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       flex-grow: 1;
     }
     .card-bold .product-name {
-      font-size: 8.5pt;
+      font-size: 9.5pt;
       font-weight: 800;
       color: #0F172A;
       margin: 0 0 8px 0;
@@ -1280,7 +1314,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }
     .card-bold .measure-pill {
       text-align: center;
-      font-size: 8pt;
+      font-size: 8.5pt;
       font-weight: 800;
       padding: 4px 8px;
       border-radius: 6px;
@@ -1328,8 +1362,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: linear-gradient(135deg, var(--brand-header) 0%, var(--brand-measure-fg) 100%);
       color: #FFFFFF;
       padding: 7px 9px;
-      font-size: 8pt;
-      font-weight: 700;
+      font-size: 9pt;
+      font-weight: 800;
       text-align: center;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
@@ -1343,8 +1377,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       flex-grow: 1;
     }
     .card-vibrant .product-name {
-      font-size: 8.5pt;
-      font-weight: 700;
+      font-size: 9.5pt;
+      font-weight: 800;
       color: #2D3748;
       margin: 0 0 8px 0;
       line-height: 1.25;
@@ -1372,8 +1406,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }
     .card-vibrant .measure-pill {
       text-align: center;
-      font-size: 8pt;
-      font-weight: 700;
+      font-size: 8.5pt;
+      font-weight: 800;
       padding: 4px 8px;
       border-radius: 20px;
       margin-bottom: 8px;
@@ -1390,15 +1424,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       gap: 3px;
     }
     .card-vibrant .packaging-info {
-      font-size: 7.5pt;
-      font-weight: 600;
+      font-size: 8pt;
+      font-weight: 800;
       color: var(--brand-measure-fg);
     }
     .card-vibrant .availability-pill {
       background: #FFEDD5;
       color: var(--brand-measure-fg);
-      font-size: 7.5pt;
-      font-weight: 700;
+      font-size: 8pt;
+      font-weight: 800;
       padding: 3px 8px;
       border-radius: 10px;
     }
@@ -1420,7 +1454,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: rgba(255, 255, 255, 0.02);
       color: var(--brand-header);
       padding: 7px 9px 3px 9px;
-      font-size: 8pt;
+      font-size: 9pt;
       font-weight: 800;
       text-align: left;
     }
@@ -1431,8 +1465,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       flex-grow: 1;
     }
     .card-dark-luxury .product-name {
-      font-size: 8.5pt;
-      font-weight: 700;
+      font-size: 9.5pt;
+      font-weight: 800;
       color: #FFFFFF;
       margin: 0 0 8px 0;
       line-height: 1.25;
@@ -1629,8 +1663,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       gap: 4px;
     }
     .packaging-info {
-      font-size: 7.5pt;
-      font-weight: 700;
+      font-size: 8pt;
+      font-weight: 800;
       color: #64748B;
       white-space: nowrap;
     }
@@ -1643,41 +1677,41 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .qty-group {
       display: flex;
       align-items: center;
-      gap: 2px;
+      gap: 3px;
     }
     .qty-label {
-      font-size: 7.5pt;
+      font-size: 8pt;
       font-weight: 800;
-      color: #475569;
+      color: #334155;
       text-transform: uppercase;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.3px;
     }
     .product-qty-selector {
       display: inline-flex;
       align-items: center;
       background: #F1F5F9;
       border: 1.5px solid #CBD5E1;
-      border-radius: 16px;
-      padding: 1px 3px;
-      gap: 1px;
+      border-radius: 18px;
+      padding: 2px 4px;
+      gap: 2px;
       transition: all 0.2s ease;
     }
     .product-qty-selector:focus-within {
       border-color: #25D366;
-      box-shadow: 0 0 6px rgba(37, 211, 102, 0.35);
+      box-shadow: 0 0 8px rgba(37, 211, 102, 0.4);
       background: #FFFFFF;
     }
     .btn-qty {
       background: #FFFFFF;
-      border: 1px solid #CBD5E1;
+      border: 1.5px solid #CBD5E1;
       color: #0F172A;
-      width: 18px;
-      height: 18px;
+      width: 21px;
+      height: 21px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10pt;
+      font-size: 11pt;
       font-weight: 800;
       cursor: pointer;
       line-height: 1;
@@ -1686,9 +1720,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       user-select: none;
     }
     .btn-qty:hover {
-      background: #0F172A;
+      background: #25D366;
       color: #FFFFFF;
-      border-color: #0F172A;
+      border-color: #25D366;
+      transform: scale(1.15);
+    }
+    .btn-qty:active {
+      transform: scale(0.95);
     }
     .input-qty {
       width: 24px;
@@ -1864,47 +1902,54 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }
     }
 
-    /* ──── BARRA FLOTANTE DE PEDIDO GENERAL (STICKY / FLOATING) ──── */
+    /* ──── BARRA FLOTANTE DE COMPRA EN VIVO (PROMINENTE, MODERNA Y FLUIDA) ──── */
     .floating-cart-bar {
       position: fixed;
       bottom: 24px;
       left: 50%;
-      transform: translateX(-50%) translateY(140%);
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1.5px solid rgba(255, 255, 255, 0.15);
-      border-radius: 50px;
-      padding: 8px 12px 8px 20px;
-      display: flex;
+      transform: translateX(-50%) translateY(160%);
+      background: rgba(11, 17, 32, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 32px;
+      padding: 14px 26px;
+      display: flex !important;
       align-items: center;
-      gap: 16px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(37, 211, 102, 0.25);
       z-index: 9999;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      max-width: 92%;
-      color: #FFFFFF;
+      max-width: 920px;
+      width: calc(100% - 60px);
+      box-sizing: border-box;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .floating-cart-bar.visible {
-      transform: translateX(-50%) translateY(0);
+      transform: translateX(-50%) translateY(0) !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
     }
     .cart-summary {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       cursor: pointer;
     }
     .cart-icon-wrapper {
       position: relative;
-      background: rgba(37, 211, 102, 0.18);
-      color: #25D366;
-      width: 38px;
-      height: 38px;
+      background: rgba(37, 211, 102, 0.15);
+      border: 1.5px solid rgba(37, 211, 102, 0.35);
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #25D366;
     }
     .cart-badge {
       position: absolute;
@@ -1912,148 +1957,93 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       right: -4px;
       background: #EF4444;
       color: #FFFFFF;
-      font-size: 7.5pt;
+      font-size: 10pt;
       font-weight: 800;
-      padding: 1px 5px;
-      border-radius: 10px;
-      border: 1.5px solid #0F172A;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #0B1120;
     }
     .cart-text {
       display: flex;
       flex-direction: column;
-      line-height: 1.2;
+      gap: 2px;
     }
     .cart-title {
-      font-size: 9pt;
+      font-size: 13pt;
       color: #F8FAFC;
       font-weight: 600;
     }
     .cart-title strong {
       color: #25D366;
-      font-size: 10pt;
+      font-weight: 800;
     }
     .cart-subtitle {
-      font-size: 7.5pt;
+      font-size: 10pt;
       color: #94A3B8;
     }
     .cart-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
     .btn-view-order {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       color: #FFFFFF;
-      padding: 8px 14px;
+      padding: 11px 20px;
       border-radius: 25px;
-      font-size: 8.5pt;
+      font-size: 11.5pt;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-family: inherit;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .btn-view-order:hover {
       background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
     }
     .btn-send-whatsapp-order {
       background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
       color: #FFFFFF;
       border: none;
-      padding: 9px 18px;
+      padding: 12px 24px;
       border-radius: 25px;
-      font-size: 9pt;
+      font-size: 12.5pt;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-family: inherit;
-      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
       transition: all 0.2s;
       white-space: nowrap;
     }
     .btn-send-whatsapp-order:hover {
       transform: scale(1.03);
-      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
+      box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
     }
 
-    /* ──── MODAL RESUMEN DE PEDIDO ──── */
+    /* ──── MODAL RESUMEN DE PEDIDO (AMPLIO Y LEGIBLE EN 1200PX) ──── */
     .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(8, 12, 20, 0.75);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(4, 7, 13, 0.86);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 10000;
-      padding: 15px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .modal-backdrop.open {
-      display: flex;
-    }
-    .modal-card {
-      background: #0F172A;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      width: 100%;
-      max-width: 500px;
-      max-height: 88vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
-      overflow: hidden;
-      color: #FFFFFF;
-      animation: modalSlideUp 0.25s ease-out;
-    }
-    @keyframes modalSlideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .modal-title {
-      font-size: 11pt;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #25D366;
-    }
-    .modal-close {
-      background: transparent;
-      border: none;
-      color: #94A3B8;
-      font-size: 13pt;
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    /* ──── MODAL RESUMEN DE PEDIDO (ALTO CONTRASTE Y LEGIBILIDAD) ──── */
-    .modal-backdrop {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(4, 7, 13, 0.82);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      padding: 15px;
+      padding: 24px;
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .modal-backdrop.open {
@@ -2061,24 +2051,24 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }
     .modal-card {
       background: #0B1120;
-      border: 1.5px solid rgba(255, 255, 255, 0.16);
-      border-radius: 18px;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 24px;
       width: 100%;
-      max-width: 530px;
+      max-width: 880px;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.85);
       overflow: hidden;
       color: #FFFFFF;
       animation: modalSlideUp 0.25s ease-out;
     }
     @keyframes modalSlideUp {
-      from { transform: translateY(20px); opacity: 0; }
+      from { transform: translateY(24px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
     .modal-header {
-      padding: 16px 20px;
+      padding: 22px 28px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-between;
@@ -2086,21 +2076,21 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: rgba(255, 255, 255, 0.02);
     }
     .modal-title {
-      font-size: 11pt;
+      font-size: 15pt;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       color: #25D366;
     }
     .modal-close {
       background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: #CBD5E1;
-      font-size: 11pt;
+      font-size: 14pt;
       cursor: pointer;
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -2108,33 +2098,33 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       transition: all 0.2s;
     }
     .modal-close:hover {
-      background: rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.25);
       color: #F87171;
     }
     .modal-body {
-      padding: 16px 20px;
+      padding: 22px 28px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
     .customer-inputs {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
     .customer-inputs-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 10px;
     }
     .customer-field {
       background: #1E293B;
       border: 1.5px solid #475569;
-      border-radius: 8px;
-      padding: 9px 12px;
+      border-radius: 12px;
+      padding: 13px 16px;
       color: #FFFFFF !important;
-      font-size: 8.5pt;
+      font-size: 11pt;
       font-family: inherit;
       font-weight: 600;
       outline: none;
@@ -2149,17 +2139,17 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .customer-field:focus {
       border-color: #25D366;
       background: #0F172A;
-      box-shadow: 0 0 10px rgba(37, 211, 102, 0.25);
+      box-shadow: 0 0 12px rgba(37, 211, 102, 0.3);
     }
     .order-items-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      max-height: 230px;
+      gap: 8px;
+      max-height: 280px;
       overflow-y: auto;
     }
     .order-items-list::-webkit-scrollbar {
-      width: 5px;
+      width: 6px;
     }
     .order-items-list::-webkit-scrollbar-thumb {
       background: #334155;
@@ -2171,47 +2161,53 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       align-items: center;
       background: #161F30;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      padding: 9px 12px;
+      border-radius: 12px;
+      padding: 12px 16px;
     }
     .order-item-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       overflow: hidden;
-      padding-right: 8px;
+      padding-right: 12px;
     }
     .order-item-code {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 8pt;
+      font-size: 10pt;
       font-weight: 800;
       color: #25D366;
     }
     .order-item-name {
-      font-size: 8.5pt;
+      font-size: 11pt;
       font-weight: 700;
       color: #FFFFFF;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 250px;
+      max-width: 480px;
     }
     .order-item-meta {
-      font-size: 7.5pt;
+      font-size: 9.5pt;
       color: #94A3B8;
     }
     .order-item-row .product-qty-selector {
       background: #0B1120;
       border-color: #475569;
+      padding: 2px 4px;
     }
     .order-item-row .input-qty {
       color: #FFFFFF !important;
       font-weight: 800;
+      font-size: 11pt;
+      width: 32px;
     }
     .order-item-row .btn-qty {
       background: #334155;
       color: #FFFFFF;
       border-color: #475569;
+      width: 26px;
+      height: 26px;
+      font-size: 12pt;
     }
     .order-item-row .btn-qty:hover {
       background: #25D366;
@@ -2221,37 +2217,37 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .order-total-banner {
       background: rgba(37, 211, 102, 0.12);
       border: 1.5px solid rgba(37, 211, 102, 0.35);
-      border-radius: 10px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 14px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 9pt;
+      font-size: 12pt;
       color: #F8FAFC;
       font-weight: 600;
     }
     .order-total-banner strong {
-      font-size: 11.5pt;
+      font-size: 15pt;
       color: #25D366;
       font-weight: 800;
     }
     .modal-footer {
-      padding: 12px 18px;
+      padding: 16px 28px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       background: rgba(255, 255, 255, 0.02);
     }
     .btn-clear-cart {
       background: transparent;
       border: 1px solid rgba(239, 68, 68, 0.35);
       color: #F87171;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 8pt;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 10.5pt;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
@@ -2264,15 +2260,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: #1E40AF;
       border: 1px solid #3B82F6;
       color: #FFFFFF;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 8.5pt;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 11pt;
       font-weight: 800;
       cursor: pointer;
       font-family: inherit;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       transition: all 0.2s;
       box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
@@ -2285,14 +2281,14 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
       color: #FFFFFF;
       border: none;
-      padding: 9px 16px;
-      border-radius: 8px;
-      font-size: 9pt;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 11.5pt;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-family: inherit;
       box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
       transition: all 0.2s;
@@ -2517,7 +2513,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             
             for prod in prods:
                 search_text = f"{prod['cod']} {prod['nombre']} {prod['size']} {b_name} {cat}".replace('"', '&quot;')
-                html_out.append(f'        <div class="{card_class} product-card" data-search="{search_text}" data-brand="{b_name}">')
+                html_out.append(f'        <div class="{card_class} product-card" data-search="{search_text}" data-brand="{b_name}" data-code="{prod["cod"]}">')
+                html_out.append(f'          <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, \'{prod["cod"]}\')" title="Quitar este producto del catálogo">✕</button>')
                 html_out.append('          <div class="card-header">')
                 html_out.append(f'            CÓDIGO: {prod["cod"]}')
                 html_out.append('          </div>')
@@ -2538,10 +2535,10 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append('            </div>')
                 
                 # Enlace directo de cotización por WhatsApp
-                wa_msg = urllib.parse.quote(f"Hola Importadora Rivero, deseo cotizar el producto:\n* Código: {prod['cod']}\n* Nombre: {prod['nombre']}\n* Marca: {brand_name}")
+                wa_msg = urllib.parse.quote(f"Hola Importadora Rivero, deseo cotizar el producto:\n* Código: {prod['cod']}\n* Nombre: {prod['nombre']}\n* Marca: {b_name}")
                 clean_phone = re.sub(r'[^\d]', '', str(whatsapp_phone or ''))
                 safe_name = str(prod["nombre"]).replace('"', '&quot;').replace("'", "&#39;")
-                safe_brand = str(brand_name).replace('"', '&quot;').replace("'", "&#39;")
+                safe_brand = str(b_name).replace('"', '&quot;').replace("'", "&#39;")
                 safe_unit = str(prod["uni"]).replace('"', '&quot;').replace("'", "&#39;")
 
                 html_out.append('            <div class="card-footer">')
@@ -2647,7 +2644,28 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
   <script>
     const BUSINESS_PHONE = "{clean_biz_phone}";
     const cart = {{}};
-    let currentBrandFilter = 'all';
+    function quitarProductoEnVivo(e, code) {{
+      if (e) {{
+        e.stopPropagation();
+        e.preventDefault();
+      }}
+      const upper = (code || '').toUpperCase();
+      const card = document.querySelector(`.product-card[data-code="${{upper}}"]`) || (e ? e.target.closest('.product-card') : null);
+      if (card) {{
+        card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.8)';
+        setTimeout(() => {{
+          card.style.display = 'none';
+          filterCatalogLive(document.getElementById('catalog-live-search')?.value || '');
+        }}, 300);
+      }}
+      try {{
+        if (window.parent && window.parent !== window) {{
+          window.parent.postMessage({{ type: 'REMOVE_CATALOG_ITEM', code: upper }}, '*');
+        }}
+      }} catch(err) {{}}
+    }}
 
     function filterCatalogLive(query) {{
       const q = (query || '').trim().toUpperCase();
@@ -2836,9 +2854,9 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         html += `
           <div class="order-item-row">
             <div class="order-item-info">
-              <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="order-item-code">${{it.code}}</span>
-                <span style="font-size: 7.5pt; color: #94A3B8;">${{it.brand}}</span>
+                <span style="font-size: 8pt; font-weight: 700; color: #94A3B8; background: rgba(255, 255, 255, 0.08); padding: 2px 7px; border-radius: 6px; text-transform: uppercase;">${{it.brand}}</span>
               </div>
               <div class="order-item-name" title="${{it.name}}">${{it.name}}</div>
             </div>
