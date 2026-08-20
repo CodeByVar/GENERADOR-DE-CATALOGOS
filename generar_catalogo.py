@@ -985,17 +985,24 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      margin-top: 5px;
+      margin-top: 0px;
       margin-bottom: 0px;
       padding: 0;
     }
+    .cover-logo-wrapper {
+      margin: 14px 0 16px 0;
+      display: flex;
+      align-items: center;
+    }
     .company-logo {
-      max-height: 42px;
-      max-width: 200px;
+      height: 55px;
+      max-height: 60px;
+      max-width: 260px;
       object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
     }
     .company-name-fallback {
-      font-size: 16pt;
+      font-size: 18pt;
       font-weight: 800;
       color: #FFFFFF;
       margin: 0;
@@ -1012,12 +1019,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       border-radius: 2px;
     }
     
-    /* Traemos el contenido más cerca de la cabecera eliminando la holgura central */
+    /* Traemos el contenido alineado a la misma altura superior */
     .cover-main-content {
-      margin-top: 35px;
-      margin-bottom: 20px;
+      margin-top: 10px;
+      margin-bottom: 15px;
       text-align: left;
-      padding-left: 20px;
+      padding-left: 0px;
       z-index: 10;
       position: relative;
     }
@@ -1027,7 +1034,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       color: #F97316; /* Naranja */
       letter-spacing: 3px;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin: 0;
     }
     .cover-main-title {
       font-size: /* PLACEHOLDER_COVER_TITLE_SIZE */;
@@ -1047,6 +1054,41 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       color: #94A3B8; /* Gris azulado suave */
       max-width: 580px;
       margin: 0;
+    }
+    /* Cuadraditos elegantes de logos de marcas en la portada */
+    .cover-brands-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      align-items: center;
+    }
+    .cover-brand-mini-card {
+      border-radius: 8px;
+      padding: 4px 12px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .cover-brand-mini-card:hover {
+      transform: translateY(-2px) scale(1.08);
+      filter: brightness(1.08);
+    }
+    .cover-brand-mini-card img {
+      max-height: 22px;
+      max-width: 80px;
+      object-fit: contain;
+    }
+    .cover-brand-mini-fallback {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: 0.5px;
     }
     
     /* El pie de página se empuja al final de forma natural mediante margin-top: auto */
@@ -2370,27 +2412,76 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     # Contenido flotando sobre el fondo
     html_out.append('    <div class="cover-content">')
     
-    # Header Logo de Importadora Blanco (Izquierda) e Información de Fecha (Derecha) - Muy compacto
+    # Header con Etiqueta (Izquierda) e Información de Fecha (Derecha) a la misma altura
     html_out.append('      <div class="cover-header">')
-    if os.path.exists(impor_logo_cropped):
-        company_logo_b64 = to_base64_src(impor_logo_cropped)
-        html_out.append(f'        <img class="company-logo" src="{company_logo_b64}" alt="Logo Importadora Rivero" />')
-    else:
-        html_out.append('        <span class="company-name-fallback">IMPORTADORA RIVERO</span>')
-    
-    # Caja de fecha estilo Foto 1
+    html_out.append('        <div class="cover-label">Catálogo General</div>')
     html_out.append(f'        <div class="header-date-box">{titulo_fecha}</div>')
     html_out.append('      </div>')
     
-    # Contenido Principal (Centro-Izquierda) - Traído hacia arriba
+    # Contenido Principal (Centro-Izquierda)
     html_out.append('      <div class="cover-main-content">')
-    html_out.append('        <div class="cover-label">Catálogo General</div>')
     html_out.append('        <h1 class="cover-main-title">')
     html_out.append('          Herramientas &<br>Equipos <span class="title-highlight">Profesionales</span>')
     html_out.append('        </h1>')
+    
+    # Logo de la Empresa más grande y alineado debajo del título
+    html_out.append('        <div class="cover-logo-wrapper">')
+    if os.path.exists(impor_logo_cropped):
+        company_logo_b64 = to_base64_src(impor_logo_cropped)
+        html_out.append(f'          <img class="company-logo" src="{company_logo_b64}" alt="Logo Importadora Rivero" />')
+    else:
+        html_out.append('          <span class="company-name-fallback">IMPORTADORA RIVERO</span>')
+    html_out.append('        </div>')
+    
     html_out.append('        <p class="cover-description">')
     html_out.append('          Selección de herramientas eléctricas, equipo industrial y accesorios eléctricos, respaldados por marcas de calidad comprobada para el profesional y el distribuidor.')
     html_out.append('        </p>')
+
+    # Cuadraditos interactivos con logos de las marcas (con colores auténticos de cada marca)
+    def get_brand_pill_style(brand_name_str):
+        bname = str(brand_name_str).upper()
+        if "UYUSTOOLS" in bname:
+            return "background-color: #FDC800; border: 1.5px solid #EAB308; box-shadow: 0 4px 14px rgba(253, 200, 0, 0.35);"
+        elif "FERTON" in bname or "OMEGA" in bname:
+            return "background-color: #000000; border: 1.5px solid rgba(251, 191, 36, 0.4); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);"
+        elif "FERRAWYY" in bname:
+            return "background-color: #FFEDD5; border: 1.5px solid #FDBA74; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);"
+        elif "GATE" in bname:
+            return "background-color: #FEE2E2; border: 1.5px solid #FCA5A5; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);"
+        elif "CROWN" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #FECACA; box-shadow: 0 4px 14px rgba(202, 10, 16, 0.2);"
+        elif "AQUA" in bname:
+            return "background-color: #F0F9FF; border: 1.5px solid #BAE6FD; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);"
+        elif "DONGCHENG" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #BFDBFE; box-shadow: 0 4px 14px rgba(0, 91, 172, 0.2);"
+        elif "NORSTAR" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);"
+        elif "DWT" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);"
+        else:
+            return "background-color: #FFFFFF; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);"
+
+    html_out.append('        <div class="cover-brands-strip">')
+    for b_name_strip in brands_orden:
+        b_theme_strip = get_brand_theme(b_name_strip)
+        logo_strip_path = b_theme_strip.get("logo")
+        safe_b_strip = b_name_strip.replace('"', '&quot;').replace("'", "&#39;")
+        clean_strip_bname = re.sub(r'[\\/*?:"<>| ]', "_", b_name_strip)
+        dest_strip_logo = os.path.join(temp_dir, f"cropped_logo_{clean_strip_bname}.webp")
+        pill_style = get_brand_pill_style(b_name_strip)
+        
+        html_out.append(f'          <div class="cover-brand-mini-card" style="{pill_style}" onclick="filterByBrand(\'{safe_b_strip}\')" title="Ver productos de {safe_b_strip}">')
+        if logo_strip_path and os.path.exists(dest_strip_logo):
+            strip_b64 = to_base64_src(dest_strip_logo)
+            html_out.append(f'            <img src="{strip_b64}" alt="{safe_b_strip}" />')
+        elif logo_strip_path and os.path.exists(logo_strip_path):
+            strip_b64 = to_base64_src(logo_strip_path)
+            html_out.append(f'            <img src="{strip_b64}" alt="{safe_b_strip}" />')
+        else:
+            fallback_color = "#FFFFFF" if ("FERTON" in b_name_strip.upper() or "OMEGA" in b_name_strip.upper()) else "#0F172A"
+            html_out.append(f'            <span class="cover-brand-mini-fallback" style="color: {fallback_color};">{safe_b_strip}</span>')
+        html_out.append('          </div>')
+    html_out.append('        </div>')
     html_out.append('      </div>')
     
     # Slogan inferior estilo Foto 1

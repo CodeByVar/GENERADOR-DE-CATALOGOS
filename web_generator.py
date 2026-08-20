@@ -1025,8 +1025,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       <!-- TAB 4: Plantillas Guardadas -->
       <div class="tab-content" id="tab-templates">
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="new-template-name" placeholder="Nombre de la plantilla..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 6px 10px; border-radius: 6px; font-size: 8.5pt; outline: none;">
+        <!-- Opción Permanente: Catálogo Completo (Todo el Inventario) -->
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(245, 158, 11, 0.06) 100%); border: 1.5px solid rgba(245, 158, 11, 0.45); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
+          <div>
+            <div style="font-weight: 800; font-size: 9pt; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+              <span>⭐ Catálogo Completo</span>
+            </div>
+            <div style="font-size: 7.5pt; color: #CBD5E1; margin-top: 2px;">Cargar todos los códigos y productos del inventario</div>
+          </div>
+          <button class="btn-chip" onclick="cargarTodoElInventario()" style="background: var(--primary); color: #0F172A; border: none; padding: 7px 14px; font-weight: 800; font-size: 8.5pt; display: flex; align-items: center; gap: 5px; cursor: pointer; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            <span>Cargar Todo</span>
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+          <input type="text" id="new-template-name" placeholder="Guardar selección actual como..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 6px 10px; border-radius: 6px; font-size: 8.5pt; outline: none;">
           <button class="btn-chip" onclick="guardarPlantillaDesdeInput()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px; font-weight: 800;">Guardar</button>
         </div>
         <div class="templates-list" id="templates-list-container"></div>
@@ -1422,19 +1436,27 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     // ─── 3. GESTOR DE PLANTILLAS ───
     function getStoredTemplates() {{
       const defaultTemplates = [
+        {{ name: '⭐ Catálogo Completo (Todo el Inventario)', codes: [], is_all: true }},
         {{ name: 'Top Ventas General', codes: ['ACC014', 'ACC017', 'ACT080', 'DSM02-100'] }},
         {{ name: 'Herramientas DongCheng & Crown', codes: ['DSM02-100', 'FF02-100', 'CT10128'] }}
       ];
       try {{
-        const stored = localStorage.getItem('rivero_catalog_templates');
-        return stored ? JSON.parse(stored) : defaultTemplates;
+        const stored = localStorage.getItem('rivero_catalog_templates_v3');
+        if (stored) {{
+          const parsed = JSON.parse(stored);
+          if (!parsed.some(t => t.is_all || t.name.includes('Todo el Inventario'))) {{
+            parsed.unshift({{ name: '⭐ Catálogo Completo (Todo el Inventario)', codes: [], is_all: true }});
+          }}
+          return parsed;
+        }}
+        return defaultTemplates;
       }} catch(e) {{
         return defaultTemplates;
       }}
     }}
 
     function saveStoredTemplates(templates) {{
-      localStorage.setItem('rivero_catalog_templates', JSON.stringify(templates));
+      localStorage.setItem('rivero_catalog_templates_v3', JSON.stringify(templates));
       renderTemplatesList();
     }}
 
@@ -1448,20 +1470,27 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       let html = '';
       templates.forEach((t, idx) => {{
+        const isAll = !!t.is_all;
+        const countDisplay = isAll ? `${{allInventoryProducts.length || 'Todos los'}} producto(s)` : `${{t.codes.length}} producto(s)`;
+        const itemStyle = isAll ? 'border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08);' : '';
+        const nameStyle = isAll ? 'font-weight: 800; color: var(--primary);' : '';
+
         html += `
-          <div class="template-item">
+          <div class="template-item" style="${{itemStyle}}">
             <div class="template-info">
-              <span class="template-name">${{t.name}}</span>
-              <span class="template-count">${{t.codes.length}} producto(s)</span>
+              <span class="template-name" style="${{nameStyle}}">${{t.name}}</span>
+              <span class="template-count">${{countDisplay}}</span>
             </div>
             <div class="template-actions">
               <button class="btn-chip" onclick="loadTemplateByIndex(${{idx}})" style="background: rgba(245, 158, 11, 0.2); color: var(--primary); border-color: rgba(245, 158, 11, 0.3); display: flex; align-items: center; gap: 4px;">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                 <span>Cargar</span>
               </button>
+              ${{isAll ? '' : `
               <button class="btn-chip danger" onclick="deleteTemplateByIndex(${{idx}})" title="Eliminar" style="display: flex; align-items: center; justify-content: center; padding: 4px 6px;">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
+              `}}
             </div>
           </div>
         `;
@@ -1488,6 +1517,19 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       log(`[OK] Plantilla '${{name}}' guardada exitosamente con ${{selectedCodesSet.size}} productos.`);
     }}
 
+    function cargarTodoElInventario() {{
+      if (allInventoryProducts.length === 0) {{
+        alert("El inventario aún se está cargando o no contiene productos.");
+        return;
+      }}
+      selectedCodesSet.clear();
+      allInventoryProducts.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+      syncSetToTextarea();
+      switchSmartTab('manual');
+      log(`[OK] ¡Cargados exitosamente los ${{allInventoryProducts.length}} productos del inventario al generador!`, 'success');
+      alert(`🎉 ¡Listo! Se seleccionaron los ${{allInventoryProducts.length}} productos de todo el inventario.`);
+    }}
+
     function guardarComoPlantillaPrompt() {{
       if (selectedCodesSet.size === 0) {{
         alert("No tienes códigos seleccionados para guardar.");
@@ -1505,11 +1547,18 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     function loadTemplateByIndex(idx) {{
       const templates = getStoredTemplates();
       const t = templates[idx];
-      if (t && t.codes) {{
+      if (t) {{
         selectedCodesSet.clear();
-        t.codes.forEach(c => selectedCodesSet.add(c.toUpperCase()));
-        syncSetToTextarea();
-        log(`[OK] Plantilla '${{t.name}}' cargada con ${{t.codes.length}} productos.`);
+        if (t.is_all || t.name.includes('Todo el Inventario') || t.name.includes('Catálogo Completo')) {{
+          allInventoryProducts.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+          syncSetToTextarea();
+          log(`[OK] ¡Plantilla de Catálogo Completo cargada con los ${{allInventoryProducts.length}} productos del inventario!`, 'success');
+        }} else if (t.codes) {{
+          t.codes.forEach(c => selectedCodesSet.add(c.toUpperCase()));
+          syncSetToTextarea();
+          log(`[OK] Plantilla '${{t.name}}' cargada con ${{t.codes.length}} productos.`);
+        }}
+        switchSmartTab('manual');
       }}
     }}
 
