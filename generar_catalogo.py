@@ -1150,7 +1150,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       font-size: 11px;
       font-weight: 800;
       cursor: pointer;
-      display: none;
+      display: none !important;
       align-items: center;
       justify-content: center;
       z-index: 50;
@@ -1159,8 +1159,9 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       line-height: 1;
       padding: 0;
     }
-    .product-card:hover .btn-card-remove-live {
-      display: flex;
+    /* El botón de eliminar SOLO es visible dentro del panel del generador (administrador) */
+    body.is-generator-iframe .product-card:hover .btn-card-remove-live {
+      display: flex !important;
     }
     .btn-card-remove-live:hover {
       background: #B91C1C;
@@ -2642,6 +2643,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
   </div>
 
   <script>
+    // Detectar si el catálogo está abierto dentro del panel generador (administrador)
+    try {{
+      if (window.parent && window.parent !== window) {{
+        document.body.classList.add('is-generator-iframe');
+      }}
+    }} catch (err) {{}}
+
     const BUSINESS_PHONE = "{clean_biz_phone}";
     const cart = {{}};
     function quitarProductoEnVivo(e, code) {{
