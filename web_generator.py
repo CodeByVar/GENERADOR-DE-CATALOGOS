@@ -137,7 +137,45 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     writer.write("EVENT_ERROR: Ocurrió un error al procesar el catálogo.\n")
             return
 
-        # 1.5 Endpoint API para obtener el resumen de inventario (Buscador, Marcas y Plantillas)
+        # 1.5 Endpoint SSE para Publicar en Vercel vía Git Push
+        elif parsed_url.path == "/publicar_vercel":
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/event-stream')
+            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Connection', 'keep-alive')
+            self.end_headers()
+            
+            writer = SSEStdoutWriter(self)
+            writer.write(">>> [VERCEL] Preparando despliegue de catálogo online...\n")
+            try:
+                import shutil
+                if os.path.exists("catalogos.html"):
+                    shutil.copyfile("catalogos.html", "index.html")
+                    writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
+                
+                writer.write(">>> [VERCEL] Registrando archivos en Git...\n")
+                subprocess.run(["git", "add", "index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat"], capture_output=True)
+                subprocess.run(["git", "add", "-u"], capture_output=True)
+                
+                writer.write(">>> [VERCEL] Creando punto de actualización en historial...\n")
+                subprocess.run(["git", "commit", "-m", "Actualizacion del catalogo online para clientes"], capture_output=True)
+                
+                writer.write(">>> [VERCEL] Subiendo cambios a GitHub / Vercel en la nube...\n")
+                res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
+                if res.returncode == 0:
+                    writer.write(">>> [VERCEL] [OK] Subida completada con éxito!\n")
+                    writer.write(">>> [VERCEL] Vercel se está actualizando en vivo en tu enlace web.\n")
+                    writer.write("EVENT_SUCCESS: Catálogo publicado con éxito en Vercel.\n")
+                else:
+                    err_msg = res.stderr or res.stdout
+                    writer.write(f">>> [VERCEL AVISO] {err_msg.strip()}\n")
+                    writer.write("EVENT_ERROR: Error al subir cambios a GitHub / Vercel.\n")
+            except Exception as ex:
+                writer.write(f">>> [VERCEL ERROR] {ex}\n")
+                writer.write("EVENT_ERROR: Ocurrió una excepción al publicar.\n")
+            return
+
+        # 1.6 Endpoint API para obtener el resumen de inventario (Buscador, Marcas y Plantillas)
         elif parsed_url.path == "/api/productos":
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -1123,6 +1161,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             <span>Descargar HTML</span>
           </a>
+          <button class="device-btn" id="btn-publish-vercel" onclick="publicarEnVercel()" style="background-color: rgba(99, 102, 241, 0.18); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.4); display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 700;" title="Subir catálogo a GitHub y actualizar en Vercel">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L24 22H0L12 1Z"/></svg>
+            <span>Publicar en Vercel</span>
+          </button>
         </div>
       </div>
       
@@ -1807,6 +1849,40 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
     // Iniciar carga del inventario y estado
     cargarInventarioAPI();
+    function publicarEnVercel() {{
+      if (!confirm("¿Deseas publicar y actualizar el catálogo online en Vercel ahora mismo?")) return;
+      
+      const btnPublish = document.getElementById('btn-publish-vercel');
+      btnPublish.disabled = true;
+      btnPublish.style.opacity = '0.6';
+      
+      log(">>> [VERCEL] Conectando con GitHub y Vercel...");
+      
+      const evtSource = new EventSource('/publicar_vercel');
+      evtSource.onmessage = function(e) {{
+        if (e.data.startsWith('EVENT_SUCCESS')) {{
+          evtSource.close();
+          btnPublish.disabled = false;
+          btnPublish.style.opacity = '1';
+          log(">>> [VERCEL] ¡PUBLICACIÓN EXITOSA! Tu catálogo ya está en la nube.", 'success');
+          alert("🎉 ¡Catálogo publicado con éxito en Vercel!\nEn unos 15 segundos estará disponible en vivo en tu enlace web.");
+        }} else if (e.data.startsWith('EVENT_ERROR')) {{
+          evtSource.close();
+          btnPublish.disabled = false;
+          btnPublish.style.opacity = '1';
+          log(">>> [VERCEL] Falló la publicación.", 'error');
+          alert("❌ Ocurrió un inconveniente al subir a Vercel/GitHub. Revisa la consola del panel.");
+        }} else {{
+          log(e.data);
+        }}
+      }};
+      evtSource.onerror = function() {{
+        evtSource.close();
+        btnPublish.disabled = false;
+        btnPublish.style.opacity = '1';
+      }};
+    }}
+
     updateDownloadHtmlLink();
   </script>
 </body>
