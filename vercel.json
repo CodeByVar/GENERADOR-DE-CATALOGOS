@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/catalogo", "destination": "/catalogos.html" },
+    { "source": "/desktop", "destination": "/catalogos_desktop.html" },
+    { "source": "/mobile", "destination": "/catalogos_mobile.html" }
+  ]
+}
