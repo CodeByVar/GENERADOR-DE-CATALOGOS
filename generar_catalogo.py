@@ -2625,7 +2625,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     # Slogan inferior estilo Foto 1
     html_out.append('      <div class="cover-footer">')
     html_out.append('        <div class="cover-footer-text">')
-    html_out.append(f'          ✦ Resumen: {total_prods} productos en {total_marcas} marcas • simplificamos tu esfuerzo ✦')
+    html_out.append(f'          • Resumen: {total_prods} productos en {total_marcas} marcas • simplificamos tu esfuerzo •')
     html_out.append('        </div>')
     html_out.append('      </div>')
     
@@ -2738,7 +2738,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             html_out.append(f'    <div class="category-section">')
             # Encabezado de línea de categoría más estrecho
             html_out.append(f'      <div class="category-header" style="background-color: {cat_bg}; color: {cat_fg}; border-left: 4px solid {card_hdr_bg};">')
-            html_out.append(f'        ✦ LÍNEA DE {cat.upper()}')
+            html_out.append(f'        • LÍNEA DE {cat.upper()}')
             html_out.append('      </div>')
             
             # Variables de estilo inyectadas en CSS inline para las tarjetas
@@ -2851,9 +2851,9 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       </div>
       <div class="modal-body">
         <div class="customer-inputs">
-          <input type="text" id="client-name" placeholder="Nombre / Empresa (ej. Marianela)" class="customer-field" />
+          <input type="text" id="client-name" placeholder="Nombre / Empresa * (Requerido)" class="customer-field" required />
           <div class="customer-inputs-grid">
-            <input type="text" id="client-address" placeholder="Dirección / Zona (ej. Villa Pagador)" class="customer-field" />
+            <input type="text" id="client-address" placeholder="Dirección / Zona * (Requerido)" class="customer-field" required />
             <input type="text" id="client-phone" placeholder="Celular / WhatsApp (opcional)" class="customer-field" />
           </div>
         </div>
@@ -3378,7 +3378,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
               <div class="order-item-name" title="${{it.name}}">${{it.name}}</div>
               <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
                 <span style="font-size: 8.5pt; font-weight: 800; color: #86EFAC; background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 9px; border-radius: 6px;">
-                  ✨ Total: ${{itemTotalUnits}} ${{unMed}} (${{breakdownText}})
+                  Total: ${{itemTotalUnits}} ${{unMed}} (${{breakdownText}})
                 </span>
               </div>
             </div>
@@ -3436,9 +3436,31 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         return;
       }}
 
-      const clientName = (document.getElementById('client-name')?.value || '').trim();
-      const clientAddress = (document.getElementById('client-address')?.value || '').trim();
+      const nameInput = document.getElementById('client-name');
+      const addrInput = document.getElementById('client-address');
+      const clientName = (nameInput?.value || '').trim();
+      const clientAddress = (addrInput?.value || '').trim();
       const clientPhone = (document.getElementById('client-phone')?.value || '').trim();
+
+      if (!clientName) {{
+        if (nameInput) {{
+          nameInput.focus();
+          nameInput.classList.add('input-qty-error');
+          setTimeout(() => nameInput.classList.remove('input-qty-error'), 1200);
+        }}
+        showStockToast("⚠️ Por favor ingresa tu <strong>Nombre o Empresa</strong> para procesar tu pedido.");
+        return;
+      }}
+
+      if (!clientAddress) {{
+        if (addrInput) {{
+          addrInput.focus();
+          addrInput.classList.add('input-qty-error');
+          setTimeout(() => addrInput.classList.remove('input-qty-error'), 1200);
+        }}
+        showStockToast("⚠️ Por favor ingresa tu <strong>Dirección o Zona</strong> para el despacho.");
+        return;
+      }}
 
       // Guardar memoria del cliente
       try {{
