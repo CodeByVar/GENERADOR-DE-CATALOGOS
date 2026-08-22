@@ -12,6 +12,8 @@ import webbrowser
 import os
 import sys
 import urllib.parse
+import urllib.request
+import ssl
 import json
 import subprocess
 import generar_catalogo
@@ -188,6 +190,25 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(data).encode('utf-8'))
             except Exception as e:
                 self.wfile.write(json.dumps({"error": str(e), "productos": [], "marcas": {}, "categorias": {}}).encode('utf-8'))
+            return
+
+        # 1.7 Endpoint API para sincronizar y probar stock en vivo desde Google Apps Script
+        elif parsed_url.path == "/api/stock":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            try:
+                stock_url = getattr(generar_catalogo, 'URL_STOCK_API', "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec")
+                req = urllib.request.Request(stock_url, headers={'User-Agent': 'Mozilla/5.0'})
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                with urllib.request.urlopen(req, context=ctx, timeout=90) as response:
+                    content = response.read()
+                    self.wfile.write(content)
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
             return
 
         # 2. Servir el PDF de catálogo
@@ -1128,6 +1149,18 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         </div>
         <input type="text" id="whatsapp" placeholder="Ej: +59170000000" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #25D366; padding: 5px 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; width: 140px; outline: none; font-weight: 700;">
       </div>
+
+      <!-- Control de Stock en Vivo desde Google Drive -->
+      <div class="toggle-row" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.22); padding: 8px 10px; border-radius: 8px; margin-top: 4px;">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 6px #22C55E; display: inline-block;"></span>
+            <span style="font-weight: 700; font-size: 8.5pt; color: #86EFAC;">Stock en Vivo (Google Drive)</span>
+          </div>
+          <span style="font-size: 7.5pt; color: #94A3B8;">Sincronizado: Uyus + Varios</span>
+        </div>
+        <button type="button" onclick="testStockConnection(event)" class="btn-chip" style="font-size: 7.5pt; padding: 4px 8px; background: rgba(34, 197, 94, 0.15); color: #86EFAC; border: 1px solid rgba(34, 197, 94, 0.35); cursor: pointer;">Probar API</button>
+      </div>
       
       <!-- Botón de Generar -->
       <button class="btn-generate" id="btn-run" onclick="iniciarGeneracion()">
@@ -1891,9 +1924,26 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }}
     }}
     
-    function verCompleto() {{
-      const fileUrl = getHtmlUrl(currentDevice);
-      window.open(fileUrl + '?t=' + Date.now(), '_blank');
+    async function testStockConnection(e) {{
+      const btn = e ? e.target : null;
+      const originalText = btn ? btn.innerText : 'Probar API';
+      if (btn) btn.innerText = 'Conectando...';
+      log(">>> [STOCK] Probando conexión con Google Apps Script (Uyus + Varios)...");
+      try {{
+        const res = await fetch("/api/stock", {{ cache: 'no-store' }});
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        const total = Object.keys(data).length;
+        log(`>>> [STOCK OK] ¡Conexión exitosa con Google Drive! Se encontraron ${{total}} productos sincronizados en tiempo real.`, "success");
+        if (btn) btn.innerText = `OK (${{total}} items)`;
+      }} catch (err) {{
+        log(">>> [STOCK ERROR] " + err.message, "error");
+        if (btn) btn.innerText = 'Error';
+      }}
+      if (btn) {{
+        setTimeout(() => {{ btn.innerText = originalText; }}, 4000);
+      }}
     }}
 
     // Iniciar carga del inventario y estado

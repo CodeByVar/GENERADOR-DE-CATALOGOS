@@ -26,6 +26,7 @@ import time
 # para evitar tener el archivo catalogos.xlsx visible en la carpeta principal.
 ARCHIVO_EXCEL       = os.path.join("temp_imgs", "catalogos_db_cache.xlsx")
 URL_GOOGLE_SHEETS   = "https://docs.google.com/spreadsheets/d/181FkDYPFME5Fx75og4tNO3mvBMSGDY-M9IxGFcR28SI/edit?usp=sharing"
+URL_STOCK_API       = "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec"
 HOJA_DB             = "FORMATO INVENTARIO"
 HOJA_VISTA          = "Vista_Catalogo"
 HOJA_CATALOGO       = "CATALOGO"
@@ -1795,6 +1796,107 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       box-shadow: 0 6px 20px rgba(37, 211, 102, 0.25) !important;
     }
 
+    /* ──── SEMÁFORO DE STOCK Y EMPAQUE EN TIEMPO REAL ──── */
+    .card-header {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 6px !important;
+    }
+    .stock-status-pill {
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 12px;
+      letter-spacing: 0.2px;
+      text-transform: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      line-height: 1.2;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    .stock-checking {
+      background: rgba(148, 163, 184, 0.15);
+      color: #94A3B8;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .stock-in-stock {
+      background: #DCFCE7 !important;
+      color: #166534 !important;
+      border: 1px solid #86EFAC !important;
+      box-shadow: 0 1px 4px rgba(22, 101, 52, 0.12);
+    }
+    .stock-low {
+      background: #FEF3C7 !important;
+      color: #B45309 !important;
+      border: 1px solid #FCD34D !important;
+      box-shadow: 0 1px 6px rgba(180, 83, 9, 0.2);
+      animation: pulse-badge 2s infinite ease-in-out;
+    }
+    @keyframes pulse-badge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    .stock-out {
+      background: #FEE2E2 !important;
+      color: #991B1B !important;
+      border: 1px solid #FCA5A5 !important;
+    }
+    .product-card.is-out-of-stock {
+      opacity: 0.82;
+      filter: grayscale(0.25);
+    }
+    .product-card.is-out-of-stock .product-qty-selector {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .live-stock-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 8pt;
+      font-weight: 700;
+      color: #F8FAFC;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .live-stock-indicator:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    .pulse-dot-online {
+      width: 7px;
+      height: 7px;
+      background: #22C55E;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22C55E;
+      animation: pulse-dot 1.5s infinite;
+    }
+    .pulse-dot-loading {
+      width: 7px;
+      height: 7px;
+      background: #F59E0B;
+      border-radius: 50%;
+      animation: pulse-dot 0.8s infinite;
+    }
+    .pulse-dot-cached {
+      width: 7px;
+      height: 7px;
+      background: #94A3B8;
+      border-radius: 50%;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
     /* ──── BARRA DE BÚSQUEDA EN VIVO PARA EL CLIENTE (STICKY FLOTANTE REDONDEADA) ──── */
     .catalog-search-sticky-bar {
       position: sticky;
@@ -2505,6 +2607,9 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     html_out.append('      <div class="search-stats-badge">')
     html_out.append(f'        <span id="search-match-count">{total_prods}</span> productos')
     html_out.append('      </div>')
+    html_out.append('      <div id="live-stock-indicator" class="live-stock-indicator" onclick="fetchLiveStock()" title="Clic para refrescar stock en vivo desde Drive">')
+    html_out.append('        <span class="pulse-dot-loading"></span> Sincronizando stock...')
+    html_out.append('      </div>')
     html_out.append('    </div>')
     html_out.append('    <div class="brand-filter-chips">')
     html_out.append(f'      <button type="button" class="brand-chip active" data-brand-chip="all" onclick="filterByBrand(\'all\')">Todas ({total_prods})</button>')
@@ -2608,7 +2713,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append(f'        <div class="{card_class} product-card" data-search="{search_text}" data-brand="{b_name}" data-code="{prod["cod"]}">')
                 html_out.append(f'          <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, \'{prod["cod"]}\')" title="Quitar este producto del catálogo">✕</button>')
                 html_out.append('          <div class="card-header">')
-                html_out.append(f'            CÓDIGO: {prod["cod"]}')
+                html_out.append(f'            <span style="font-weight: 800;">CÓDIGO: {prod["cod"]}</span>')
+                html_out.append(f'            <span class="stock-status-pill stock-checking" id="stock_pill_{prod["cod"]}">● Stock</span>')
                 html_out.append('          </div>')
                 
                 html_out.append('          <div class="card-body">')
@@ -2634,7 +2740,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 safe_unit = str(prod["uni"]).replace('"', '&quot;').replace("'", "&#39;")
 
                 html_out.append('            <div class="card-footer">')
-                html_out.append(f'              <span class="packaging-info">Unidad: {prod["uni"]}</span>')
+                html_out.append(f'              <span class="packaging-info" id="pkg_info_{prod["cod"]}">📦 {prod["uni"]}</span>')
                 html_out.append('              <div class="order-selectors-dual">')
                 html_out.append('                <div class="qty-group" title="Escribe la cantidad de Cajas o usa + / −">')
                 html_out.append('                  <span class="qty-label">Caja:</span>')
@@ -2742,7 +2848,119 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }} catch (err) {{}}
 
     const BUSINESS_PHONE = "{clean_biz_phone}";
+    const STOCK_API_URL = "{URL_STOCK_API}";
+    let liveStockMap = {{}};
     const cart = {{}};
+
+    async function fetchLiveStock() {{
+      const statusEl = document.getElementById('live-stock-indicator');
+      if (statusEl) {{
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando...';
+      }}
+      
+      try {{
+        const res = await fetch(STOCK_API_URL, {{ cache: 'no-store' }});
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        liveStockMap = data || {{}};
+        
+        try {{
+          localStorage.setItem('cached_stock_data', JSON.stringify({{
+            timestamp: Date.now(),
+            data: liveStockMap
+          }}));
+        }} catch(e) {{}}
+        
+        applyStockData(liveStockMap);
+        
+        if (statusEl) {{
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
+          statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{timeStr}})`;
+        }}
+      }} catch (err) {{
+        console.warn("No se pudo obtener el stock en vivo:", err);
+        try {{
+          const cached = localStorage.getItem('cached_stock_data');
+          if (cached) {{
+            const parsed = JSON.parse(cached);
+            liveStockMap = parsed.data || {{}};
+            applyStockData(liveStockMap);
+            if (statusEl) {{
+              statusEl.innerHTML = '<span class="pulse-dot-cached"></span> Stock (Caché)';
+            }}
+          }} else {{
+            if (statusEl) {{
+              statusEl.innerHTML = '<span class="pulse-dot-cached"></span> Stock Offline';
+            }}
+          }}
+        }} catch(e) {{}}
+      }}
+    }}
+
+    function applyStockData(stockMap) {{
+      if (!stockMap || typeof stockMap !== 'object') return;
+      
+      const cards = document.querySelectorAll('.product-card');
+      cards.forEach(card => {{
+        const rawCode = card.getAttribute('data-code') || '';
+        const normCode = rawCode.toUpperCase().replace(/\\s+/g, '');
+        const info = stockMap[normCode] || stockMap[rawCode.toUpperCase()];
+        
+        const pillEl = card.querySelector('.stock-status-pill') || document.getElementById(`stock_pill_${{rawCode}}`);
+        const pkgEl = card.querySelector('.packaging-info') || document.getElementById(`pkg_info_${{rawCode}}`);
+
+        if (info) {{
+          const cantCaja = info.cantPorCaja || 1;
+          const unMed = info.unidadMedida || "UNI";
+          if (pkgEl) {{
+            pkgEl.innerHTML = `📦 ${{cantCaja}} ${{unMed}} / Caja`;
+            pkgEl.setAttribute('title', `Viene ${{cantCaja}} ${{unMed}} por caja`);
+          }}
+          
+          const stock = typeof info.stockActual === 'number' ? info.stockActual : 0;
+          const cajas = typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja);
+          
+          if (pillEl) {{
+            if (stock <= 0 || info.estado === "AGOTADO") {{
+              pillEl.className = "stock-status-pill stock-out";
+              pillEl.innerHTML = "🔴 Agotado";
+              pillEl.setAttribute('title', "Sin stock disponible en almacén");
+              card.classList.add('is-out-of-stock');
+            }} else if (info.estado === "POCO_STOCK" || cajas <= 3) {{
+              pillEl.className = "stock-status-pill stock-low";
+              if (cajas >= 1) {{
+                pillEl.innerHTML = `🟡 ¡Últimas ${{cajas}} caja${{cajas > 1 ? 's' : ''}}!`;
+              }} else {{
+                pillEl.innerHTML = `🟡 ¡Últimas ${{stock}} ${{unMed}}!`;
+              }}
+              pillEl.setAttribute('title', `Stock: ${{stock}} ${{unMed}} (${{cajas}} cajas) en almacén`);
+              card.classList.remove('is-out-of-stock');
+            }} else {{
+              pillEl.className = "stock-status-pill stock-in-stock";
+              pillEl.innerHTML = "🟢 En Stock";
+              pillEl.setAttribute('title', "Stock disponible");
+              card.classList.remove('is-out-of-stock');
+            }}
+          }}
+        }} else {{
+          if (pillEl) {{
+            pillEl.className = "stock-status-pill stock-in-stock";
+            pillEl.innerHTML = "🟢 Disponible";
+          }}
+        }}
+      }});
+    }}
+
+    // Iniciar sincronización automática al abrir y cada 2 minutos
+    try {{
+      if (document.readyState === 'loading') {{
+        document.addEventListener('DOMContentLoaded', fetchLiveStock);
+      }} else {{
+        fetchLiveStock();
+      }}
+      setInterval(fetchLiveStock, 120000);
+    }} catch(e) {{}}
     function quitarProductoEnVivo(e, code) {{
       if (e) {{
         e.stopPropagation();
