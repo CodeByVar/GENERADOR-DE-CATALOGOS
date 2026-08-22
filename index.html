@@ -1027,6 +1027,42 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.85); }
     }
+    .stock-toast {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15, 23, 42, 0.96);
+      color: #FFFFFF;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid #F59E0B;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 8.5pt;
+      font-weight: 800;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stock-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .input-qty-error {
+      border-color: #EF4444 !important;
+      animation: shake-input 0.3s ease;
+    }
+    @keyframes shake-input {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
 
     /* ──── BARRA DE BÚSQUEDA EN VIVO PARA EL CLIENTE (STICKY FLOTANTE REDONDEADA) ──── */
     .catalog-search-sticky-bar {
@@ -1677,7 +1713,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TT328151')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TT328151</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TT328151">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TT328151">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">SOLDADOR D/TUBO PVC (TERMOFUSION) 800W/1500W TOTAL</div>
@@ -1714,7 +1750,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TS9243558')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TS9243558</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TS9243558">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TS9243558">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TRONZADORA 14"/2400W TOTAL</div>
@@ -1751,7 +1787,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCBNLI5005')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCBNLI5005</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCBNLI5005">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCBNLI5005">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CLAVADORA INA. BL. MOTOR 20V(2,0/4,0/5,0/6,0Ah*0) 50MM SOLO TOTAL</div>
@@ -1788,7 +1824,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIWLI201351')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIWLI201351</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIWLI201351">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIWLI201351">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE DE IMPACTO INAL. BLMOTOR 3/4" 20V(2,0/4,0Ah*0) 1350N.m TOTAL</div>
@@ -1825,7 +1861,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI20275')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI20275</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI20275">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI20275">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 2PZS(LLAVE DE IMPACTO + TALADRO) 400N.m/60N.m 20V(2,0Ah*2) MALETA TOTAL</div>
@@ -1862,7 +1898,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIWLI20135')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIWLI20135</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIWLI20135">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIWLI20135">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE DE IMPACTO INAL. BL. MOTOR 20V(5,0Ah*2) 3/4"-1350N.m TOTAL</div>
@@ -1899,7 +1935,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TTVLI20018')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TTVLI20018</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TTVLI20018">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TTVLI20018">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">VIBRADORA P/CERAMICA C/VENTOSA INAL. T.B 130MM 20V(2,0Ah*1) 60KGS + CAJA PLAST. DE HERRA. TOTAL</div>
@@ -1936,7 +1972,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIDLI201668')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIDLI201668</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIDLI201668">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIDLI201668">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TALADRO DE IMPACTO INA. BLMOTOR 13MM 20V(5,0Ah*2) 166N.m M/METAL MALETA TOTAL</div>
@@ -1973,7 +2009,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI251083')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI251083</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI251083">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI251083">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 5PZS(LAMPARA + LLAVE DE IMPACTO + MARTILLO DEMOLEDOR + ROTOMARTILLO + SOPLADOR) 20V(4,0Ah*2) E/BOLSO TOTAL</div>
@@ -2010,7 +2046,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMXLI20162')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMXLI20162</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMXLI20162">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMXLI20162">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MEZCLADORA INA. BL. MOTOR 20V(4,0*2) M14 TOTAL</div>
@@ -2047,7 +2083,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIWLI42462')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIWLI42462</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIWLI42462">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIWLI42462">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE DE IMPACTO INAL. BL. MOTOR 1/2" 42V(2,0Ah*2) C/ADAPTADOR 460N.m MALETA TOTAL</div>
@@ -2084,7 +2120,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THPTCS84362')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THPTCS84362</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THPTCS84362">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THPTCS84362">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO GABINETE INA. 6PZS(ATORNILLADOR + LLAVE DE IMPACTO *2 + TALADRO) 285N.m/850N.m/1350N.m/66N.m 20V(5,0Ah*2/2,0Ah*2) + SET/436PZS TOTAL</div>
@@ -2121,7 +2157,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TP880-1')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TP880-1</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TP880-1">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TP880-1">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">COMPACTADOR A GASOLINA M/HONDA GX160 79KGS/5,5HP 450-660 RPM 10KN TOTAL</div>
@@ -2158,7 +2194,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TWLC1301')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TWLC1301</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TWLC1301">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TWLC1301">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CANALEADOR (RANURADORA) ELECT. 125MM/3000W INDUSTRIAL TOTAL</div>
@@ -2195,7 +2231,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TWLC1256')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TWLC1256</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TWLC1256">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TWLC1256">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CANALEADOR (RANURADORA) ELECT. 125MM/1500W TOTAL</div>
@@ -2232,7 +2268,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TP1016-2')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TP1016-2</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TP1016-2">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TP1016-2">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">SIERRA DE PISO A GASOLINA 120KGS/13HP C:14CM TOTAL</div>
@@ -2269,7 +2305,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TS11418526')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TS11418526</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TS11418526">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TS11418526">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">SIERRA CIRCULAR 185MM/1400W TOTAL</div>
@@ -2306,7 +2342,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TET01610')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TET01610</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TET01610">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TET01610">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CAUTIN M/PLAST. REGULABLE DIGITAL 120W (NUCLEO CERAMICO) TOTAL</div>
@@ -2343,7 +2379,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TVC14122')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TVC14122</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TVC14122">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TVC14122">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ASPIRADORA SECO/HUMEDO METALICA 12LTS/800W TOTAL</div>
@@ -2380,7 +2416,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TGT11236')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TGT11236</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TGT11236">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TGT11236">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">HIDROLAVADORA PORTATIL 100BAR 1500W TOTAL</div>
@@ -2417,7 +2453,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TH1153216')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TH1153216</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TH1153216">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TH1153216">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ROTOMARTILLO SDS PLUS 32MM/1500W 3EN1 TOTAL</div>
@@ -2454,7 +2490,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TH118366')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TH118366</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TH118366">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TH118366">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ROTOMARTILLO SDS PLUS 36MM/1800W (C/A/M) TOTAL</div>
@@ -2498,7 +2534,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKISD12102L')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKISD12102L</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKISD12102L">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKISD12102L">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS DE IMPACTO LARGO 1/2" SET/10PZS TOTAL</div>
@@ -2535,7 +2571,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT121201')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT121201</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT121201">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT121201">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA 1/2"*SET/20PZS Cr-V MALETA TOTAL</div>
@@ -2572,7 +2608,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT121602')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT121602</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT121602">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT121602">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA 1/2"*SET/62PZS Cr-V MALETA TOTAL</div>
@@ -2609,7 +2645,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT121171')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT121171</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT121171">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT121171">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA 1/2"*SET/17PZS Cr-V TOTAL</div>
@@ -2646,7 +2682,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT421942')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT421942</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT421942">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT421942">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA 1/4"-1/2"*SET/94PZS Cr-V MALETA TOTAL</div>
@@ -2683,7 +2719,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THTS082016')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THTS082016</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THTS082016">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THTS082016">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA 1/4"-3/8"-1/2"*SET/201PZS Cr-V MALETA TOTAL</div>
@@ -2720,7 +2756,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP21376')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP21376</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP21376">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP21376">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA, LLAVES COMB. Y HERRAMIENTAS MANUALES 1/4"-1/2"*SET/137PZS Cr-V MALETA TOTAL</div>
@@ -2764,7 +2800,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAC310031')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAC310031</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAC310031">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAC310031">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ESCOBILLA P/TALADRO SET/3PZS TOTAL</div>
@@ -2801,7 +2837,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TH309288-2')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TH309288-2</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TH309288-2">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TH309288-2">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ROTOMARTILLO SDS PLUS 28MM/950W 3EN1 TOTAL</div>
@@ -2838,7 +2874,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAC0304375')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAC0304375</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAC0304375">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAC0304375">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">BROCA CINCEL P/MARTILLO ELECT. SET/4PZS M/METAL TOTAL</div>
@@ -2882,7 +2918,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP306')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP306</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP306">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP306">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LENTES D/SEGURIDAD OSCURO DEPORTIVO DIN 9 TOTAL</div>
@@ -2919,7 +2955,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT16P30125')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT16P30125</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT16P30125">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT16P30125">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CLAVERA PORTA HERRAMIENTAS 290*190MM 9 BOLSILLOS/8KGS TOTAL</div>
@@ -2956,7 +2992,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT16P40125')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT16P40125</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT16P40125">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT16P40125">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CLAVERA PORTA HERRAMIENTAS 245*130MM 7 BOLSILLOS/5KGS TOTAL</div>
@@ -2993,7 +3029,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT261925')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT261925</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT261925">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT261925">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">BOLSO HERRAMIENTAS 19"/CAP. 18KGS/14 BOLS. TOTAL</div>
@@ -3030,7 +3066,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP12102')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP12102</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP12102">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP12102">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">GUANTES DE TRABAJO NITRILO/PVC XL TOTAL</div>
@@ -3067,7 +3103,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP1702-XL')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP1702-XL</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP1702-XL">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP1702-XL">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">GUANTES RESISTENTE ANTI-CORTES XL TOTAL</div>
@@ -3104,7 +3140,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT16P10125')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT16P10125</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT16P10125">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT16P10125">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CLAVERA PORTA HERRAMIENTAS 350*320MM 10 BOLSILLOS/10KGS TOTAL</div>
@@ -3141,7 +3177,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT261625')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT261625</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT261625">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT261625">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">BOLSO HERRAMIENTAS 16"/CAP. 15KGS/14 BOLS. TOTAL</div>
@@ -3178,7 +3214,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT261325')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT261325</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT261325">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT261325">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">BOLSO HERRAMIENTAS 13"/CAP. 12KGS/6 BOLS. TOTAL</div>
@@ -3215,7 +3251,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP9103')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP9103</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP9103">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP9103">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MASCARA DE SOLDAR AUTOMATICO REGULABLE CELESTE TOTAL</div>
@@ -3252,7 +3288,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP9309')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP9309</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP9309">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP9309">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MASCARA DE SOLDAR AUTOMATICO TOTAL</div>
@@ -3289,7 +3325,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP9216')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP9216</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP9216">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP9216">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MASCARA DE SOLDAR ECONOMICO 110*90MM TOTAL</div>
@@ -3333,7 +3369,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TSP9405')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TSP9405</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TSP9405">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TSP9405">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LENTE P/SOLDAR AUTO-OSCURO PVC TOTAL</div>
@@ -3370,7 +3406,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TET160923')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TET160923</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TET160923">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TET160923">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ESTACION DE SOLDADURA 60W C/CONTROL DE TEMPERATURA TOTAL</div>
@@ -3407,7 +3443,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TEWSFC081001')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TEWSFC081001</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TEWSFC081001">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TEWSFC081001">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">HILO DE ALAMBRE P/SOLDADURA FLUX MD: E71T-GS 0,8MM/1KGS TOTAL</div>
@@ -3444,7 +3480,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TW220069')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TW220069</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TW220069">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TW220069">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MAQUINA DE SOLDAR INVERTER MMA/200A PROFESIONAL TOTAL</div>
@@ -3488,7 +3524,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT578002')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT578002</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT578002">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT578002">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CORTACERAMICA MANUAL 800MM/16MM TOTAL</div>
@@ -3525,7 +3561,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT511826')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT511826</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT511826">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT511826">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CUCHILLO CARTONERO MB ECONOMICO TOTAL</div>
@@ -3562,7 +3598,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT519112')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT519112</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT519112">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT519112">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">HOJA P/CUCHILLO CARTONERO 18*100MM 10UN/SET TOTAL</div>
@@ -3599,7 +3635,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT524101')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT524101</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT524101">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT524101">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TIJERA CORTA LATA 10" TOTAL</div>
@@ -3643,7 +3679,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT510369')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT510369</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT510369">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT510369">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MEDIDOR DE DISTANCIA 110MTS INDUSTRIAL TOTAL</div>
@@ -3680,7 +3716,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT61126')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT61126</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT61126">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT61126">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ESCUADRA P/CARPINTERO ACERO INOX 12"/300MM TOTAL</div>
@@ -3717,7 +3753,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT126051')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT126051</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT126051">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT126051">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">FLEXOMETRO PLASTICO 5MTS*19MM 3FUN. TOTAL</div>
@@ -3754,7 +3790,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT34519')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT34519</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT34519">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT34519">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">FLEXOMETRO PLASTICO T/ABS 5MTS*19MM SS TOTAL</div>
@@ -3791,7 +3827,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT08506')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT08506</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT08506">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT08506">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">HUINCHA MEDIR FIBRA DE VIDRIO C/ASA 50MTS.*15MM TOTAL</div>
@@ -3828,7 +3864,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT23069')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT23069</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT23069">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT23069">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT TESTER ELECTRICO 3PZS(PINZA/MULTIMETRO/DETECTOR) AC 400A/600V/12V-1000V TOTAL</div>
@@ -3865,7 +3901,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT766001')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT766001</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT766001">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT766001">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MULTITESTER DIGITAL C/PINZA 600V/4000COUNTS TOTAL</div>
@@ -3902,7 +3938,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT5310004')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT5310004</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT5310004">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT5310004">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MULTITESTER DIGITAL C/RANGO AUTOMATICO 1000V/6000 COUNTS/TEMP. TOTAL</div>
@@ -3939,7 +3975,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT5360011')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT5360011</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT5360011">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT5360011">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MULTITESTER DIGITAL CHICO 600V/2000COUNTS RMS TOTAL</div>
@@ -3976,7 +4012,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TMT5310002')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TMT5310002</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TMT5310002">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TMT5310002">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MULTITESTER DIGITAL PEQUEÑO 1000V TRMS 6000 TOTAL</div>
@@ -4013,7 +4049,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT661301')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT661301</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT661301">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT661301">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TIRALINEA C/TIZA 30MTS SET/3PZS TOTAL</div>
@@ -4057,7 +4093,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT111062')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT111062</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT111062">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT111062">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ENGRASADORA MANUAL 600CC TOTAL</div>
@@ -4101,7 +4137,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT102RK586')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT102RK586</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT102RK586">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT102RK586">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE COMBINADA C/RACHET SET/8PZS FLEX. 8-19 MM TOTAL</div>
@@ -4138,7 +4174,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP61607')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP61607</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP61607">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP61607">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA Y LLAVES 1/4"-3/8"-1/2"*SET/160PZS Cr-V MALETA TOTAL</div>
@@ -4182,7 +4218,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THWS030301')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THWS030301</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THWS030301">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THWS030301">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ACOPLE RAPIDO 1/2" PLASTICO SET/3PZS TOTAL</div>
@@ -4219,7 +4255,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THSPP42002')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THSPP42002</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THSPP42002">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THSPP42002">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">FUMIGADOR MANUAL T/ MOCHILA 1,5-4,5BAR/20LTS TOTAL</div>
@@ -4263,7 +4299,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TGWPLI201801')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TGWPLI201801</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TGWPLI201801">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TGWPLI201801">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">BOMBADE AGUA DE TRANSFERENCIA INA. 20V(2,0/4,0/5,0/6,0Ah*0) 180W/0.2HP SOLO TOTAL</div>
@@ -4300,7 +4336,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TP3206')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TP3206</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TP3206">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TP3206">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MOTOBOMBA A GASOLINA 2"/7HP C/SWITCH TOTAL</div>
@@ -4337,7 +4373,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TP3306')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TP3306</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TP3306">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TP3306">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">MOTOBOMBA A GASOLINA 3"/7HP C/SWITCH TOTAL</div>
@@ -4381,7 +4417,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TP135006E')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TP135006E</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TP135006E">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TP135006E">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">GENERADOR DE GASOLINA 4T/15LTS/3500W C/LLAVE TOTAL</div>
@@ -4425,7 +4461,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TATK053-1')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TATK053-1</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TATK053-1">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TATK053-1">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">SOPLETE AIRE Y TOOLS SET/5PZS MB TOTAL</div>
@@ -4469,7 +4505,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAGLI4108112')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAGLI4108112</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAGLI4108112">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAGLI4108112">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">AMOLADORA INAL. BL. MOTOR 42V(2,0Ah*2) 115MM/1080W MALETA TOTAL</div>
@@ -4506,7 +4542,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIWLI42461')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIWLI42461</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIWLI42461">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIWLI42461">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE DE IMPACTO INAL. BL. MOTOR 1/2" 42V(2,0Ah*1) C/ADAPTADOR 460N.m MALETA TOTAL</div>
@@ -4543,7 +4579,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAGLI2120252')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAGLI2120252</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAGLI2120252">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAGLI2120252">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">AMOLADORA INA. BL. MOTOR 20V(5,0Ah*2) 115MM/1200W AVT 3VELC. TOTAL</div>
@@ -4580,7 +4616,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIWLI20455')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIWLI20455</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIWLI20455">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIWLI20455">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE DE IMPACTO INA. BLMOTOR 1/2" 20V(2,0Ah*1) 405N.m TOTAL</div>
@@ -4617,7 +4653,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI240966')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI240966</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI240966">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI240966">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ATORNILLADOR IMPACTO INA. 20V(4,0Ah*2) + PUNTAS SET/31PZS MALETA TOTAL</div>
@@ -4654,7 +4690,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TIDLI20558')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TIDLI20558</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TIDLI20558">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TIDLI20558">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TALADRO DE IMPACTO INAL. BLMOTOR 13MM 20V(2,0Ah*2) 55N.m M/METAL MALETA TOTAL</div>
@@ -4691,7 +4727,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TTVLI2001')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TTVLI2001</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TTVLI2001">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TTVLI2001">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">VIBRADORA P/CERAMICA C/VENTOSA INA. T.A 130MM 20V(2,0/4,0/5,0/6,0Ah*0) 60KGS SOLO TOTAL</div>
@@ -4735,7 +4771,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI261207')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI261207</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI261207">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI261207">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 2PZS(AMOLADORA + TALADRO) 1000W/96N.M 20V(4,0Ah*2) MALETA TOTAL</div>
@@ -4772,7 +4808,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI261208')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI261208</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI261208">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI261208">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 4PZS(AMOLADORA + LAMPARA + LLAVE DE IMPACTO + TALADRO) 1000W/2500LM/550N.M/96N.M 20V(4,0Ah*2) MALETA TOTAL</div>
@@ -4809,7 +4845,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI261209')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI261209</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI261209">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI261209">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 4PZS(ATORNILLADOR + LAMPARA + SIERRA CIRCULAR + TALADRO) 280N.M/2500LM/185MM/96N.M 20V(4,0Ah*2) TOTAL</div>
@@ -4846,7 +4882,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI202598')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI202598</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI202598">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI202598">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 3PZS(AMOLADORA + ROTOMARTILLO + TALADRO) 1200W/26MM/66N.m 20V(4,0Ah*2) MALETA TOTAL</div>
@@ -4883,7 +4919,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI20358')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI20358</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI20358">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI20358">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 3PZS(AMOLADORA + LLAVE DE IMPACTO + TALADRO) 1200W/405N.m/66N.m 20V(4,0Ah*2) TOTAL</div>
@@ -4920,7 +4956,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI20286')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI20286</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI20286">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI20286">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 2PZS(LLAVE DE IMPACTO + TALADRO) 405N.M/66N.M 20V(2,0Ah*2) MALETA TOTAL</div>
@@ -4957,7 +4993,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI250782')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI250782</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI250782">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI250782">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 4PZS(LINTERNA + LAMPARA + LLAVE DE IMPACTO*2) 22,5W/2000LM/850N.m/1350N.m 20V(5,0Ah*2) TOTAL</div>
@@ -4994,7 +5030,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI250381')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI250381</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI250381">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI250381">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 9PZS(AMOLADORA + LAMPARA + LIJADORA ORBITAL + LLAVE DE IMPACTO + PISTOLA DE CALOR + ROTOMARTILLO + SIERRA CIRCULAR + SOPLADOR + TALADRO)1000W/2000LM/125MM/400N.m/550C°/26MM/140MM/2,7m3/96N.m 20V(4,0Ah*2) BOLSO TOTAL</div>
@@ -5031,7 +5067,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI230522')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI230522</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI230522">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI230522">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 3PZS(ASPIRADORA + HIDROLAVADORA + PISTOLA DE PINTAR) 0,5L/24,8BAR/800ML 20V(2,0Ah*2) TOTAL</div>
@@ -5068,7 +5104,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI241195')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI241195</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI241195">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI241195">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 3PZS(LAMPARA + LLAVE DE IMPACTO*2) 850/400N.m 20V(4,0Ah*2) TOTAL</div>
@@ -5105,7 +5141,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THPTCS83962')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THPTCS83962</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THPTCS83962">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THPTCS83962">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">GABINETE DE 7 DIVISIONES + HERRAMIENTAS MANUALES + LLAVE DE IMPACTO 20V(5,0Ah*2) 850N.m SET/396PZS TOTAL</div>
@@ -5142,7 +5178,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI20256')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI20256</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI20256">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI20256">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 2PZS(AMOLADORA + TALADRO) 1200W/66N.M 20V(4,0Ah*2) MALETA TOTAL</div>
@@ -5179,7 +5215,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TOSLI23056')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TOSLI23056</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TOSLI23056">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TOSLI23056">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 2PZS(LAMPARA + LLAVE DE IMPACTO) 3,5W/405N.M 20V(2,0Ah*2) MALETA TOTAL</div>
@@ -5216,7 +5252,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI20595')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI20595</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI20595">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI20595">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 5PZS(AMOLADORA + LAMPARA + LLAVE DE IMPACTO + ROTOMARTILLO + TALADRO) 1200W/450LM/405N.M/26MM/66N.M 20V(4,0Ah*2) E/BOLSO TOTAL</div>
@@ -5253,7 +5289,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP41728')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP41728</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP41728">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP41728">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE DE IMPACTO INA. BL. MOTOR 20V(4,0Ah*2) 1/2"-550N.m (DADOS + LLAVES + HERRAMIENTAS) SET/172PZS TOTAL</div>
@@ -5290,7 +5326,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP41667')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP41667</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP41667">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP41667">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TALADRO DE IMPACTO INA. BL. MOTOR 20V(4,0Ah*1) 13MM-66N.m (HERRAMIENTAS MANUALES) SET/166PZS TOTAL</div>
@@ -5334,7 +5370,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP21686')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP21686</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP21686">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP21686">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">HERRAMIENTAS MANUALES SET/168PZS E/MALETA TOTAL</div>
@@ -5371,7 +5407,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT191002')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT191002</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT191002">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT191002">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE CAIMAN RECTO 10" TOTAL</div>
@@ -5408,7 +5444,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THTJ214041')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THTJ214041</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THTJ214041">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THTJ214041">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE CHAVETERO 5" SET/4PZS E/ESTUCHE TOTAL</div>
@@ -5445,7 +5481,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT1K0301')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT1K0301</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT1K0301">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT1K0301">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE REFORZADO SET/3PZS TOTAL</div>
@@ -5482,7 +5518,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT2K0301')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT2K0301</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT2K0301">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT2K0301">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE SET/3PZS (P:6"/C:6"/U:8") INDUSTRIAL TOTAL</div>
@@ -5519,7 +5555,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT110606P')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT110606P</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT110606P">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT110606P">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE UNIVERSAL 6" TOTAL</div>
@@ -5556,7 +5592,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT210806')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT210806</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT210806">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT210806">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE UNIVERSAL 8" INDUSTRIAL TOTAL</div>
@@ -5593,7 +5629,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT110806P')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT110806P</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT110806P">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT110806P">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ALICATE UNIVERSAL 8" TOTAL</div>
@@ -5630,7 +5666,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THLHD12121')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THLHD12121</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THLHD12121">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THLHD12121">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">BARROTE TIPO L 12" 1/2" TOTAL</div>
@@ -5667,7 +5703,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAC918251')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAC918251</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAC918251">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAC918251">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CLAVOS P/CLAVADORA 25MM (1CTA=5000PZS) 18GA TOTAL</div>
@@ -5704,7 +5740,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT522136')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT522136</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT522136">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT522136">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CUCHILLO CARTONERO C/3HOJAS MC TOTAL</div>
@@ -5741,7 +5777,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT141121')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT141121</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT141121">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT141121">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA 1/2"*SET/12PZS Cr-V TOTAL</div>
@@ -5778,7 +5814,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP22166')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP22166</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP22166">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP22166">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA Y LLAVES COMB. 1/2''-1/4"-3/8" SET/216PZS TOTAL</div>
@@ -5815,7 +5851,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THKTHP61497')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THKTHP61497</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THKTHP61497">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THKTHP61497">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DADOS CON CHICHARRA, LLAVES COMB. Y HERRAMIENTAS MANUALES 1/4"-1/2"*SET/149PZS Cr-V MALETA TOTAL</div>
@@ -5852,7 +5888,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THGSS35061')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THGSS35061</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THGSS35061">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THGSS35061">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DESTORNILLADOR GOLPE SET/6PZS TOTAL</div>
@@ -5889,7 +5925,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAC2211155')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAC2211155</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAC2211155">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAC2211155">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">DISCO CORTA METAL 115*1,2*22,2MM (E/LATA 10UNI/PQT) TOTAL</div>
@@ -5926,7 +5962,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAC310071')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAC310071</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAC310071">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAC310071">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">ESCOBILLA P/TALADRO SET/7PZS TOTAL</div>
@@ -5963,7 +5999,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TACSE0056')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TACSE0056</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TACSE0056">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TACSE0056">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">EXTRACTOR D/PERNOS SET/5PZS TOTAL</div>
@@ -6000,7 +6036,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT10822')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT10822</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT10822">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT10822">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">GATA CAIMAN PERFIL BAJO 2TON (85*330MM) TOTAL</div>
@@ -6037,7 +6073,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT108313')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT108313</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT108313">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT108313">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">GATA CAIMAN PERFIL BAJO 3TON (130*465MM) TOTAL</div>
@@ -6074,7 +6110,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT106126')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT106126</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT106126">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT106126">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE CHICHARRA 1/2" TOTAL</div>
@@ -6111,7 +6147,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT152429')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT152429</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT152429">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT152429">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">PELACABLE AUTOMATICO C/DETECTOR D/VOLTAGE 8,25" 4EN1 TOTAL</div>
@@ -6148,7 +6184,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT21809')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT21809</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT21809">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT21809">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">PORTASILICONA ALUMINIO 9" ECONOMICO TOTAL</div>
@@ -6185,7 +6221,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THJS0301')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THJS0301</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THJS0301">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THJS0301">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">SOPORTE P/GATA 3TON TOTAL</div>
@@ -6229,7 +6265,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TPBX0142')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TPBX0142</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TPBX0142">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TPBX0142">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CAJA DE HERRAMIENTA PLASTICA 14'' REFORZADO TOTAL</div>
@@ -6266,7 +6302,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TPBX0172')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TPBX0172</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TPBX0172">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TPBX0172">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CAJA DE HERRAMIENTA PLASTICA 17'' REFORZADO TOTAL</div>
@@ -6303,7 +6339,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TPBX0201')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TPBX0201</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TPBX0201">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TPBX0201">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">CAJA HERRAMIENTAS PLASTICA 20'' TOTAL</div>
@@ -6347,7 +6383,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT106KT0181')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT106KT0181</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT106KT0181">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT106KT0181">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE ALEN-TORK GRANDE SET/18PZS TOTAL</div>
@@ -6384,7 +6420,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT106291')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT106291</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT106291">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT106291">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE ALLEN MEDIANO SET/9PZS TOTAL</div>
@@ -6421,7 +6457,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT106392')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT106392</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT106392">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT106392">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE TORX MEDIANO SET/9PZS TOTAL</div>
@@ -6458,7 +6494,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THT1061846')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THT1061846</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THT1061846">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THT1061846">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">LLAVE TORX T/NAVAJA 8PZS T9-T40 TOTAL</div>
@@ -6502,7 +6538,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TAT10605')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TAT10605</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TAT10605">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TAT10605">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">SOPLETE DE GRAVEDAD V/PLASTICO FIJO 600CC 1.3MM GS TOTAL</div>
@@ -6539,7 +6575,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TT45061')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TT45061</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TT45061">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TT45061">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">PISTOLA DE PINTAR 1000ML/530W V/METAL TOTAL</div>
@@ -6576,7 +6612,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TT5006-2')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TT5006-2</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TT5006-2">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TT5006-2">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">PISTOLA DE PINTAR 900ML/550W V/METAL TOTAL</div>
@@ -6620,7 +6656,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'THTRS3101')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: THTRS3101</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_THTRS3101">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_THTRS3101">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">TEZADOR DE CARGA 3TON*10MTS*50MM TOTAL</div>
@@ -6664,7 +6700,7 @@
           <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, 'TCKLI20277')" title="Quitar este producto del catálogo">✕</button>
           <div class="card-header">
             <span style="font-weight: 800;">CÓDIGO: TCKLI20277</span>
-            <span class="stock-status-pill stock-checking" id="stock_pill_TCKLI20277">● Stock</span>
+            <span class="stock-status-pill stock-in-stock" id="stock_pill_TCKLI20277">🟢 En Stock</span>
           </div>
           <div class="card-body">
             <div class="product-name">KIT COMBO INA. 2PZS(ATORNILLADOR + TALADRO) 285N.m/60N.m 20V(2,0Ah*2) MALETA TOTAL</div>
@@ -6768,6 +6804,9 @@
     </div>
   </div>
 
+  <!-- Toast Flotante para Límites de Stock -->
+  <div id="stock-toast-box" class="stock-toast"></div>
+
   <script>
     // Detectar si el catálogo está abierto dentro del panel generador (administrador)
     try {
@@ -6783,47 +6822,66 @@
 
     async function fetchLiveStock() {
       const statusEl = document.getElementById('live-stock-indicator');
-      if (statusEl) {
-        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando...';
-      }
       
+      // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos)
       try {
-        const res = await fetch(STOCK_API_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        liveStockMap = data || {};
-        
-        try {
-          localStorage.setItem('cached_stock_data', JSON.stringify({
-            timestamp: Date.now(),
-            data: liveStockMap
-          }));
-        } catch(e) {}
-        
-        applyStockData(liveStockMap);
-        
-        if (statusEl) {
-          const now = new Date();
-          const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${timeStr})`;
-        }
-      } catch (err) {
-        console.warn("No se pudo obtener el stock en vivo:", err);
-        try {
-          const cached = localStorage.getItem('cached_stock_data');
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            liveStockMap = parsed.data || {};
+        const cached = localStorage.getItem('cached_stock_data');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.data) {
+            liveStockMap = parsed.data;
             applyStockData(liveStockMap);
             if (statusEl) {
-              statusEl.innerHTML = '<span class="pulse-dot-cached"></span> Stock (Caché)';
-            }
-          } else {
-            if (statusEl) {
-              statusEl.innerHTML = '<span class="pulse-dot-cached"></span> Stock Offline';
+              statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock sincronizado';
             }
           }
-        } catch(e) {}
+        }
+      } catch(e) {}
+
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando en vivo...';
+      }
+
+      // 2. CONSULTA EN SEGUNDO PLANO CON TIMEOUT SEGURO (No bloquea la página)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        
+        // Si estamos en entorno local, probar primero proxy /api/stock, sino directo
+        const fetchUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api/stock' : STOCK_API_URL;
+        
+        const res = await fetch(fetchUrl, { 
+          cache: 'no-store',
+          signal: controller.signal
+        }).catch(async () => {
+          return await fetch(STOCK_API_URL, { cache: 'no-store', signal: controller.signal });
+        });
+        
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data && !data.error) {
+          liveStockMap = data;
+          try {
+            localStorage.setItem('cached_stock_data', JSON.stringify({
+              timestamp: Date.now(),
+              data: liveStockMap
+            }));
+          } catch(e) {}
+          
+          applyStockData(liveStockMap);
+          
+          if (statusEl) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${timeStr})`;
+          }
+        }
+      } catch (err) {
+        console.warn("Stock en vivo en segundo plano:", err.message);
+        if (statusEl) {
+          statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock Listo';
+        }
       }
     }
 
@@ -6840,23 +6898,24 @@
         const pkgEl = card.querySelector('.packaging-info') || document.getElementById(`pkg_info_${rawCode}`);
 
         if (info) {
-          const cantCaja = info.cantPorCaja || 1;
-          const unMed = info.unidadMedida || "UNI";
+          const cantCaja = info.c || info.cantPorCaja || 1;
+          const unMed = info.u || info.unidadMedida || "UNI";
           if (pkgEl) {
             pkgEl.innerHTML = `📦 ${cantCaja} ${unMed} / Caja`;
             pkgEl.setAttribute('title', `Viene ${cantCaja} ${unMed} por caja`);
           }
           
-          const stock = typeof info.stockActual === 'number' ? info.stockActual : 0;
-          const cajas = typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja);
+          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : 0);
+          const cajas = typeof info.b === 'number' ? info.b : (typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja));
+          const estado = info.e || info.estado || "AGOTADO";
           
           if (pillEl) {
-            if (stock <= 0 || info.estado === "AGOTADO") {
+            if (stock <= 0 || estado === "AGOTADO") {
               pillEl.className = "stock-status-pill stock-out";
               pillEl.innerHTML = "🔴 Agotado";
               pillEl.setAttribute('title', "Sin stock disponible en almacén");
               card.classList.add('is-out-of-stock');
-            } else if (info.estado === "POCO_STOCK" || cajas <= 3) {
+            } else if (estado === "POCO_STOCK" || cajas <= 3) {
               pillEl.className = "stock-status-pill stock-low";
               if (cajas >= 1) {
                 pillEl.innerHTML = `🟡 ¡Últimas ${cajas} caja${cajas > 1 ? 's' : ''}!`;
@@ -6992,12 +7051,75 @@
       }
     }
 
+    let toastTimeout = null;
+    function showStockToast(msg) {
+      const box = document.getElementById('stock-toast-box');
+      if (!box) return;
+      box.innerHTML = msg;
+      box.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        box.classList.remove('show');
+      }, 3500);
+    }
+
+    function highlightInputLimit(input) {
+      if (!input) return;
+      input.classList.add('input-qty-error');
+      setTimeout(() => input.classList.remove('input-qty-error'), 800);
+    }
+
     function stepProductQty(code, type, delta) {
       const input = document.getElementById(type + '_' + code);
       if (!input) return;
-      let val = parseInt(input.value) || 0;
-      val = Math.max(0, val + delta);
-      input.value = val;
+      
+      const normCode = (code || '').toUpperCase().replace(/\s+/g, '');
+      const stockInfo = liveStockMap[normCode] || liveStockMap[(code || '').toUpperCase()];
+      
+      let currentVal = parseInt(input.value) || 0;
+      let desiredVal = Math.max(0, currentVal + delta);
+
+      if (stockInfo) {
+        const cantCaja = stockInfo.c || stockInfo.cantPorCaja || 1;
+        const stockActual = typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 0);
+        const maxCajas = typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor(stockActual / cantCaja));
+        const unMed = stockInfo.u || stockInfo.unidadMedida || 'UNI';
+        const estado = stockInfo.e || stockInfo.estado || 'AGOTADO';
+
+        if (stockActual <= 0 || estado === 'AGOTADO') {
+          input.value = 0;
+          showStockToast(`🔴 El producto <strong>${code}</strong> está agotado.`);
+          onDirectInput(code);
+          return;
+        }
+
+        if (type === 'cajas' && delta > 0) {
+          const currentUni = parseInt(document.getElementById('uni_' + code)?.value) || 0;
+          const totalUnitsIfAdded = desiredVal * cantCaja + currentUni;
+          
+          if (desiredVal > maxCajas || totalUnitsIfAdded > stockActual) {
+            input.value = maxCajas;
+            showStockToast(`⚠️ Stock límite: solo quedan <strong>${maxCajas} caja${maxCajas > 1 ? 's' : ''}</strong> de ${code}.`);
+            highlightInputLimit(input);
+            onDirectInput(code);
+            return;
+          }
+        } else if (type === 'uni' && delta > 0) {
+          const currentCajas = parseInt(document.getElementById('cajas_' + code)?.value) || 0;
+          const totalUnitsIfAdded = currentCajas * cantCaja + desiredVal;
+          
+          if (totalUnitsIfAdded > stockActual) {
+            const remainingUni = Math.max(0, stockActual - currentCajas * cantCaja);
+            input.value = remainingUni;
+            showStockToast(`⚠️ Stock límite: solo quedan <strong>${remainingUni} ${unMed}</strong> adicionales.`);
+            highlightInputLimit(input);
+            onDirectInput(code);
+            return;
+          }
+        }
+      }
+
+      input.value = desiredVal;
       onDirectInput(code);
     }
 
@@ -7012,8 +7134,47 @@
       cajas = Math.max(0, cajas);
       uni = Math.max(0, uni);
 
+      const normCode = (code || '').toUpperCase().replace(/\s+/g, '');
+      const stockInfo = liveStockMap[normCode] || liveStockMap[(code || '').toUpperCase()];
+
+      if (stockInfo) {
+        const cantCaja = stockInfo.c || stockInfo.cantPorCaja || 1;
+        const stockActual = typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 0);
+        const maxCajas = typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor(stockActual / cantCaja));
+        const unMed = stockInfo.u || stockInfo.unidadMedida || 'UNI';
+        const estado = stockInfo.e || stockInfo.estado || 'AGOTADO';
+
+        if (stockActual <= 0 || estado === 'AGOTADO') {
+          if (cajas > 0 || uni > 0) {
+            showStockToast(`🔴 El producto <strong>${code}</strong> está agotado.`);
+          }
+          cajas = 0;
+          uni = 0;
+          if (inputCajas) inputCajas.value = 0;
+          if (inputUni) inputUni.value = 0;
+        } else {
+          if (cajas > maxCajas) {
+            cajas = maxCajas;
+            if (inputCajas) inputCajas.value = maxCajas;
+            showStockToast(`⚠️ Stock ajustado: máximo <strong>${maxCajas} caja${maxCajas > 1 ? 's' : ''}</strong>.`);
+            highlightInputLimit(inputCajas);
+          }
+          let totalUniSelected = cajas * cantCaja + uni;
+          if (totalUniSelected > stockActual) {
+            uni = Math.max(0, stockActual - cajas * cantCaja);
+            if (inputUni) inputUni.value = uni;
+            showStockToast(`⚠️ Stock ajustado: solo quedan <strong>${uni} ${unMed}</strong> sueltas.`);
+            highlightInputLimit(inputUni);
+          }
+        }
+      }
+
       if (inputCajas && inputCajas.value !== '' && parseInt(inputCajas.value) < 0) inputCajas.value = 0;
       if (inputUni && inputUni.value !== '' && parseInt(inputUni.value) < 0) inputUni.value = 0;
+
+      const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || 1) : 1;
+      const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || (ref.getAttribute('data-unit') || 'UNI')) : (ref.getAttribute('data-unit') || 'UNI');
+      const totalUnitsThisItem = cajas * cantCaja + uni;
 
       const card = ref.closest('.product-card');
       if (cajas > 0 || uni > 0) {
@@ -7021,9 +7182,11 @@
           code: code,
           cajas: cajas,
           uni: uni,
+          cantPorCaja: cantCaja,
+          totalUnits: totalUnitsThisItem,
           name: ref.getAttribute('data-name') || code,
           brand: ref.getAttribute('data-brand') || '',
-          unit: ref.getAttribute('data-unit') || 'pcs'
+          unit: unMed
         };
         if (card) card.classList.add('has-ordered');
       } else {
@@ -7039,9 +7202,14 @@
       const totalProds = items.length;
       let totalCajas = 0;
       let totalUni = 0;
+      let grandTotalPieces = 0;
       items.forEach(it => {
+        const normCode = (it.code || '').toUpperCase().replace(/\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
         totalCajas += it.cajas;
         totalUni += it.uni;
+        grandTotalPieces += (it.cajas * cantCaja + it.uni);
       });
 
       const cartBar = document.getElementById('floating-cart-bar');
@@ -7055,11 +7223,13 @@
       let summaryText = [];
       if (totalCajas > 0) summaryText.push(totalCajas + ' caja' + (totalCajas > 1 ? 's' : ''));
       if (totalUni > 0) summaryText.push(totalUni + ' unid');
-      const displayText = summaryText.length > 0 ? summaryText.join(' + ') : '0 items';
+      
+      const displayFloating = summaryText.length > 0 ? `${summaryText.join(' + ')} (= ${grandTotalPieces} unid)` : '0 items';
+      const displayModal = summaryText.length > 0 ? `${summaryText.join(' + ')} (= ${grandTotalPieces} unidades en total)` : '0 items';
 
-      if (qtyTotalEl) qtyTotalEl.innerText = displayText;
+      if (qtyTotalEl) qtyTotalEl.innerText = displayFloating;
       if (prodTotalEl) prodTotalEl.innerText = totalProds;
-      if (modalTotalBoxes) modalTotalBoxes.innerText = displayText;
+      if (modalTotalBoxes) modalTotalBoxes.innerText = displayModal;
 
       if (totalCajas > 0 || totalUni > 0) {
         if (cartBar) cartBar.classList.add('visible');
@@ -7076,6 +7246,20 @@
         alert("Aún no has seleccionado cantidades para ningún producto. Escribe o usa + / − en Cajas o Unidades.");
         return;
       }
+      
+      // Cargar memoria del cliente si existe
+      try {
+        const savedName = localStorage.getItem('last_client_name');
+        const savedAddress = localStorage.getItem('last_client_address');
+        const savedPhone = localStorage.getItem('last_client_phone');
+        const nameEl = document.getElementById('client-name');
+        const addrEl = document.getElementById('client-address');
+        const phoneEl = document.getElementById('client-phone');
+        if (savedName && nameEl && !nameEl.value) nameEl.value = savedName;
+        if (savedAddress && addrEl && !addrEl.value) addrEl.value = savedAddress;
+        if (savedPhone && phoneEl && !phoneEl.value) phoneEl.value = savedPhone;
+      } catch(e) {}
+
       renderModalList();
       const modal = document.getElementById('order-modal-backdrop');
       if (modal) modal.classList.add('open');
@@ -7097,14 +7281,35 @@
 
       let html = '';
       items.forEach(it => {
+        const normCode = (it.code || '').toUpperCase().replace(/\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
+        const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || it.unit || 'UNI') : (it.unit || 'UNI');
+        const itemTotalUnits = (it.cajas || 0) * cantCaja + (it.uni || 0);
+
+        let breakdownText = '';
+        if (it.cajas > 0 && it.uni > 0) {
+          breakdownText = `${it.cajas} caja${it.cajas > 1 ? 's' : ''} + ${it.uni} ${unMed}`;
+        } else if (it.cajas > 0) {
+          breakdownText = `${it.cajas} caja${it.cajas > 1 ? 's' : ''}`;
+        } else if (it.uni > 0) {
+          breakdownText = `${it.uni} ${unMed}`;
+        }
+
         html += `
           <div class="order-item-row">
             <div class="order-item-info">
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <span class="order-item-code">${it.code}</span>
                 <span style="font-size: 8pt; font-weight: 700; color: #94A3B8; background: rgba(255, 255, 255, 0.08); padding: 2px 7px; border-radius: 6px; text-transform: uppercase;">${it.brand}</span>
+                <span style="font-size: 7.5pt; color: #94A3B8; background: rgba(255, 255, 255, 0.04); padding: 2px 6px; border-radius: 4px; border: 1px dashed rgba(255, 255, 255, 0.14);">📦 ${cantCaja} ${unMed}/caja</span>
               </div>
               <div class="order-item-name" title="${it.name}">${it.name}</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+                <span style="font-size: 8.5pt; font-weight: 800; color: #86EFAC; background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 9px; border-radius: 6px;">
+                  ✨ Total: ${itemTotalUnits} ${unMed} (${breakdownText})
+                </span>
+              </div>
             </div>
             <div class="order-selectors-dual">
               <div class="qty-group">
@@ -7164,40 +7369,60 @@
       const clientAddress = (document.getElementById('client-address')?.value || '').trim();
       const clientPhone = (document.getElementById('client-phone')?.value || '').trim();
 
+      // Guardar memoria del cliente
+      try {
+        if (clientName) localStorage.setItem('last_client_name', clientName);
+        if (clientAddress) localStorage.setItem('last_client_address', clientAddress);
+        if (clientPhone) localStorage.setItem('last_client_phone', clientPhone);
+      } catch(e) {}
+
       let totalCajas = 0;
-      let totalUni = 0;
+      let totalUniLoose = 0;
+      let grandTotalPieces = 0;
       items.forEach(it => {
+        const normCode = (it.code || '').toUpperCase().replace(/\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
         totalCajas += it.cajas;
-        totalUni += it.uni;
+        totalUniLoose += it.uni;
+        grandTotalPieces += (it.cajas * cantCaja + it.uni);
       });
 
-      let msg = "*SOLICITUD DE PEDIDO / COTIZACION*\n";
-      msg += "*Importadora Rivero*\n";
+      let msg = "*📋 SOLICITUD DE PEDIDO - IMPORTADORA RIVERO*\n";
       msg += "----------------------------------------\n";
-      if (clientName) msg += `*Cliente:* ${clientName}\n`;
-      if (clientAddress) msg += `*Direccion:* ${clientAddress}\n`;
-      if (clientPhone) msg += `*Telefono:* ${clientPhone}\n`;
-      msg += `*Fecha:* ${new Date().toLocaleDateString('es-ES')}\n\n`;
+      if (clientName) msg += `👤 *Cliente:* ${clientName}\n`;
+      if (clientAddress) msg += `📍 *Dirección:* ${clientAddress}\n`;
+      if (clientPhone) msg += `📱 *Teléfono:* ${clientPhone}\n`;
+      msg += `📅 *Fecha:* ${new Date().toLocaleDateString('es-ES')}\n`;
+      msg += "----------------------------------------\n\n";
 
-      msg += "*DETALLE DEL PEDIDO:*\n";
+      msg += "*📦 DETALLE DEL PEDIDO:*\n";
       items.forEach((it, idx) => {
+        const normCode = (it.code || '').toUpperCase().replace(/\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
+        const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || it.unit || 'UNI') : (it.unit || 'UNI');
+        const itemTotalUnits = (it.cajas || 0) * cantCaja + (it.uni || 0);
+
         let cantParts = [];
         if (it.cajas > 0) cantParts.push(`*${it.cajas} Cajas*`);
-        if (it.uni > 0) cantParts.push(`*${it.uni} Unidades*`);
-        const cantFinal = cantParts.length > 0 ? cantParts.join(' y ') : '*0*';
+        if (it.uni > 0) cantParts.push(`*${it.uni} ${unMed}*`);
+        const cantDesglose = cantParts.join(' + ');
+
         msg += `${idx + 1}. [${it.code}] ${it.name}\n`;
-        msg += `   - Cantidad: ${cantFinal} (${it.unit})\n`;
-        if (it.brand) msg += `   - Marca: ${it.brand}\n`;
-        msg += "\n";
+        msg += `   ▪ Pedido: ${cantDesglose}  ➜  *Total: ${itemTotalUnits} ${unMed}*\n`;
+        msg += `   ▪ Empaque: ${cantCaja} ${unMed}/caja`;
+        if (it.brand) msg += ` | Marca: ${it.brand}`;
+        msg += "\n\n";
       });
 
       msg += "----------------------------------------\n";
-      let totalParts = [];
-      if (totalCajas > 0) totalParts.push(`*${totalCajas} Cajas*`);
-      if (totalUni > 0) totalParts.push(`*${totalUni} Unidades*`);
-      msg += `*TOTAL:* ${totalParts.join(' y ')} (${items.length} productos)\n`;
+      msg += "*📊 RESUMEN GENERAL:*\n";
+      if (totalCajas > 0) msg += `• Total Cajas cerradas: *${totalCajas}*\n`;
+      if (totalUniLoose > 0) msg += `• Total Unidades sueltas: *${totalUniLoose}*\n`;
+      msg += `• 📦 *TOTAL MERCADERÍA: ${grandTotalPieces} piezas / unidades*\n`;
       msg += "----------------------------------------\n";
-      msg += "_Por favor confirmar disponibilidad y cotizacion. Muchas gracias!_";
+      msg += "_Por favor confirmar disponibilidad y cotización. ¡Muchas gracias!_";
 
       const encoded = encodeURIComponent(msg);
       let targetUrl = '';

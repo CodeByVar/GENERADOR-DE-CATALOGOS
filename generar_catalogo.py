@@ -1896,6 +1896,42 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.85); }
     }
+    .stock-toast {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15, 23, 42, 0.96);
+      color: #FFFFFF;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid #F59E0B;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 8.5pt;
+      font-weight: 800;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stock-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .input-qty-error {
+      border-color: #EF4444 !important;
+      animation: shake-input 0.3s ease;
+    }
+    @keyframes shake-input {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
 
     /* ──── BARRA DE BÚSQUEDA EN VIVO PARA EL CLIENTE (STICKY FLOTANTE REDONDEADA) ──── */
     .catalog-search-sticky-bar {
@@ -2714,7 +2750,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append(f'          <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, \'{prod["cod"]}\')" title="Quitar este producto del catálogo">✕</button>')
                 html_out.append('          <div class="card-header">')
                 html_out.append(f'            <span style="font-weight: 800;">CÓDIGO: {prod["cod"]}</span>')
-                html_out.append(f'            <span class="stock-status-pill stock-checking" id="stock_pill_{prod["cod"]}">● Stock</span>')
+                html_out.append(f'            <span class="stock-status-pill stock-in-stock" id="stock_pill_{prod["cod"]}">🟢 En Stock</span>')
                 html_out.append('          </div>')
                 
                 html_out.append('          <div class="card-body">')
@@ -2839,6 +2875,9 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     </div>
   </div>
 
+  <!-- Toast Flotante para Límites de Stock -->
+  <div id="stock-toast-box" class="stock-toast"></div>
+
   <script>
     // Detectar si el catálogo está abierto dentro del panel generador (administrador)
     try {{
@@ -2854,47 +2893,66 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
     async function fetchLiveStock() {{
       const statusEl = document.getElementById('live-stock-indicator');
-      if (statusEl) {{
-        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando...';
-      }}
       
+      // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos)
       try {{
-        const res = await fetch(STOCK_API_URL, {{ cache: 'no-store' }});
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        liveStockMap = data || {{}};
-        
-        try {{
-          localStorage.setItem('cached_stock_data', JSON.stringify({{
-            timestamp: Date.now(),
-            data: liveStockMap
-          }}));
-        }} catch(e) {{}}
-        
-        applyStockData(liveStockMap);
-        
-        if (statusEl) {{
-          const now = new Date();
-          const timeStr = now.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
-          statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{timeStr}})`;
-        }}
-      }} catch (err) {{
-        console.warn("No se pudo obtener el stock en vivo:", err);
-        try {{
-          const cached = localStorage.getItem('cached_stock_data');
-          if (cached) {{
-            const parsed = JSON.parse(cached);
-            liveStockMap = parsed.data || {{}};
+        const cached = localStorage.getItem('cached_stock_data');
+        if (cached) {{
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.data) {{
+            liveStockMap = parsed.data;
             applyStockData(liveStockMap);
             if (statusEl) {{
-              statusEl.innerHTML = '<span class="pulse-dot-cached"></span> Stock (Caché)';
-            }}
-          }} else {{
-            if (statusEl) {{
-              statusEl.innerHTML = '<span class="pulse-dot-cached"></span> Stock Offline';
+              statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock sincronizado';
             }}
           }}
-        }} catch(e) {{}}
+        }}
+      }} catch(e) {{}}
+
+      if (statusEl) {{
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando en vivo...';
+      }}
+
+      // 2. CONSULTA EN SEGUNDO PLANO CON TIMEOUT SEGURO (No bloquea la página)
+      try {{
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        
+        // Si estamos en entorno local, probar primero proxy /api/stock, sino directo
+        const fetchUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api/stock' : STOCK_API_URL;
+        
+        const res = await fetch(fetchUrl, {{ 
+          cache: 'no-store',
+          signal: controller.signal
+        }}).catch(async () => {{
+          return await fetch(STOCK_API_URL, {{ cache: 'no-store', signal: controller.signal }});
+        }});
+        
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data && !data.error) {{
+          liveStockMap = data;
+          try {{
+            localStorage.setItem('cached_stock_data', JSON.stringify({{
+              timestamp: Date.now(),
+              data: liveStockMap
+            }}));
+          }} catch(e) {{}}
+          
+          applyStockData(liveStockMap);
+          
+          if (statusEl) {{
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
+            statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{timeStr}})`;
+          }}
+        }}
+      }} catch (err) {{
+        console.warn("Stock en vivo en segundo plano:", err.message);
+        if (statusEl) {{
+          statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock Listo';
+        }}
       }}
     }}
 
@@ -2911,23 +2969,24 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         const pkgEl = card.querySelector('.packaging-info') || document.getElementById(`pkg_info_${{rawCode}}`);
 
         if (info) {{
-          const cantCaja = info.cantPorCaja || 1;
-          const unMed = info.unidadMedida || "UNI";
+          const cantCaja = info.c || info.cantPorCaja || 1;
+          const unMed = info.u || info.unidadMedida || "UNI";
           if (pkgEl) {{
             pkgEl.innerHTML = `📦 ${{cantCaja}} ${{unMed}} / Caja`;
             pkgEl.setAttribute('title', `Viene ${{cantCaja}} ${{unMed}} por caja`);
           }}
           
-          const stock = typeof info.stockActual === 'number' ? info.stockActual : 0;
-          const cajas = typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja);
+          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : 0);
+          const cajas = typeof info.b === 'number' ? info.b : (typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja));
+          const estado = info.e || info.estado || "AGOTADO";
           
           if (pillEl) {{
-            if (stock <= 0 || info.estado === "AGOTADO") {{
+            if (stock <= 0 || estado === "AGOTADO") {{
               pillEl.className = "stock-status-pill stock-out";
               pillEl.innerHTML = "🔴 Agotado";
               pillEl.setAttribute('title', "Sin stock disponible en almacén");
               card.classList.add('is-out-of-stock');
-            }} else if (info.estado === "POCO_STOCK" || cajas <= 3) {{
+            }} else if (estado === "POCO_STOCK" || cajas <= 3) {{
               pillEl.className = "stock-status-pill stock-low";
               if (cajas >= 1) {{
                 pillEl.innerHTML = `🟡 ¡Últimas ${{cajas}} caja${{cajas > 1 ? 's' : ''}}!`;
@@ -3063,12 +3122,75 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }}
     }}
 
+    let toastTimeout = null;
+    function showStockToast(msg) {{
+      const box = document.getElementById('stock-toast-box');
+      if (!box) return;
+      box.innerHTML = msg;
+      box.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {{
+        box.classList.remove('show');
+      }}, 3500);
+    }}
+
+    function highlightInputLimit(input) {{
+      if (!input) return;
+      input.classList.add('input-qty-error');
+      setTimeout(() => input.classList.remove('input-qty-error'), 800);
+    }}
+
     function stepProductQty(code, type, delta) {{
       const input = document.getElementById(type + '_' + code);
       if (!input) return;
-      let val = parseInt(input.value) || 0;
-      val = Math.max(0, val + delta);
-      input.value = val;
+      
+      const normCode = (code || '').toUpperCase().replace(/\\s+/g, '');
+      const stockInfo = liveStockMap[normCode] || liveStockMap[(code || '').toUpperCase()];
+      
+      let currentVal = parseInt(input.value) || 0;
+      let desiredVal = Math.max(0, currentVal + delta);
+
+      if (stockInfo) {{
+        const cantCaja = stockInfo.c || stockInfo.cantPorCaja || 1;
+        const stockActual = typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 0);
+        const maxCajas = typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor(stockActual / cantCaja));
+        const unMed = stockInfo.u || stockInfo.unidadMedida || 'UNI';
+        const estado = stockInfo.e || stockInfo.estado || 'AGOTADO';
+
+        if (stockActual <= 0 || estado === 'AGOTADO') {{
+          input.value = 0;
+          showStockToast(`🔴 El producto <strong>${{code}}</strong> está agotado.`);
+          onDirectInput(code);
+          return;
+        }}
+
+        if (type === 'cajas' && delta > 0) {{
+          const currentUni = parseInt(document.getElementById('uni_' + code)?.value) || 0;
+          const totalUnitsIfAdded = desiredVal * cantCaja + currentUni;
+          
+          if (desiredVal > maxCajas || totalUnitsIfAdded > stockActual) {{
+            input.value = maxCajas;
+            showStockToast(`⚠️ Stock límite: solo quedan <strong>${{maxCajas}} caja${{maxCajas > 1 ? 's' : ''}}</strong> de ${{code}}.`);
+            highlightInputLimit(input);
+            onDirectInput(code);
+            return;
+          }}
+        }} else if (type === 'uni' && delta > 0) {{
+          const currentCajas = parseInt(document.getElementById('cajas_' + code)?.value) || 0;
+          const totalUnitsIfAdded = currentCajas * cantCaja + desiredVal;
+          
+          if (totalUnitsIfAdded > stockActual) {{
+            const remainingUni = Math.max(0, stockActual - currentCajas * cantCaja);
+            input.value = remainingUni;
+            showStockToast(`⚠️ Stock límite: solo quedan <strong>${{remainingUni}} ${{unMed}}</strong> adicionales.`);
+            highlightInputLimit(input);
+            onDirectInput(code);
+            return;
+          }}
+        }}
+      }}
+
+      input.value = desiredVal;
       onDirectInput(code);
     }}
 
@@ -3083,8 +3205,47 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       cajas = Math.max(0, cajas);
       uni = Math.max(0, uni);
 
+      const normCode = (code || '').toUpperCase().replace(/\\s+/g, '');
+      const stockInfo = liveStockMap[normCode] || liveStockMap[(code || '').toUpperCase()];
+
+      if (stockInfo) {{
+        const cantCaja = stockInfo.c || stockInfo.cantPorCaja || 1;
+        const stockActual = typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 0);
+        const maxCajas = typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor(stockActual / cantCaja));
+        const unMed = stockInfo.u || stockInfo.unidadMedida || 'UNI';
+        const estado = stockInfo.e || stockInfo.estado || 'AGOTADO';
+
+        if (stockActual <= 0 || estado === 'AGOTADO') {{
+          if (cajas > 0 || uni > 0) {{
+            showStockToast(`🔴 El producto <strong>${{code}}</strong> está agotado.`);
+          }}
+          cajas = 0;
+          uni = 0;
+          if (inputCajas) inputCajas.value = 0;
+          if (inputUni) inputUni.value = 0;
+        }} else {{
+          if (cajas > maxCajas) {{
+            cajas = maxCajas;
+            if (inputCajas) inputCajas.value = maxCajas;
+            showStockToast(`⚠️ Stock ajustado: máximo <strong>${{maxCajas}} caja${{maxCajas > 1 ? 's' : ''}}</strong>.`);
+            highlightInputLimit(inputCajas);
+          }}
+          let totalUniSelected = cajas * cantCaja + uni;
+          if (totalUniSelected > stockActual) {{
+            uni = Math.max(0, stockActual - cajas * cantCaja);
+            if (inputUni) inputUni.value = uni;
+            showStockToast(`⚠️ Stock ajustado: solo quedan <strong>${{uni}} ${{unMed}}</strong> sueltas.`);
+            highlightInputLimit(inputUni);
+          }}
+        }}
+      }}
+
       if (inputCajas && inputCajas.value !== '' && parseInt(inputCajas.value) < 0) inputCajas.value = 0;
       if (inputUni && inputUni.value !== '' && parseInt(inputUni.value) < 0) inputUni.value = 0;
+
+      const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || 1) : 1;
+      const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || (ref.getAttribute('data-unit') || 'UNI')) : (ref.getAttribute('data-unit') || 'UNI');
+      const totalUnitsThisItem = cajas * cantCaja + uni;
 
       const card = ref.closest('.product-card');
       if (cajas > 0 || uni > 0) {{
@@ -3092,9 +3253,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           code: code,
           cajas: cajas,
           uni: uni,
+          cantPorCaja: cantCaja,
+          totalUnits: totalUnitsThisItem,
           name: ref.getAttribute('data-name') || code,
           brand: ref.getAttribute('data-brand') || '',
-          unit: ref.getAttribute('data-unit') || 'pcs'
+          unit: unMed
         }};
         if (card) card.classList.add('has-ordered');
       }} else {{
@@ -3110,9 +3273,14 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const totalProds = items.length;
       let totalCajas = 0;
       let totalUni = 0;
+      let grandTotalPieces = 0;
       items.forEach(it => {{
+        const normCode = (it.code || '').toUpperCase().replace(/\\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
         totalCajas += it.cajas;
         totalUni += it.uni;
+        grandTotalPieces += (it.cajas * cantCaja + it.uni);
       }});
 
       const cartBar = document.getElementById('floating-cart-bar');
@@ -3126,11 +3294,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       let summaryText = [];
       if (totalCajas > 0) summaryText.push(totalCajas + ' caja' + (totalCajas > 1 ? 's' : ''));
       if (totalUni > 0) summaryText.push(totalUni + ' unid');
-      const displayText = summaryText.length > 0 ? summaryText.join(' + ') : '0 items';
+      
+      const displayFloating = summaryText.length > 0 ? `${{summaryText.join(' + ')}} (= ${{grandTotalPieces}} unid)` : '0 items';
+      const displayModal = summaryText.length > 0 ? `${{summaryText.join(' + ')}} (= ${{grandTotalPieces}} unidades en total)` : '0 items';
 
-      if (qtyTotalEl) qtyTotalEl.innerText = displayText;
+      if (qtyTotalEl) qtyTotalEl.innerText = displayFloating;
       if (prodTotalEl) prodTotalEl.innerText = totalProds;
-      if (modalTotalBoxes) modalTotalBoxes.innerText = displayText;
+      if (modalTotalBoxes) modalTotalBoxes.innerText = displayModal;
 
       if (totalCajas > 0 || totalUni > 0) {{
         if (cartBar) cartBar.classList.add('visible');
@@ -3147,6 +3317,20 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         alert("Aún no has seleccionado cantidades para ningún producto. Escribe o usa + / − en Cajas o Unidades.");
         return;
       }}
+      
+      // Cargar memoria del cliente si existe
+      try {{
+        const savedName = localStorage.getItem('last_client_name');
+        const savedAddress = localStorage.getItem('last_client_address');
+        const savedPhone = localStorage.getItem('last_client_phone');
+        const nameEl = document.getElementById('client-name');
+        const addrEl = document.getElementById('client-address');
+        const phoneEl = document.getElementById('client-phone');
+        if (savedName && nameEl && !nameEl.value) nameEl.value = savedName;
+        if (savedAddress && addrEl && !addrEl.value) addrEl.value = savedAddress;
+        if (savedPhone && phoneEl && !phoneEl.value) phoneEl.value = savedPhone;
+      }} catch(e) {{}}
+
       renderModalList();
       const modal = document.getElementById('order-modal-backdrop');
       if (modal) modal.classList.add('open');
@@ -3168,14 +3352,35 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       let html = '';
       items.forEach(it => {{
+        const normCode = (it.code || '').toUpperCase().replace(/\\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
+        const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || it.unit || 'UNI') : (it.unit || 'UNI');
+        const itemTotalUnits = (it.cajas || 0) * cantCaja + (it.uni || 0);
+
+        let breakdownText = '';
+        if (it.cajas > 0 && it.uni > 0) {{
+          breakdownText = `${{it.cajas}} caja${{it.cajas > 1 ? 's' : ''}} + ${{it.uni}} ${{unMed}}`;
+        }} else if (it.cajas > 0) {{
+          breakdownText = `${{it.cajas}} caja${{it.cajas > 1 ? 's' : ''}}`;
+        }} else if (it.uni > 0) {{
+          breakdownText = `${{it.uni}} ${{unMed}}`;
+        }}
+
         html += `
           <div class="order-item-row">
             <div class="order-item-info">
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <span class="order-item-code">${{it.code}}</span>
                 <span style="font-size: 8pt; font-weight: 700; color: #94A3B8; background: rgba(255, 255, 255, 0.08); padding: 2px 7px; border-radius: 6px; text-transform: uppercase;">${{it.brand}}</span>
+                <span style="font-size: 7.5pt; color: #94A3B8; background: rgba(255, 255, 255, 0.04); padding: 2px 6px; border-radius: 4px; border: 1px dashed rgba(255, 255, 255, 0.14);">📦 ${{cantCaja}} ${{unMed}}/caja</span>
               </div>
               <div class="order-item-name" title="${{it.name}}">${{it.name}}</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+                <span style="font-size: 8.5pt; font-weight: 800; color: #86EFAC; background: rgba(34, 197, 94, 0.14); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 9px; border-radius: 6px;">
+                  ✨ Total: ${{itemTotalUnits}} ${{unMed}} (${{breakdownText}})
+                </span>
+              </div>
             </div>
             <div class="order-selectors-dual">
               <div class="qty-group">
@@ -3235,40 +3440,60 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const clientAddress = (document.getElementById('client-address')?.value || '').trim();
       const clientPhone = (document.getElementById('client-phone')?.value || '').trim();
 
+      // Guardar memoria del cliente
+      try {{
+        if (clientName) localStorage.setItem('last_client_name', clientName);
+        if (clientAddress) localStorage.setItem('last_client_address', clientAddress);
+        if (clientPhone) localStorage.setItem('last_client_phone', clientPhone);
+      }} catch(e) {{}}
+
       let totalCajas = 0;
-      let totalUni = 0;
+      let totalUniLoose = 0;
+      let grandTotalPieces = 0;
       items.forEach(it => {{
+        const normCode = (it.code || '').toUpperCase().replace(/\\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
         totalCajas += it.cajas;
-        totalUni += it.uni;
+        totalUniLoose += it.uni;
+        grandTotalPieces += (it.cajas * cantCaja + it.uni);
       }});
 
-      let msg = "*SOLICITUD DE PEDIDO / COTIZACION*\\n";
-      msg += "*Importadora Rivero*\\n";
+      let msg = "*📋 SOLICITUD DE PEDIDO - IMPORTADORA RIVERO*\\n";
       msg += "----------------------------------------\\n";
-      if (clientName) msg += `*Cliente:* ${{clientName}}\\n`;
-      if (clientAddress) msg += `*Direccion:* ${{clientAddress}}\\n`;
-      if (clientPhone) msg += `*Telefono:* ${{clientPhone}}\\n`;
-      msg += `*Fecha:* ${{new Date().toLocaleDateString('es-ES')}}\\n\\n`;
+      if (clientName) msg += `👤 *Cliente:* ${{clientName}}\\n`;
+      if (clientAddress) msg += `📍 *Dirección:* ${{clientAddress}}\\n`;
+      if (clientPhone) msg += `📱 *Teléfono:* ${{clientPhone}}\\n`;
+      msg += `📅 *Fecha:* ${{new Date().toLocaleDateString('es-ES')}}\\n`;
+      msg += "----------------------------------------\\n\\n";
 
-      msg += "*DETALLE DEL PEDIDO:*\\n";
+      msg += "*📦 DETALLE DEL PEDIDO:*\\n";
       items.forEach((it, idx) => {{
+        const normCode = (it.code || '').toUpperCase().replace(/\\s+/g, '');
+        const stockInfo = liveStockMap[normCode] || liveStockMap[(it.code || '').toUpperCase()];
+        const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || it.cantPorCaja || 1) : (it.cantPorCaja || 1);
+        const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || it.unit || 'UNI') : (it.unit || 'UNI');
+        const itemTotalUnits = (it.cajas || 0) * cantCaja + (it.uni || 0);
+
         let cantParts = [];
         if (it.cajas > 0) cantParts.push(`*${{it.cajas}} Cajas*`);
-        if (it.uni > 0) cantParts.push(`*${{it.uni}} Unidades*`);
-        const cantFinal = cantParts.length > 0 ? cantParts.join(' y ') : '*0*';
+        if (it.uni > 0) cantParts.push(`*${{it.uni}} ${{unMed}}*`);
+        const cantDesglose = cantParts.join(' + ');
+
         msg += `${{idx + 1}}. [${{it.code}}] ${{it.name}}\\n`;
-        msg += `   - Cantidad: ${{cantFinal}} (${{it.unit}})\\n`;
-        if (it.brand) msg += `   - Marca: ${{it.brand}}\\n`;
-        msg += "\\n";
+        msg += `   ▪ Pedido: ${{cantDesglose}}  ➜  *Total: ${{itemTotalUnits}} ${{unMed}}*\\n`;
+        msg += `   ▪ Empaque: ${{cantCaja}} ${{unMed}}/caja`;
+        if (it.brand) msg += ` | Marca: ${{it.brand}}`;
+        msg += "\\n\\n";
       }});
 
       msg += "----------------------------------------\\n";
-      let totalParts = [];
-      if (totalCajas > 0) totalParts.push(`*${{totalCajas}} Cajas*`);
-      if (totalUni > 0) totalParts.push(`*${{totalUni}} Unidades*`);
-      msg += `*TOTAL:* ${{totalParts.join(' y ')}} (${{items.length}} productos)\\n`;
+      msg += "*📊 RESUMEN GENERAL:*\\n";
+      if (totalCajas > 0) msg += `• Total Cajas cerradas: *${{totalCajas}}*\\n`;
+      if (totalUniLoose > 0) msg += `• Total Unidades sueltas: *${{totalUniLoose}}*\\n`;
+      msg += `• 📦 *TOTAL MERCADERÍA: ${{grandTotalPieces}} piezas / unidades*\\n`;
       msg += "----------------------------------------\\n";
-      msg += "_Por favor confirmar disponibilidad y cotizacion. Muchas gracias!_";
+      msg += "_Por favor confirmar disponibilidad y cotización. ¡Muchas gracias!_";
 
       const encoded = encodeURIComponent(msg);
       let targetUrl = '';
