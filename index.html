@@ -6832,39 +6832,54 @@
             liveStockMap = parsed.data;
             applyStockData(liveStockMap);
             if (statusEl) {
-              statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock sincronizado';
+              const timeStr = parsed.timeStr || '';
+              statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo${timeStr ? ` (${timeStr})` : ''}`;
             }
           }
         }
       } catch(e) {}
 
-      if (statusEl) {
-        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando en vivo...';
+      if (statusEl && (!liveStockMap || Object.keys(liveStockMap).length === 0)) {
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando stock...';
       }
 
-      // 2. CONSULTA EN SEGUNDO PLANO CON TIMEOUT SEGURO (No bloquea la página)
+      // 2. CONSULTA EN SEGUNDO PLANO CON TIMEOUT SEGURO (28s)
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 28000);
         
-        // Si estamos en entorno local, probar primero proxy /api/stock, sino directo
-        const fetchUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api/stock' : STOCK_API_URL;
-        
-        const res = await fetch(fetchUrl, { 
-          cache: 'no-store',
-          signal: controller.signal
-        }).catch(async () => {
-          return await fetch(STOCK_API_URL, { cache: 'no-store', signal: controller.signal });
-        });
+        let res = null;
+        // Intento 1: Llamar al endpoint /api/stock (servidor local Python o Vercel Serverless)
+        try {
+          res = await fetch('/api/stock', { 
+            cache: 'no-store',
+            signal: controller.signal
+          });
+        } catch (e) {
+          res = null;
+        }
+
+        // Intento 2: Si /api/stock falló (ej: abriendo como archivo local file:///), consultar directo a Google Apps Script
+        if (!res || !res.ok) {
+          res = await fetch(STOCK_API_URL, { 
+            cache: 'no-store',
+            redirect: 'follow',
+            signal: controller.signal 
+          });
+        }
         
         clearTimeout(timeoutId);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (data && !data.error) {
           liveStockMap = data;
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          
           try {
             localStorage.setItem('cached_stock_data', JSON.stringify({
               timestamp: Date.now(),
+              timeStr: timeStr,
               data: liveStockMap
             }));
           } catch(e) {}
@@ -6872,15 +6887,23 @@
           applyStockData(liveStockMap);
           
           if (statusEl) {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${timeStr})`;
           }
         }
       } catch (err) {
         console.warn("Stock en vivo en segundo plano:", err.message);
         if (statusEl) {
-          statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock Listo';
+          const cached = localStorage.getItem('cached_stock_data');
+          if (cached) {
+            try {
+              const parsed = JSON.parse(cached);
+              if (parsed && parsed.timeStr) {
+                statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${parsed.timeStr})`;
+                return;
+              }
+            } catch(e) {}
+          }
+          statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock en vivo';
         }
       }
     }

@@ -156,7 +156,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
                 writer.write(">>> [VERCEL] Registrando archivos en Git...\n")
-                subprocess.run(["git", "add", "index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat"], capture_output=True)
+                subprocess.run(["git", "add", "index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js"], capture_output=True)
                 subprocess.run(["git", "add", "-u"], capture_output=True)
                 
                 writer.write(">>> [VERCEL] Creando punto de actualización en historial...\n")
