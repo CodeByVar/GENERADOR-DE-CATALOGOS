@@ -1,44 +1,56 @@
-export default async function handler(req, res) {
-  // Permitir solicitudes desde cualquier origen (CORS)
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+export const config = {
+  runtime: 'edge',
+};
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+export default async function handler(request) {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+  };
+
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec";
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 28000); // 28 segundos para asegurar respuesta de Google Drive
+    const timeoutId = setTimeout(() => controller.abort(), 28000);
 
-    const response = await fetch(GOOGLE_SCRIPT_URL, {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
       },
       redirect: 'follow',
-      signal: controller.signal
+      signal: controller.signal,
+      cache: 'no-store'
     });
 
-    clearTimeout(timeout);
+    clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: `HTTP ${response.status} de Google Apps Script` });
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: `Google HTTP ${res.status}` }), {
+        status: res.status,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
     }
 
-    const data = await response.json();
-
-    // Cache inteligente en Vercel CDN: 60s fresco, hasta 120s mientras revalida en fondo
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(500).json({ error: error.message || 'Error al conectar con Google Sheets/Apps Script' });
+    const data = await res.json();
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        ...corsHeaders
+      }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message || 'Error al conectar con Google Sheets' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
   }
 }

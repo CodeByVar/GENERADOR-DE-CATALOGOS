@@ -1615,7 +1615,7 @@
     }
 
     /* ──── PANTALLA DE BIENVENIDA Y SINCRONIZACIÓN EN VIVO ──── */
-    .welcome-modal-backdrop {{
+    .welcome-modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: radial-gradient(circle at 50% 30%, rgba(15, 23, 42, 0.96) 0%, rgba(4, 7, 13, 0.98) 100%);
@@ -1628,13 +1628,13 @@
       padding: 20px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
-    }}
-    .welcome-modal-backdrop.hidden {{
+    }
+    .welcome-modal-backdrop.hidden {
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
-    }}
-    .welcome-modal-card {{
+    }
+    .welcome-modal-card {
       background: linear-gradient(180deg, #111827 0%, #0B1120 100%);
       border: 1px solid rgba(245, 158, 11, 0.35);
       border-radius: 26px;
@@ -1648,12 +1648,12 @@
       box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.15);
       animation: welcomePop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       color: #FFFFFF;
-    }}
-    @keyframes welcomePop {{
-      from {{ transform: scale(0.92); opacity: 0; }}
-      to {{ transform: scale(1); opacity: 1; }}
-    }}
-    .welcome-brand-icon {{
+    }
+    @keyframes welcomePop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .welcome-brand-icon {
       width: 58px;
       height: 58px;
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.08));
@@ -1664,21 +1664,21 @@
       justify-content: center;
       margin-bottom: 14px;
       box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
-    }}
-    .welcome-title {{
+    }
+    .welcome-title {
       font-size: 16.5pt;
       font-weight: 900;
       letter-spacing: 0.5px;
       color: #FFFFFF;
       margin: 0 0 4px 0;
-    }}
-    .welcome-subtitle {{
+    }
+    .welcome-subtitle {
       font-size: 9pt;
       color: #94A3B8;
       margin: 0 0 20px 0;
       font-weight: 500;
-    }}
-    .welcome-sync-box {{
+    }
+    .welcome-sync-box {
       width: 100%;
       background: rgba(255, 255, 255, 0.035);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1686,50 +1686,50 @@
       padding: 14px 18px;
       margin-bottom: 18px;
       box-sizing: border-box;
-    }}
-    .welcome-sync-top {{
+    }
+    .welcome-sync-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 8.5pt;
       margin-bottom: 10px;
-    }}
-    .welcome-sync-label {{
+    }
+    .welcome-sync-label {
       color: #CBD5E1;
       display: flex;
       align-items: center;
       gap: 8px;
       font-weight: 600;
-    }}
-    .welcome-sync-pulse {{
+    }
+    .welcome-sync-pulse {
       width: 8px;
       height: 8px;
       background: #F59E0B;
       border-radius: 50%;
       box-shadow: 0 0 8px #F59E0B;
       animation: pulseSyncDot 1.2s infinite ease-in-out;
-    }}
-    @keyframes pulseSyncDot {{
-      0%, 100% {{ transform: scale(0.9); opacity: 0.7; }}
-      50% {{ transform: scale(1.3); opacity: 1; }}
-    }}
-    .welcome-progress-track {{
+    }
+    @keyframes pulseSyncDot {
+      0%, 100% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+    .welcome-progress-track {
       width: 100%;
       height: 6px;
       background: rgba(255, 255, 255, 0.08);
       border-radius: 99px;
       overflow: hidden;
       position: relative;
-    }}
-    .welcome-progress-bar {{
+    }
+    .welcome-progress-bar {
       height: 100%;
       width: 30%;
       background: linear-gradient(90deg, #F59E0B, #10B981);
       border-radius: 99px;
       transition: width 0.35s ease-out;
       box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-    }}
-    .welcome-form-section {{
+    }
+    .welcome-form-section {
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -1737,14 +1737,14 @@
       margin-bottom: 18px;
       text-align: left;
       box-sizing: border-box;
-    }}
-    .welcome-form-hint {{
+    }
+    .welcome-form-hint {
       font-size: 8pt;
       color: #94A3B8;
       margin: 0 0 2px 2px;
       font-weight: 600;
-    }}
-    .welcome-input {{
+    }
+    .welcome-input {
       width: 100%;
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1756,17 +1756,17 @@
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
       box-sizing: border-box;
-    }}
-    .welcome-input:focus {{
+    }
+    .welcome-input:focus {
       border-color: #F59E0B;
       box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
-    }}
-    .welcome-input-row {{
+    }
+    .welcome-input-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-    }}
-    .welcome-btn-enter {{
+    }
+    .welcome-btn-enter {
       width: 100%;
       background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
       color: #0F172A;
@@ -1783,46 +1783,46 @@
       box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s, background 0.3s;
       font-family: inherit;
-    }}
-    .welcome-btn-enter:hover {{
+    }
+    .welcome-btn-enter:hover {
       transform: translateY(-1px);
       box-shadow: 0 12px 30px rgba(245, 158, 11, 0.45);
-    }}
-    .welcome-btn-enter:active {{
+    }
+    .welcome-btn-enter:active {
       transform: scale(0.98);
-    }}
-    .welcome-btn-enter.ready {{
+    }
+    .welcome-btn-enter.ready {
       background: linear-gradient(135deg, #10B981 0%, #059669 100%);
       color: #FFFFFF;
       box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
-    }}
-    .welcome-footer-badge {{
+    }
+    .welcome-footer-badge {
       font-size: 7.5pt;
       color: #64748B;
       margin-top: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
-    }}
+    }
 
-    @media print {{
-      .products-grid {{
+    @media print {
+      .products-grid {
         grid-template-columns: 1fr 1fr !important;
         gap: 18px !important;
-      }}
-      .image-container {{
+      }
+      .image-container {
         height: 180px !important;
-      }}
-      .product-name {{
+      }
+      .product-name {
         font-size: 10.5pt !important;
-      }}
+      }
       .floating-cart-bar,
       .modal-backdrop,
       .welcome-modal-backdrop,
-      .product-qty-selector {{
+      .product-qty-selector {
         display: none !important;
-      }}
-    }}
+      }
+    }
   </style>
 </head>
 <body>
@@ -1868,7 +1868,7 @@
       <div class="search-stats-badge">
         <span id="search-match-count">132</span> productos
       </div>
-      <div id="live-stock-indicator" class="live-stock-indicator" onclick="fetchLiveStock()" title="Clic para refrescar stock en vivo desde Drive">
+      <div id="live-stock-indicator" class="live-stock-indicator" onclick="fetchLiveStock(true)" title="Clic para refrescar stock en vivo ahora">
         <span class="pulse-dot-loading"></span> Sincronizando stock...
       </div>
     </div>
@@ -7157,13 +7157,17 @@
     let liveStockMap = {};
     const cart = {};
 
-    async function fetchLiveStock() {
+    async function fetchLiveStock(isManual = false) {
       const statusEl = document.getElementById('live-stock-indicator');
       
+      if (isManual && statusEl) {
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Actualizando stock...';
+      }
+
       // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos)
       try {
         const cached = localStorage.getItem('cached_stock_data');
-        if (cached) {
+        if (cached && !isManual) {
           const parsed = JSON.parse(cached);
           if (parsed && parsed.data) {
             liveStockMap = parsed.data;
@@ -7177,18 +7181,18 @@
       } catch(e) {}
 
       if (statusEl && (!liveStockMap || Object.keys(liveStockMap).length === 0)) {
-        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando stock...';
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Conectando almacén...';
       }
 
-      // 2. CONSULTA EN SEGUNDO PLANO CON TIMEOUT SEGURO (28s)
+      // 2. CONSULTA EN VIVO SIN CACHÉ CON TIMEOUT DE 28s
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 28000);
         
         let res = null;
-        // Intento 1: Llamar al endpoint /api/stock (servidor local Python o Vercel Serverless)
+        // Intento 1: Llamar a /api/stock con parámetro de tiempo para evitar caché de navegador
         try {
-          res = await fetch('/api/stock', { 
+          res = await fetch('/api/stock?_t=' + Date.now(), { 
             cache: 'no-store',
             signal: controller.signal
           });
@@ -7196,9 +7200,9 @@
           res = null;
         }
 
-        // Intento 2: Si /api/stock falló (ej: abriendo como archivo local file:///), consultar directo a Google Apps Script
+        // Intento 2: Si /api/stock falló (ej: abriendo directo archivo file:///), consultar directo a Google Apps Script
         if (!res || !res.ok) {
-          res = await fetch(STOCK_API_URL, { 
+          res = await fetch(STOCK_API_URL + (STOCK_API_URL.includes('?') ? '&' : '?') + '_t=' + Date.now(), { 
             cache: 'no-store',
             redirect: 'follow',
             signal: controller.signal 
@@ -7229,9 +7233,11 @@
 
           // Completar pantalla de bienvenida
           completeWelcomeSync(timeStr);
+        } else {
+          throw new Error(data.error || 'Respuesta inválida');
         }
       } catch (err) {
-        console.warn("Stock en vivo en segundo plano:", err.message);
+        console.warn("Stock en vivo:", err.message);
         completeWelcomeSync('');
         if (statusEl) {
           const cached = localStorage.getItem('cached_stock_data');
@@ -7315,7 +7321,7 @@
         initWelcomeCheck();
         fetchLiveStock();
       }
-      setInterval(fetchLiveStock, 120000);
+      setInterval(() => fetchLiveStock(false), 45000);
     } catch(e) {}
     function quitarProductoEnVivo(e, code) {
       if (e) {

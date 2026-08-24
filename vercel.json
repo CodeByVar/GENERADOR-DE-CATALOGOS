@@ -2,6 +2,7 @@
   "version": 2,
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/api/stock", "destination": "/api/stock.js" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/catalogo", "destination": "/catalogos.html" },
     { "source": "/desktop", "destination": "/catalogos_desktop.html" },
