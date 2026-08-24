@@ -7140,23 +7140,53 @@
 
       const normCode = (code || '').toUpperCase().replace(/\s+/g, '');
       const stockInfo = liveStockMap[normCode] || liveStockMap[(code || '').toUpperCase()];
+      const cantCaja = (stockInfo && (stockInfo.c || stockInfo.cantPorCaja)) ? (stockInfo.c || stockInfo.cantPorCaja) : (parseInt(ref.getAttribute('data-caja')) || 1);
+      const unMed = (stockInfo && (stockInfo.u || stockInfo.unidadMedida)) ? (stockInfo.u || stockInfo.unidadMedida) : (ref.getAttribute('data-unit') || 'UNI');
+      const maxCajas = stockInfo ? (typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor((stockInfo.s || 0) / cantCaja))) : 99999;
+      const stockActual = stockInfo ? (typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 99999)) : 99999;
+      const estado = stockInfo ? (stockInfo.e || stockInfo.estado || 'DISPONIBLE') : 'DISPONIBLE';
 
-      if (stockInfo) {
-        const cantCaja = stockInfo.c || stockInfo.cantPorCaja || 1;
-        const stockActual = typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 0);
-        const maxCajas = typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor(stockActual / cantCaja));
-        const unMed = stockInfo.u || stockInfo.unidadMedida || 'UNI';
-        const estado = stockInfo.e || stockInfo.estado || 'AGOTADO';
-
-        if (stockActual <= 0 || estado === 'AGOTADO') {
-          if (cajas > 0 || uni > 0) {
-            showStockToast(`🔴 El producto <strong>${code}</strong> está agotado.`);
+      if (stockInfo && (stockActual <= 0 || estado === 'AGOTADO')) {
+        if (cajas > 0 || uni > 0) {
+          showStockToast(`🔴 El producto <strong>${code}</strong> está agotado.`);
+        }
+        cajas = 0;
+        uni = 0;
+        if (inputCajas) inputCajas.value = 0;
+        if (inputUni) inputUni.value = 0;
+      } else {
+        // 1. AUTO-CONVERSIÓN INTELIGENTE EN TIEMPO REAL: Si las unidades completan una o más cajas
+        if (cantCaja > 1 && uni >= cantCaja) {
+          const extraCajas = Math.floor(uni / cantCaja);
+          const remainingUni = uni % cantCaja;
+          const targetCajas = cajas + extraCajas;
+          
+          if (targetCajas <= maxCajas) {
+            cajas = targetCajas;
+            uni = remainingUni;
+            if (inputCajas) inputCajas.value = cajas;
+            if (inputUni) inputUni.value = uni;
+            showStockToast(`📦 <strong>${extraCajas * cantCaja} unidades</strong> convertidas a <strong>${extraCajas} caja${extraCajas > 1 ? 's' : ''}</strong> cerrada${extraCajas > 1 ? 's' : ''}.`);
+            highlightInputLimit(inputCajas);
+          } else {
+            const possibleCajas = Math.max(0, maxCajas - cajas);
+            if (possibleCajas > 0) {
+              cajas = maxCajas;
+              uni = Math.max(0, uni - possibleCajas * cantCaja);
+              if (inputCajas) inputCajas.value = cajas;
+              if (inputUni) inputUni.value = uni;
+              showStockToast(`📦 Convertidas <strong>${possibleCajas} cajas</strong> (límite de stock).`);
+              highlightInputLimit(inputCajas);
+            }
           }
-          cajas = 0;
-          uni = 0;
-          if (inputCajas) inputCajas.value = 0;
-          if (inputUni) inputUni.value = 0;
-        } else {
+        }
+
+        // 2. SUGERENCIA INTELIGENTE: Si le falta solo 1 unidad para completar caja
+        if (cantCaja > 1 && uni > 0 && (cantCaja - uni === 1) && (cajas + 1 <= maxCajas)) {
+          showStockToast(`💡 ¡Agrega <strong>1 ${unMed}</strong> más para completar <strong>${cajas + 1} cajas</strong> cerradas!`);
+        }
+
+        if (stockInfo) {
           if (cajas > maxCajas) {
             cajas = maxCajas;
             if (inputCajas) inputCajas.value = maxCajas;
@@ -7176,8 +7206,6 @@
       if (inputCajas && inputCajas.value !== '' && parseInt(inputCajas.value) < 0) inputCajas.value = 0;
       if (inputUni && inputUni.value !== '' && parseInt(inputUni.value) < 0) inputUni.value = 0;
 
-      const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || 1) : 1;
-      const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || (ref.getAttribute('data-unit') || 'UNI')) : (ref.getAttribute('data-unit') || 'UNI');
       const totalUnitsThisItem = cajas * cantCaja + uni;
 
       const card = ref.closest('.product-card');

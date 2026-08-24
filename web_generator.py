@@ -1087,8 +1087,8 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             <table style="width: 100%; border-collapse: collapse; font-size: 7.5pt; text-align: left;">
               <thead>
                 <tr style="color: var(--text-muted); border-bottom: 1px solid var(--border-panel);">
-                  <th style="padding: 3px 6px;">CAJAS</th>
-                  <th style="padding: 3px 6px;">UNI</th>
+                  <th style="padding: 3px 6px;">PEDIDO / CANT</th>
+                  <th style="padding: 3px 6px;">UN/MED</th>
                   <th style="padding: 3px 6px;">DETALLE</th>
                   <th style="padding: 3px 6px;">CÓDIGO</th>
                 </tr>
@@ -1620,59 +1620,116 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const items = [];
 
       lines.forEach(line => {{
-        const mName = line.match(/(?:Cliente|Nombre|Cliente:)\\s*[:\\*]?\\s*([^\\n\\*_]+)/i);
-        if (mName && !clientName) clientName = mName[1].trim();
+        const cleanLine = line.replace(/[*_~`]/g, '').trim();
+        const mName = cleanLine.match(/(?:Cliente|Nombre|👤)\\s*[:]?\\s*(.+)/i);
+        if (mName && !clientName && mName[1].trim()) clientName = mName[1].trim();
 
-        const mAddr = line.match(/(?:Dirección|Direccion|Zona|Destino)\\s*[:\\*]?\\s*([^\\n\\*_]+)/i);
-        if (mAddr && !clientAddress) clientAddress = mAddr[1].trim();
+        const mAddr = cleanLine.match(/(?:Dirección|Direccion|Zona|Destino|📍)\\s*[:]?\\s*(.+)/i);
+        if (mAddr && !clientAddress && mAddr[1].trim()) clientAddress = mAddr[1].trim();
 
-        const mPhone = line.match(/(?:Teléfono|Telefono|Celular|WhatsApp|Telf)\\s*[:\\*]?\\s*([^\\n\\*_]+)/i);
-        if (mPhone && !clientPhone) clientPhone = mPhone[1].trim();
+        const mPhone = cleanLine.match(/(?:Teléfono|Telefono|Celular|WhatsApp|Telf|📱)\\s*[:]?\\s*(.+)/i);
+        if (mPhone && !clientPhone && mPhone[1].trim()) clientPhone = mPhone[1].trim();
       }});
 
-      let currentItemCode = null;
-      let currentItemName = '';
+      let currentItem = null;
 
       for (let i = 0; i < lines.length; i++) {{
-        const line = lines[i].trim();
-        if (!line) continue;
+        const rawLine = lines[i].trim();
+        if (!rawLine) continue;
 
-        const mCode = line.match(/\\[([A-Za-z0-9_\\-\\./]+)\\]/);
-        if (mCode) {{
-          currentItemCode = mCode[1].trim().toUpperCase();
-          currentItemName = line.replace(/^[0-9\\u20E3\\uFE0F\\.\\)\\-\\s]+/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
+        const cleanLine = rawLine.replace(/[*_~`]/g, '').trim();
+
+        // Si llegamos al resumen general o despedida, cerramos el último item y salimos del bucle
+        if (cleanLine.match(/(?:RESUMEN GENERAL|Total Cajas cerradas|TOTAL MERCADER|Por favor confirmar|Muchas gracias)/i)) {{
+          if (currentItem) {{
+            items.push(currentItem);
+            currentItem = null;
+          }}
+          break;
         }}
 
-        const mCajas = line.match(/(\\d+)\\s*Caja/i);
-        const mUni = line.match(/(\\d+)\\s*Unid/i);
-        const mGeneral = line.match(/(?:Cantidad|Cant|Pedir)\\s*[:•\\-]?\\s*\\*?(\\d+)\\*?/i);
+        // Detectar código de producto tipo [TIWLI201351] o 1. [CODIGO] Nombre
+        const mCode = cleanLine.match(/\\[([A-Za-z0-9_\\-\\./]+)\\]/);
+        if (mCode) {{
+          if (currentItem) {{
+            items.push(currentItem);
+          }}
+          const codeVal = mCode[1].trim().toUpperCase();
+          const cleanName = cleanLine.replace(/^[0-9\\u20E3\\uFE0F\\.\\)\\-\\s▪•■]+/, '').replace(/\\[[A-Za-z0-9_\\-\\./]+\\]/, '').trim();
+          const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === codeVal) || {{}};
 
-        if ((mCajas || mUni || mGeneral) && currentItemCode) {{
-          const cajas = mCajas ? parseInt(mCajas[1]) : 0;
-          const uni = mUni ? parseInt(mUni[1]) : 0;
-          const generalQty = mGeneral ? parseInt(mGeneral[1]) : (cajas || uni || 1);
-          
-          const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === currentItemCode) || {{}};
-          items.push({{
-            code: currentItemCode,
-            cajas: cajas,
-            uni: uni,
-            qty: generalQty,
+          currentItem = {{
+            code: codeVal,
+            name: prodInfo.nombre || cleanName || codeVal,
+            brand: prodInfo.marca || '',
             unitType: prodInfo.uni || 'UNI',
-            name: prodInfo.nombre || currentItemName || currentItemCode,
-            brand: prodInfo.marca || ''
-          }});
-          currentItemCode = null;
-          currentItemName = '';
-        }} else if (!mCode && line.match(/^[A-Za-z0-9_\\-\\./]+\\s+\\d+/)) {{
-          const parts = line.split(/\\s+/);
+            cajas: 0,
+            uni: 0,
+            cantCaja: prodInfo.cant_caja || 1,
+            totalUnits: 0,
+            qty: 0
+          }};
+          continue;
+        }}
+
+        // Si tenemos un item activo, extraer cantidades y empaque de forma precisa
+        if (currentItem) {{
+          // 1. Empaque: "Empaque: 6 SET/caja | Marca: TOTAL"
+          if (cleanLine.match(/(?:Empaque|Viene)/i)) {{
+            const mPkg = cleanLine.match(/(?:Empaque|Viene)\\s*[:•\\-]?\\s*(\\d+)\\s*([A-Za-z]+)?\\/caja/i);
+            if (mPkg) {{
+              currentItem.cantCaja = parseInt(mPkg[1]) || currentItem.cantCaja || 1;
+              if (mPkg[2]) currentItem.unitType = mPkg[2].toUpperCase();
+            }}
+            continue;
+          }}
+
+          // 2. Línea de Pedido: "Pedido: 1 Cajas + 2 SET → Total: 8 SET"
+          if (cleanLine.match(/Pedido\\s*[:•\\-]/i)) {{
+            // Extraer Cajas
+            const mCajas = cleanLine.match(/(\\d+)\\s*(?:Cajas?|Cj|Cjas?)/i);
+            if (mCajas) {{
+              currentItem.cajas = parseInt(mCajas[1]);
+            }}
+
+            // Extraer Unidades Sueltas (después del signo +)
+            const mPlusUni = cleanLine.match(/\\+\\s*(\\d+)\\s*([A-Za-z]+)?/i);
+            if (mPlusUni) {{
+              currentItem.uni = parseInt(mPlusUni[1]);
+              if (mPlusUni[2] && !mPlusUni[2].toUpperCase().startsWith('TOT')) {{
+                currentItem.unitType = mPlusUni[2].toUpperCase();
+              }}
+            }} else if (!mCajas) {{
+              // Si no pidió cajas, solo pidió sueltas (ej: "Pedido: 2 SET")
+              const mOnlyUni = cleanLine.match(/Pedido\\s*[:•\\-]?\\s*(\\d+)\\s*([A-Za-z]+)?/i);
+              if (mOnlyUni) {{
+                currentItem.uni = parseInt(mOnlyUni[1]);
+                if (mOnlyUni[2] && !mOnlyUni[2].toUpperCase().startsWith('TOT')) {{
+                  currentItem.unitType = mOnlyUni[2].toUpperCase();
+                }}
+              }}
+            }}
+
+            // Total de piezas explícito (ej: "Total: 8 SET")
+            const mTotal = cleanLine.match(/Total\\s*[:=]\\s*(\\d+)/i);
+            if (mTotal) {{
+              currentItem.totalUnits = parseInt(mTotal[1]);
+            }}
+            continue;
+          }}
+        }} else if (cleanLine.match(/^[A-Za-z0-9_\\-\\./]+\\s+\\d+/)) {{
+          // Formato simple por línea: CODIGO CANTIDAD
+          const parts = cleanLine.split(/\\s+/);
           const simpleCode = parts[0].toUpperCase();
           const simpleQty = parseInt(parts[1]) || 1;
           const prodInfo = allInventoryProducts.find(p => p.cod.toUpperCase() === simpleCode) || {{}};
+          const pkg = prodInfo.cant_caja || 1;
           items.push({{
             code: simpleCode,
             cajas: simpleQty,
             uni: 0,
+            cantCaja: pkg,
+            totalUnits: simpleQty * pkg,
             qty: simpleQty,
             unitType: prodInfo.uni || 'UNI',
             name: prodInfo.nombre || simpleCode,
@@ -1680,6 +1737,18 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           }});
         }}
       }}
+
+      if (currentItem) {{
+        items.push(currentItem);
+      }}
+
+      // Calcular totales por item si no vinieron explícitos
+      items.forEach(it => {{
+        if (!it.totalUnits || it.totalUnits === 0) {{
+          it.totalUnits = (it.cajas * (it.cantCaja || 1)) + (it.uni || 0);
+          if (it.totalUnits === 0) it.totalUnits = it.qty || 1;
+        }}
+      }});
 
       currentParsedOrder = {{
         client: {{ name: clientName, address: clientAddress, phone: clientPhone }},
@@ -1694,9 +1763,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       if (container) container.style.display = 'flex';
       
       const infoParts = [];
-      if (clientName) infoParts.push(`<strong>${{clientName}}</strong>`);
+      if (clientName) infoParts.push(`👤 <strong>${{clientName}}</strong>`);
       if (clientAddress) infoParts.push(`📍 ${{clientAddress}}`);
-      if (clientPhone) infoParts.push(`📞 ${{clientPhone}}`);
+      if (clientPhone) infoParts.push(`📱 ${{clientPhone}}`);
       const clientInfoEl = document.getElementById('order-parsed-client-info');
       if (clientInfoEl) {{
         clientInfoEl.innerHTML = infoParts.length > 0 ? infoParts.join(' • ') : 'Pedido recibido';
@@ -1706,19 +1775,50 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       if (tbody) {{
         let tbodyHtml = '';
         items.forEach(it => {{
-          let cantDisplay = [];
-          if (it.cajas > 0) cantDisplay.push(it.cajas + ' Cj');
-          if (it.uni > 0) cantDisplay.push(it.uni + ' Uni');
-          const finalCant = cantDisplay.length > 0 ? cantDisplay.join(' + ') : it.qty;
-
-          tbodyHtml += `
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-              <td style="padding: 3px 6px; font-weight: 800; color: #25D366;">${{finalCant}}</td>
-              <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
-              <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
-              <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
-            </tr>
-          `;
+          if (it.cajas > 0 && it.uni > 0) {{
+            // Fila 1: Cajas cerradas
+            tbodyHtml += `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 3px 6px; font-weight: 800; color: #D97706;">📦 ${{it.cajas}} Cj</td>
+                <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
+                <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
+                <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(37, 211, 102, 0.03);">
+                <td style="padding: 3px 6px; font-weight: 800; color: #22C55E;">↳ ${{it.uni}} Uni</td>
+                <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
+                <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
+                <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
+              </tr>
+            `;
+          }} else if (it.cajas > 0) {{
+            tbodyHtml += `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 3px 6px; font-weight: 800; color: #D97706;">📦 ${{it.cajas}} Cj</td>
+                <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
+                <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
+                <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
+              </tr>
+            `;
+          }} else if (it.uni > 0) {{
+            tbodyHtml += `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 3px 6px; font-weight: 800; color: #22C55E;">${{it.uni}} Uni</td>
+                <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
+                <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
+                <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
+              </tr>
+            `;
+          }} else {{
+            tbodyHtml += `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 3px 6px; font-weight: 800; color: #25D366;">${{it.qty || 1}}</td>
+                <td style="padding: 3px 6px; color: var(--text-muted);">${{it.unitType}}</td>
+                <td style="padding: 3px 6px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="${{it.name}}">${{it.name}}</td>
+                <td style="padding: 3px 6px; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">${{it.code}}</td>
+              </tr>
+            `;
+          }}
         }});
         tbody.innerHTML = tbodyHtml;
       }}
@@ -1726,9 +1826,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
     function copiarInfoCliente() {{
       const c = currentParsedOrder.client;
-      const text = `CLIENTE: ${{c.name || ''}}\\tDIRECCION: ${{c.address || ''}}\\tTELF: ${{c.phone || ''}}`;
+      const text = `${{c.name || ''}}\\t${{c.address || ''}}\\t${{c.phone || ''}}`;
       navigator.clipboard.writeText(text).then(() => {{
         log(`[OK] Datos del cliente copiados: ${{c.name || ''}} (${{c.address || ''}})`);
+        alert(`¡Datos del cliente copiados!\\n\\nNombre: ${{c.name || ''}}\\nDirección: ${{c.address || ''}}\\nTeléfono: ${{c.phone || ''}}`);
       }});
     }}
 
@@ -1738,17 +1839,17 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         return;
       }}
 
-      // Formato IR01XX (4 Columnas):
+      // FOTO 2: Formato IR01XX (4 Columnas):
       // CANTIDAD (A) \t UN/MED (B) \t DETALLE (C) \t CODIGO (D)
       const rows = currentParsedOrder.items.map(it => {{
-        const qtyVal = it.cajas > 0 ? it.cajas : (it.uni > 0 ? it.uni : it.qty);
+        const qtyVal = it.totalUnits || (it.cajas * (it.cantCaja || 1) + it.uni) || it.qty || 1;
         return `${{qtyVal}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
       }});
 
       const tsv = rows.join('\\n');
       navigator.clipboard.writeText(tsv).then(() => {{
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cantidad!\\n\\n1. Ve a tu Google Sheets (formato IR01XX).\\n2. Haz clic en la celda A5 (CANTIDAD).\\n3. Presiona Ctrl + V para pegar.`);
-        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cantidad (4 col).`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cantidad (4 Columnas)!\\n\\n1. Ve a tu Google Sheets (Formato IR01XX).\\n2. Clic en celda A5 (CANTIDAD).\\n3. Presiona Ctrl + V para pegar.`);
+        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cantidad (4 col: CANTIDAD | UN/MED | DETALLE | CODIGO).`);
       }}).catch(() => {{
         const ta = document.createElement("textarea");
         ta.value = tsv;
@@ -1766,18 +1867,34 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         return;
       }}
 
-      // Formato IR01ML (5 Columnas):
+      // FOTO 1: Formato IR01ML (5 Columnas en filas separadas para Cajas y Unidades sueltas):
       // CANT. CAJAS (A) \t CANT. UNI. (B) \t UN/MED (C) \t DETALLE (D) \t CODIGO (E)
-      const rows = currentParsedOrder.items.map(it => {{
-        const cajasVal = it.cajas > 0 ? it.cajas : (it.uni === 0 ? it.qty : '');
-        const uniVal = it.uni > 0 ? it.uni : '';
-        return `${{cajasVal}}\\t${{uniVal}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`;
+      const rows = [];
+      currentParsedOrder.items.forEach(it => {{
+        const pkg = it.cantCaja || 1;
+        let unitsInBoxes = it.cajas * pkg;
+        if (it.totalUnits && it.totalUnits > it.uni && it.cajas > 0) {{
+          unitsInBoxes = it.totalUnits - it.uni;
+        }}
+
+        if (it.cajas > 0 && it.uni > 0) {{
+          // Fila 1: Caja cerrada con la cantidad de unidades que trae la caja (para el subtotal del Excel)
+          rows.push(`${{it.cajas}}\\t${{unitsInBoxes}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`);
+          // Fila 2: Unidades sueltas debajo (Cajas queda vacío, Uni lleva la cantidad suelta)
+          rows.push(`\\t${{it.uni}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`);
+        }} else if (it.cajas > 0) {{
+          rows.push(`${{it.cajas}}\\t${{unitsInBoxes}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`);
+        }} else if (it.uni > 0) {{
+          rows.push(`\\t${{it.uni}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`);
+        }} else {{
+          rows.push(`${{it.qty || 1}}\\t${{it.qty || 1}}\\t${{it.unitType || 'UNI'}}\\t${{it.name}}\\t${{it.code}}`);
+        }}
       }});
 
       const tsv = rows.join('\\n');
       navigator.clipboard.writeText(tsv).then(() => {{
-        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cajas!\\n\\n1. Ve a tu Google Sheets (formato IR01ML).\\n2. Haz clic en la celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar.`);
-        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cajas (5 col).`);
+        alert(`¡${{currentParsedOrder.items.length}} productos copiados para Formato por Cajas (5 Columnas)!\\n\\n1. Ve a tu Google Sheets (Formato IR01ML).\\n2. Clic en celda A5 (CANT. CAJAS).\\n3. Presiona Ctrl + V para pegar.`);
+        log(`[OK] ${{currentParsedOrder.items.length}} filas copiadas para Formato por Cajas (5 col: CANT. CAJAS | CANT. UNI. | UN/MED | DETALLE | CODIGO).`);
       }}).catch(() => {{
         const ta = document.createElement("textarea");
         ta.value = tsv;

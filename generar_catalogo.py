@@ -554,6 +554,7 @@ def detectar_columnas(ws):
         "size": COL_SIZE,
         "detalle": COL_DETALLE,
         "uni": COL_UNI,
+        "cant_caja": None,
     }
     start_row = FILA_INICIO_DB
     
@@ -578,6 +579,8 @@ def detectar_columnas(ws):
                 cols["size"] = idx
             elif any(k in val for k in ["DETALLE", "ESPECIFICACION", "CARACTERISTICA", "OBSERVACION"]):
                 cols["detalle"] = idx
+            elif any(k in val for k in ["POR CAJA", "Q. POR CAJA", "Q.POR CAJA", "Q. POR", "CANT. CAJA", "CANT/CAJA", "X CAJA"]):
+                cols["cant_caja"] = idx
             elif any(k in val for k in ["UNI", "UNIDAD", "U.M.", "EMPAQUE", "PRESENTACION"]):
                 cols["uni"] = idx
             elif any(k in val for k in ["IMAGEN", "FOTO", "IMG"]):
@@ -3207,23 +3210,53 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       const normCode = (code || '').toUpperCase().replace(/\\s+/g, '');
       const stockInfo = liveStockMap[normCode] || liveStockMap[(code || '').toUpperCase()];
+      const cantCaja = (stockInfo && (stockInfo.c || stockInfo.cantPorCaja)) ? (stockInfo.c || stockInfo.cantPorCaja) : (parseInt(ref.getAttribute('data-caja')) || 1);
+      const unMed = (stockInfo && (stockInfo.u || stockInfo.unidadMedida)) ? (stockInfo.u || stockInfo.unidadMedida) : (ref.getAttribute('data-unit') || 'UNI');
+      const maxCajas = stockInfo ? (typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor((stockInfo.s || 0) / cantCaja))) : 99999;
+      const stockActual = stockInfo ? (typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 99999)) : 99999;
+      const estado = stockInfo ? (stockInfo.e || stockInfo.estado || 'DISPONIBLE') : 'DISPONIBLE';
 
-      if (stockInfo) {{
-        const cantCaja = stockInfo.c || stockInfo.cantPorCaja || 1;
-        const stockActual = typeof stockInfo.s === 'number' ? stockInfo.s : (typeof stockInfo.stockActual === 'number' ? stockInfo.stockActual : 0);
-        const maxCajas = typeof stockInfo.b === 'number' ? stockInfo.b : (typeof stockInfo.cajas === 'number' ? stockInfo.cajas : Math.floor(stockActual / cantCaja));
-        const unMed = stockInfo.u || stockInfo.unidadMedida || 'UNI';
-        const estado = stockInfo.e || stockInfo.estado || 'AGOTADO';
-
-        if (stockActual <= 0 || estado === 'AGOTADO') {{
-          if (cajas > 0 || uni > 0) {{
-            showStockToast(`🔴 El producto <strong>${{code}}</strong> está agotado.`);
+      if (stockInfo && (stockActual <= 0 || estado === 'AGOTADO')) {{
+        if (cajas > 0 || uni > 0) {{
+          showStockToast(`🔴 El producto <strong>${{code}}</strong> está agotado.`);
+        }}
+        cajas = 0;
+        uni = 0;
+        if (inputCajas) inputCajas.value = 0;
+        if (inputUni) inputUni.value = 0;
+      }} else {{
+        // 1. AUTO-CONVERSIÓN INTELIGENTE EN TIEMPO REAL: Si las unidades completan una o más cajas
+        if (cantCaja > 1 && uni >= cantCaja) {{
+          const extraCajas = Math.floor(uni / cantCaja);
+          const remainingUni = uni % cantCaja;
+          const targetCajas = cajas + extraCajas;
+          
+          if (targetCajas <= maxCajas) {{
+            cajas = targetCajas;
+            uni = remainingUni;
+            if (inputCajas) inputCajas.value = cajas;
+            if (inputUni) inputUni.value = uni;
+            showStockToast(`📦 <strong>${{extraCajas * cantCaja}} unidades</strong> convertidas a <strong>${{extraCajas}} caja${{extraCajas > 1 ? 's' : ''}}</strong> cerrada${{extraCajas > 1 ? 's' : ''}}.`);
+            highlightInputLimit(inputCajas);
+          }} else {{
+            const possibleCajas = Math.max(0, maxCajas - cajas);
+            if (possibleCajas > 0) {{
+              cajas = maxCajas;
+              uni = Math.max(0, uni - possibleCajas * cantCaja);
+              if (inputCajas) inputCajas.value = cajas;
+              if (inputUni) inputUni.value = uni;
+              showStockToast(`📦 Convertidas <strong>${{possibleCajas}} cajas</strong> (límite de stock).`);
+              highlightInputLimit(inputCajas);
+            }}
           }}
-          cajas = 0;
-          uni = 0;
-          if (inputCajas) inputCajas.value = 0;
-          if (inputUni) inputUni.value = 0;
-        }} else {{
+        }}
+
+        // 2. SUGERENCIA INTELIGENTE: Si le falta solo 1 unidad para completar caja
+        if (cantCaja > 1 && uni > 0 && (cantCaja - uni === 1) && (cajas + 1 <= maxCajas)) {{
+          showStockToast(`💡 ¡Agrega <strong>1 ${{unMed}}</strong> más para completar <strong>${{cajas + 1}} cajas</strong> cerradas!`);
+        }}
+
+        if (stockInfo) {{
           if (cajas > maxCajas) {{
             cajas = maxCajas;
             if (inputCajas) inputCajas.value = maxCajas;
@@ -3243,8 +3276,6 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       if (inputCajas && inputCajas.value !== '' && parseInt(inputCajas.value) < 0) inputCajas.value = 0;
       if (inputUni && inputUni.value !== '' && parseInt(inputUni.value) < 0) inputUni.value = 0;
 
-      const cantCaja = stockInfo ? (stockInfo.c || stockInfo.cantPorCaja || 1) : 1;
-      const unMed = stockInfo ? (stockInfo.u || stockInfo.unidadMedida || (ref.getAttribute('data-unit') || 'UNI')) : (ref.getAttribute('data-unit') || 'UNI');
       const totalUnitsThisItem = cajas * cantCaja + uni;
 
       const card = ref.closest('.product-card');
@@ -3686,6 +3717,18 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
             norm_k = raw_clave.upper()
             clean_k = clave_busqueda(raw_clave)
             
+            col_cj = cols_cfg.get("cant_caja")
+            cant_caja_val = 1
+            if col_cj:
+                try:
+                    raw_cj = ws_cur.cell(row=row, column=col_cj).value
+                    if raw_cj is not None:
+                        cant_caja_val = float(str(raw_cj).replace(",", "."))
+                        if cant_caja_val <= 0:
+                            cant_caja_val = 1
+                except Exception:
+                    cant_caja_val = 1
+            
             prod_info = {
                 "categoria": str(ws_cur.cell(row=row, column=col_cat).value or "").strip(),
                 "cod":       raw_clave,
@@ -3694,6 +3737,7 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
                 "size":      str(ws_cur.cell(row=row, column=col_siz).value or "").strip(),
                 "detalle":   str(ws_cur.cell(row=row, column=col_det).value or "").strip(),
                 "uni":       str(ws_cur.cell(row=row, column=col_uni).value or "pcs").strip(),
+                "cant_caja": cant_caja_val,
                 "fila_db":   row,
                 "ws_title":  ws_cur.title,
             }
@@ -3820,6 +3864,18 @@ def obtener_resumen_inventario():
             size_str = str(ws_cur.cell(row=row, column=col_siz).value or "").strip()
             uni_str = str(ws_cur.cell(row=row, column=col_uni).value or "pcs").strip()
             
+            col_cj = cols_cfg.get("cant_caja")
+            cant_caja_val = 1
+            if col_cj:
+                try:
+                    raw_cj = ws_cur.cell(row=row, column=col_cj).value
+                    if raw_cj is not None:
+                        cant_caja_val = float(str(raw_cj).replace(",", "."))
+                        if cant_caja_val <= 0:
+                            cant_caja_val = 1
+                except Exception:
+                    cant_caja_val = 1
+            
             brand_theme = get_brand_theme(tipo_str)
             brand_name = brand_theme["display_name"]
             
@@ -3829,7 +3885,8 @@ def obtener_resumen_inventario():
                 "categoria": cat_str,
                 "marca": brand_name,
                 "size": size_str,
-                "uni": uni_str
+                "uni": uni_str,
+                "cant_caja": cant_caja_val
             })
             
             marcas[brand_name] = marcas.get(brand_name, 0) + 1
