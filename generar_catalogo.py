@@ -3261,32 +3261,37 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       // 2. CONSULTA ULTRA RÁPIDA CON VERCEL EDGE CDN
       try {{
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s máx
-        
         let res = null;
+        
         // Intento 1: Llamar a /api/stock (aprovecha Edge CDN en Vercel, o bypass si es manual)
         const apiUrl = isManual ? ('/api/stock?force=1&_t=' + Date.now()) : '/api/stock';
         try {{
-          res = await fetch(apiUrl, {{ 
-            signal: controller.signal
-          }});
+          const c1 = new AbortController();
+          const t1 = setTimeout(() => c1.abort(), 8000); // 8s máx en Edge
+          res = await fetch(apiUrl, {{ signal: c1.signal }});
+          clearTimeout(t1);
         }} catch (e) {{
           res = null;
         }}
 
         // Intento 2: Si /api/stock falló (ej: abriendo directo archivo file:///), consultar directo a Google Apps Script
         if (!res || !res.ok) {{
-          const directUrl = STOCK_API_URL + (STOCK_API_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
-          res = await fetch(directUrl, {{ 
-            cache: 'no-store',
-            redirect: 'follow',
-            signal: controller.signal 
-          }});
+          try {{
+            const c2 = new AbortController();
+            const t2 = setTimeout(() => c2.abort(), 12000); // 12s máx directo
+            const directUrl = STOCK_API_URL + (STOCK_API_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+            res = await fetch(directUrl, {{ 
+              cache: 'no-store',
+              redirect: 'follow',
+              signal: c2.signal 
+            }});
+            clearTimeout(t2);
+          }} catch (e) {{
+            res = null;
+          }}
         }}
         
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res || !res.ok) throw new Error(res ? ('HTTP ' + res.status) : 'Sin respuesta de servidor');
         const data = await res.json();
         if (data && !data.error) {{
           liveStockMap = data;
