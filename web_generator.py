@@ -199,16 +199,35 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-cache')
             self.end_headers()
             try:
+                # Comprobar si existe caché reciente en memoria del servidor local (< 20s)
+                import time
+                now = time.time()
+                cache_data = getattr(self.server, '_stock_cache_data', None)
+                cache_time = getattr(self.server, '_stock_cache_time', 0)
+                is_fresh = "fresh" in query_params or "force" in query_params
+
+                if not is_fresh and cache_data and (now - cache_time < 25):
+                    self.wfile.write(cache_data)
+                    return
+
                 stock_url = getattr(generar_catalogo, 'URL_STOCK_API', "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec")
                 req = urllib.request.Request(stock_url, headers={'User-Agent': 'Mozilla/5.0'})
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
                 ctx.verify_mode = ssl.CERT_NONE
-                with urllib.request.urlopen(req, context=ctx, timeout=90) as response:
+                with urllib.request.urlopen(req, context=ctx, timeout=12) as response:
                     content = response.read()
+                    if content and len(content) > 10 and not b"error" in content[:30]:
+                        self.server._stock_cache_data = content
+                        self.server._stock_cache_time = now
                     self.wfile.write(content)
             except Exception as e:
-                self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+                # Fallback a caché previa si hubo timeout o error
+                fallback = getattr(self.server, '_stock_cache_data', None)
+                if fallback:
+                    self.wfile.write(fallback)
+                else:
+                    self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
             return
 
         # 2. Servir el PDF de catálogo

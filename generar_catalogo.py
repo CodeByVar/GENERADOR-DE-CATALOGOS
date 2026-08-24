@@ -3226,18 +3226,23 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     const STOCK_API_URL = "{URL_STOCK_API}";
     let liveStockMap = {{}};
     const cart = {{}};
+    let lastStockSyncTimestamp = 0;
+    let isFetchingLiveStock = false;
 
     async function fetchLiveStock(isManual = false) {{
+      if (isFetchingLiveStock && !isManual) return;
+      isFetchingLiveStock = true;
+
       const statusEl = document.getElementById('live-stock-indicator');
       
       if (isManual && statusEl) {{
-        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Actualizando stock...';
+        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando stock...';
       }}
 
-      // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos)
+      // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos para render ultra-veloz)
       try {{
         const cached = localStorage.getItem('cached_stock_data');
-        if (cached && !isManual) {{
+        if (cached && (!liveStockMap || Object.keys(liveStockMap).length === 0)) {{
           const parsed = JSON.parse(cached);
           if (parsed && parsed.data) {{
             liveStockMap = parsed.data;
@@ -3254,16 +3259,16 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Conectando almacén...';
       }}
 
-      // 2. CONSULTA EN VIVO SIN CACHÉ CON TIMEOUT DE 28s
+      // 2. CONSULTA ULTRA RÁPIDA CON VERCEL EDGE CDN
       try {{
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 28000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s máx
         
         let res = null;
-        // Intento 1: Llamar a /api/stock con parámetro de tiempo para evitar caché de navegador
+        // Intento 1: Llamar a /api/stock (aprovecha Edge CDN en Vercel, o bypass si es manual)
+        const apiUrl = isManual ? ('/api/stock?force=1&_t=' + Date.now()) : '/api/stock';
         try {{
-          res = await fetch('/api/stock?_t=' + Date.now(), {{ 
-            cache: 'no-store',
+          res = await fetch(apiUrl, {{ 
             signal: controller.signal
           }});
         }} catch (e) {{
@@ -3272,7 +3277,8 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
         // Intento 2: Si /api/stock falló (ej: abriendo directo archivo file:///), consultar directo a Google Apps Script
         if (!res || !res.ok) {{
-          res = await fetch(STOCK_API_URL + (STOCK_API_URL.includes('?') ? '&' : '?') + '_t=' + Date.now(), {{ 
+          const directUrl = STOCK_API_URL + (STOCK_API_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+          res = await fetch(directUrl, {{ 
             cache: 'no-store',
             redirect: 'follow',
             signal: controller.signal 
@@ -3284,6 +3290,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         const data = await res.json();
         if (data && !data.error) {{
           liveStockMap = data;
+          lastStockSyncTimestamp = Date.now();
           const now = new Date();
           const timeStr = now.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
           
@@ -3316,12 +3323,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
               const parsed = JSON.parse(cached);
               if (parsed && parsed.timeStr) {{
                 statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{parsed.timeStr}})`;
+                isFetchingLiveStock = false;
                 return;
               }}
             }} catch(e) {{}}
           }}
           statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock en vivo';
         }}
+      }} finally {{
+        isFetchingLiveStock = false;
       }}
     }}
 
@@ -3385,13 +3395,26 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       if (document.readyState === 'loading') {{
         document.addEventListener('DOMContentLoaded', () => {{
           initWelcomeCheck();
-          fetchLiveStock();
+          fetchLiveStock(false);
         }});
       }} else {{
         initWelcomeCheck();
-        fetchLiveStock();
+        fetchLiveStock(false);
       }}
-      setInterval(() => fetchLiveStock(false), 45000);
+      // Intervalo regular silencioso cada 30 segundos
+      setInterval(() => fetchLiveStock(false), 30000);
+
+      // Auto-refresco al recuperar el foco de la pestaña si pasaron >30s
+      document.addEventListener('visibilitychange', () => {{
+        if (document.visibilityState === 'visible' && (Date.now() - lastStockSyncTimestamp > 30000)) {{
+          fetchLiveStock(false);
+        }}
+      }});
+      window.addEventListener('focus', () => {{
+        if (Date.now() - lastStockSyncTimestamp > 30000) {{
+          fetchLiveStock(false);
+        }}
+      }});
     }} catch(e) {{}}
     function quitarProductoEnVivo(e, code) {{
       if (e) {{
