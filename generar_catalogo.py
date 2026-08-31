@@ -328,6 +328,104 @@ BRAND_THEMES = {
         "card_photo_bg": "FFFFFF",
         "card_measure_bg": "F1FEE7", # Very light lime green
         "card_measure_fg": "4D7C0F", # Lime green text (Lime 700)
+    },
+    "DWT": {
+        "logo": "Logo Dwt.png",
+        "display_name": "DWT",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "E11D24", # Red branding
+        "category_bg": "FEE2E2",
+        "category_fg": "991B1B",
+        "card_header_bg": "E11D24",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEE2E2",
+        "card_measure_fg": "991B1B",
+    },
+    "LION": {
+        "logo": "Logo Lion.png",
+        "display_name": "LION",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "B45309", # Warm amber/gold
+        "category_bg": "FEF3C7", # Light amber/yellow
+        "category_fg": "92400E", # Dark amber
+        "card_header_bg": "FACC15", # Brand Yellow
+        "card_header_fg": "000000", # High contrast black text
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEF3C7",
+        "card_measure_fg": "92400E",
+    },
+    "NORSTAR": {
+        "logo": "Logo Norstar.png",
+        "display_name": "NORSTAR",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "D97706", # Norstar Ochre / Gold
+        "category_bg": "FEF3C7",
+        "category_fg": "92400E",
+        "card_header_bg": "D97706",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEF9C3",
+        "card_measure_fg": "713F12",
+    },
+    "POWERMAQ": {
+        "logo": "Logo Powermaq.png",
+        "display_name": "POWERMAQ",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "1E293B", # Slate / Graphite
+        "category_bg": "F1F5F9",
+        "category_fg": "0F172A",
+        "card_header_bg": "1E293B",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "E2E8F0",
+        "card_measure_fg": "0F172A",
+    },
+    "STANFORD": {
+        "logo": "Logo Stanford.png",
+        "display_name": "STANFORD",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "EA580C", # Signature Stanford Orange
+        "category_bg": "FFEDD5", # Light orange
+        "category_fg": "9A3412", # Dark orange
+        "card_header_bg": "EA580C",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FFEDD5",
+        "card_measure_fg": "C2410C",
+    },
+    "WYYMET": {
+        "logo": "Logo Wyymet.png",
+        "display_name": "WYYMET",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "B91C1C", # Crimson / Dark Red
+        "category_bg": "FEE2E2",
+        "category_fg": "991B1B",
+        "card_header_bg": "B91C1C",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEE2E2",
+        "card_measure_fg": "991B1B",
+    },
+    "WYMET": {
+        "logo": "Logo Wyymet.png",
+        "display_name": "WYYMET",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "B91C1C",
+        "category_bg": "FEE2E2",
+        "category_fg": "991B1B",
+        "card_header_bg": "B91C1C",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEE2E2",
+        "card_measure_fg": "991B1B",
     }
 }
 
@@ -2482,192 +2580,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
     }
 
-    /* ──── PANTALLA DE BIENVENIDA Y SINCRONIZACIÓN EN VIVO ──── */
-    .welcome-modal-backdrop {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle at 50% 30%, rgba(15, 23, 42, 0.96) 0%, rgba(4, 7, 13, 0.98) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-      padding: 20px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
-    }
-    .welcome-modal-backdrop.hidden {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-    .welcome-modal-card {
-      background: linear-gradient(180deg, #111827 0%, #0B1120 100%);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 26px;
-      width: 100%;
-      max-width: 460px;
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.15);
-      animation: welcomePop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      color: #FFFFFF;
-    }
-    @keyframes welcomePop {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .welcome-brand-icon {
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.08));
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 14px;
-      box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
-    }
-    .welcome-title {
-      font-size: 16.5pt;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      color: #FFFFFF;
-      margin: 0 0 4px 0;
-    }
-    .welcome-subtitle {
-      font-size: 9pt;
-      color: #94A3B8;
-      margin: 0 0 20px 0;
-      font-weight: 500;
-    }
-    .welcome-sync-box {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 14px 18px;
-      margin-bottom: 18px;
-      box-sizing: border-box;
-    }
-    .welcome-sync-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 8.5pt;
-      margin-bottom: 10px;
-    }
-    .welcome-sync-label {
-      color: #CBD5E1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-    }
-    .welcome-sync-pulse {
-      width: 8px;
-      height: 8px;
-      background: #F59E0B;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #F59E0B;
-      animation: pulseSyncDot 1.2s infinite ease-in-out;
-    }
-    @keyframes pulseSyncDot {
-      0%, 100% { transform: scale(0.9); opacity: 0.7; }
-      50% { transform: scale(1.3); opacity: 1; }
-    }
-    .welcome-progress-track {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 99px;
-      overflow: hidden;
-      position: relative;
-    }
-    .welcome-progress-bar {
-      height: 100%;
-      width: 30%;
-      background: linear-gradient(90deg, #F59E0B, #10B981);
-      border-radius: 99px;
-      transition: width 0.35s ease-out;
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-    }
-    .welcome-form-section {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-      margin-bottom: 18px;
-      text-align: left;
-      box-sizing: border-box;
-    }
-    .welcome-form-hint {
-      font-size: 8pt;
-      color: #94A3B8;
-      margin: 0 0 2px 2px;
-      font-weight: 600;
-    }
-    .welcome-input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 10px 14px;
-      color: #FFFFFF;
-      font-size: 9pt;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      box-sizing: border-box;
-    }
-    .welcome-input:focus {
-      border-color: #F59E0B;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
-    }
-    .welcome-input-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .welcome-btn-enter {
-      width: 100%;
-      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-      color: #0F172A;
-      font-weight: 800;
-      font-size: 9.5pt;
-      padding: 12px 18px;
-      border-radius: 14px;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
-      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s, background 0.3s;
-      font-family: inherit;
-    }
-    .welcome-btn-enter:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.45);
-    }
-    .welcome-btn-enter:active {
-      transform: scale(0.98);
-    }
-    .welcome-btn-enter.ready {
-      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-      color: #FFFFFF;
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
-    }
-    .welcome-footer-badge {
-      font-size: 7.5pt;
-      color: #64748B;
-      margin-top: 12px;
+    /* ──── TOAST Y NOTIFICACIONES ──── */
       display: flex;
       align-items: center;
       gap: 6px;
@@ -3052,176 +2965,10 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     </div>
   </div>
 
-  <!-- Modal de Bienvenida y Sincronización en Vivo (1ra Visita) -->
-  <div id="welcome-modal-backdrop" class="welcome-modal-backdrop">
-    <div class="welcome-modal-card">
-      <div class="welcome-brand-icon">
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      </div>
-      <h2 class="welcome-title">IMPORTADORA RIVERO</h2>
-      <p class="welcome-subtitle">Catálogo Mayorista Inteligente</p>
-      
-      <div class="welcome-sync-box">
-        <div class="welcome-sync-top">
-          <div class="welcome-sync-label">
-            <span class="welcome-sync-pulse" id="welcome-sync-dot"></span>
-            <span id="welcome-sync-text">Sincronizando inventario en vivo...</span>
-          </div>
-          <span id="welcome-sync-pct" style="font-size: 8.5pt; color: #F59E0B; font-weight: 700;">25%</span>
-        </div>
-        <div class="welcome-progress-track">
-          <div id="welcome-progress-fill" class="welcome-progress-bar" style="width: 25%;"></div>
-        </div>
-      </div>
-
-      <div class="welcome-form-section">
-        <p class="welcome-form-hint">👋 ¡Bienvenido! Ingresa tus datos para agilizar tus pedidos:</p>
-        <input type="text" id="welcome-client-name" placeholder="Tu Nombre / Ferretería (Opcional)" class="welcome-input" autocomplete="name" />
-        <div class="welcome-input-row">
-          <input type="text" id="welcome-client-city" placeholder="Dirección / Ciudad" class="welcome-input" autocomplete="address-level2" />
-          <input type="tel" id="welcome-client-phone" placeholder="WhatsApp / Celular" class="welcome-input" autocomplete="tel" />
-        </div>
-      </div>
-
-      <button type="button" id="welcome-btn-enter" class="welcome-btn-enter" onclick="entrarAlCatalogo()">
-        <span id="welcome-btn-text">Verificando existencias...</span>
-        <svg id="welcome-btn-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-      
-      <div class="welcome-footer-badge">
-        🔒 Inventario y existencias enlazados directamente con almacén
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Flotante para Límites de Stock -->
   <div id="stock-toast-box" class="stock-toast"></div>
 
   <script>
-    // Gestión inteligente de primera visita vs visitas recurrentes
-    let isReturningVisitor = false;
-    let isInsideGeneratorAdmin = false;
-    try {{
-      isInsideGeneratorAdmin = (window.parent && window.parent !== window);
-      isReturningVisitor = localStorage.getItem('client_visited_before') === 'true' || isInsideGeneratorAdmin;
-      if (isInsideGeneratorAdmin) {{
-        document.body.classList.add('is-generator-iframe');
-      }}
-    }} catch (err) {{}}
-
-    // Si es cliente recurrente o administrador, ocultar pantalla de bienvenida al instante (0ms)
-    function initWelcomeCheck() {{
-      const welcomeBackdrop = document.getElementById('welcome-modal-backdrop');
-      if (!welcomeBackdrop) return;
-      
-      if (isReturningVisitor) {{
-        welcomeBackdrop.classList.add('hidden');
-        welcomeBackdrop.style.display = 'none';
-      }} else {{
-        // Precargar si había datos guardados previamente
-        try {{
-          const sName = localStorage.getItem('last_client_name');
-          const sCity = localStorage.getItem('last_client_address');
-          const sPhone = localStorage.getItem('last_client_phone');
-          const nameInp = document.getElementById('welcome-client-name');
-          const cityInp = document.getElementById('welcome-client-city');
-          const phoneInp = document.getElementById('welcome-client-phone');
-          if (sName && nameInp) nameInp.value = sName;
-          if (sCity && cityInp) cityInp.value = sCity;
-          if (sPhone && phoneInp) phoneInp.value = sPhone;
-        }} catch(e) {{}}
-        
-        animateWelcomeProgress();
-      }}
-    }}
-
-    let welcomeProgressVal = 25;
-    let welcomeProgressTimer = null;
-    function animateWelcomeProgress() {{
-      const fill = document.getElementById('welcome-progress-fill');
-      const pct = document.getElementById('welcome-sync-pct');
-      if (welcomeProgressTimer) clearInterval(welcomeProgressTimer);
-      
-      welcomeProgressTimer = setInterval(() => {{
-        if (welcomeProgressVal < 88) {{
-          welcomeProgressVal += Math.floor(Math.random() * 8) + 3;
-          if (welcomeProgressVal > 88) welcomeProgressVal = 88;
-          if (fill) fill.style.width = welcomeProgressVal + '%';
-          if (pct) pct.innerText = welcomeProgressVal + '%';
-        }}
-      }}, 300);
-    }}
-
-    function completeWelcomeSync(timeStr) {{
-      if (welcomeProgressTimer) clearInterval(welcomeProgressTimer);
-      welcomeProgressVal = 100;
-      
-      const fill = document.getElementById('welcome-progress-fill');
-      const pct = document.getElementById('welcome-sync-pct');
-      const text = document.getElementById('welcome-sync-text');
-      const dot = document.getElementById('welcome-sync-dot');
-      const btn = document.getElementById('welcome-btn-enter');
-      const btnText = document.getElementById('welcome-btn-text');
-      const btnArrow = document.getElementById('welcome-btn-arrow');
-      
-      if (fill) fill.style.width = '100%';
-      if (pct) {{
-        pct.innerText = '100%';
-        pct.style.color = '#10B981';
-      }}
-      if (text) text.innerHTML = `✅ Inventario 100% Sincronizado ${{timeStr ? `(${{timeStr}})` : ''}}`;
-      if (dot) {{
-        dot.style.background = '#10B981';
-        dot.style.boxShadow = '0 0 10px #10B981';
-      }}
-      if (btn) {{
-        btn.classList.add('ready');
-      }}
-      if (btnText) btnText.innerText = 'Entrar al Catálogo';
-      if (btnArrow) btnArrow.style.display = 'inline-block';
-      
-      // Si el cliente no ha escrito nada, entrar automáticamente tras 1.2s
-      const nameVal = document.getElementById('welcome-client-name')?.value || '';
-      if (!isReturningVisitor && !nameVal) {{
-        setTimeout(() => {{
-          const backdrop = document.getElementById('welcome-modal-backdrop');
-          if (backdrop && !backdrop.classList.contains('hidden')) {{
-            entrarAlCatalogo();
-          }}
-        }}, 1400);
-      }}
-    }}
-
-    function entrarAlCatalogo() {{
-      try {{
-        const nameVal = document.getElementById('welcome-client-name')?.value?.trim() || '';
-        const cityVal = document.getElementById('welcome-client-city')?.value?.trim() || '';
-        const phoneVal = document.getElementById('welcome-client-phone')?.value?.trim() || '';
-        
-        if (nameVal) localStorage.setItem('last_client_name', nameVal);
-        if (cityVal) localStorage.setItem('last_client_address', cityVal);
-        if (phoneVal) localStorage.setItem('last_client_phone', phoneVal);
-        
-        // Sincronizar también con el modal de pedido
-        const mName = document.getElementById('client-name');
-        const mAddr = document.getElementById('client-address');
-        const mPhone = document.getElementById('client-phone');
-        if (nameVal && mName) mName.value = nameVal;
-        if (cityVal && mAddr) mAddr.value = cityVal;
-        if (phoneVal && mPhone) mPhone.value = phoneVal;
-        
-        localStorage.setItem('client_visited_before', 'true');
-      }} catch(e) {{}}
-      
-      const welcomeBackdrop = document.getElementById('welcome-modal-backdrop');
-      if (welcomeBackdrop) {{
-        welcomeBackdrop.classList.add('hidden');
-        setTimeout(() => {{
-          welcomeBackdrop.style.display = 'none';
-        }}, 400);
-      }}
-    }}
-
     const BUSINESS_PHONE = "{clean_biz_phone}";
     const STOCK_API_URL = "{URL_STOCK_API}";
     let liveStockMap = {{}};
@@ -3312,15 +3059,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           if (statusEl) {{
             statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{timeStr}})`;
           }}
-
-          // Completar pantalla de bienvenida
-          completeWelcomeSync(timeStr);
         }} else {{
           throw new Error(data.error || 'Respuesta inválida');
         }}
       }} catch (err) {{
         console.warn("Stock en vivo:", err.message);
-        completeWelcomeSync('');
         if (statusEl) {{
           const cached = localStorage.getItem('cached_stock_data');
           if (cached) {{
@@ -3395,15 +3138,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }});
     }}
 
-    // Iniciar verificación de bienvenida y sincronización automática
+    // Iniciar sincronización automática directa
     try {{
       if (document.readyState === 'loading') {{
         document.addEventListener('DOMContentLoaded', () => {{
-          initWelcomeCheck();
           fetchLiveStock(false);
         }});
       }} else {{
-        initWelcomeCheck();
         fetchLiveStock(false);
       }}
       // Intervalo regular silencioso cada 30 segundos
