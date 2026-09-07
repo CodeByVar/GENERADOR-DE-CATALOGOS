@@ -210,7 +210,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(cache_data)
                     return
 
-                stock_url = getattr(generar_catalogo, 'URL_STOCK_API', "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec")
+                stock_url = getattr(generar_catalogo, 'URL_STOCK_API', "https://script.google.com/macros/s/AKfycbyYCBXEqtkZCvqPqoHTnoiayUzhykM7HsqO98RY2vQKygVe4U8r-zlqTfF94Nm2X1APkA/exec")
                 req = urllib.request.Request(stock_url, headers={'User-Agent': 'Mozilla/5.0'})
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False

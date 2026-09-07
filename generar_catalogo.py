@@ -26,7 +26,7 @@ import time
 # para evitar tener el archivo catalogos.xlsx visible en la carpeta principal.
 ARCHIVO_EXCEL       = os.path.join("temp_imgs", "catalogos_db_cache.xlsx")
 URL_GOOGLE_SHEETS   = "https://docs.google.com/spreadsheets/d/181FkDYPFME5Fx75og4tNO3mvBMSGDY-M9IxGFcR28SI/edit?usp=sharing"
-URL_STOCK_API       = "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec"
+URL_STOCK_API       = "https://script.google.com/macros/s/AKfycbyYCBXEqtkZCvqPqoHTnoiayUzhykM7HsqO98RY2vQKygVe4U8r-zlqTfF94Nm2X1APkA/exec"
 HOJA_DB             = "FORMATO INVENTARIO"
 HOJA_VISTA          = "Vista_Catalogo"
 HOJA_CATALOGO       = "CATALOGO"
@@ -66,33 +66,80 @@ def descargar_base_de_datos_nube(url=None, destino=ARCHIVO_EXCEL):
         
     doc_id = extraer_id_google_sheets(input_url)
     if doc_id:
-        download_url = f"https://docs.google.com/spreadsheets/d/{doc_id}/export?format=xlsx&t={int(time.time())}"
+        download_url = f"https://docs.google.com/spreadsheets/d/{doc_id}/export?format=xlsx"
     else:
         download_url = input_url
  
-    print(f"\n[NUBE] Sincronizando base de datos desde Google Drive...")
+    print(f"\n[NUBE] Conectando y descargando base de datos completa desde Google Drive...")
+    print(f"[NUBE] Preparando archivo en los servidores de Google...")
     try:
         req = urllib.request.Request(
             download_url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "*/*"
+            }
         )
-        with urllib.request.urlopen(req, timeout=30) as response:
-            data = response.read()
-            if len(data) > 1000:  # Verificación mínima de tamaño
-                dir_name = os.path.dirname(destino)
-                if dir_name and not os.path.exists(dir_name):
-                    os.makedirs(dir_name)
-                with open(destino, "wb") as out_file:
-                    out_file.write(data)
-                print(f"[NUBE] [OK] Base de datos actualizada con éxito desde Google Sheets ({len(data)} bytes)")
-                return True
+        with urllib.request.urlopen(req, timeout=300) as response:
+            dir_name = os.path.dirname(destino)
+            if dir_name and not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+                
+            total_bytes = 0
+            chunk_size = 1024 * 512  # 512 KB por bloque
+            with open(destino, "wb") as out_file:
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
+                    total_bytes += len(chunk)
+                    # Mostrar progreso cada ~10 MB
+                    if total_bytes % (1024 * 1024 * 10) < chunk_size:
+                        mb_descargados = total_bytes / (1024 * 1024)
+                        print(f"  [NUBE] Descargando... {mb_descargados:.1f} MB recibidos...")
+            
+            if total_bytes > 50000:
+                # Validar cabecera ZIP de Excel (PK)
+                with open(destino, "rb") as f_chk:
+                    header = f_chk.read(4)
+                if header.startswith(b"PK"):
+                    print(f"[NUBE] [OK] ¡Base de datos y fotos actualizadas con éxito desde Google Sheets! ({total_bytes / (1024*1024):.1f} MB)")
+                    return True
+                else:
+                    print(f"[NUBE] [AVISO] El archivo recibido de Google no es un Excel válido.")
+                    return False
             else:
-                print(f"[NUBE] [AVISO] La respuesta descargada fue muy pequeña ({len(data)} bytes).")
+                print(f"[NUBE] [AVISO] La respuesta descargada fue muy pequeña ({total_bytes} bytes).")
                 return False
     except urllib.error.HTTPError as he:
+        # Si Google da HTTP 400 por exceso de imágenes, intentar vía Google Apps Script (túnel autorizado)
+        if he.code == 400 and URL_STOCK_API:
+            print(f"[NUBE] Intentando descarga autorizada mediante Google Apps Script...")
+            try:
+                import base64
+                api_url = URL_STOCK_API + ("&" if "?" in URL_STOCK_API else "?") + "action=export_xlsx"
+                api_req = urllib.request.Request(api_url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(api_req, timeout=300) as api_resp:
+                    api_data = json.loads(api_resp.read().decode('utf-8'))
+                    if api_data and "data_base64" in api_data and api_data["data_base64"]:
+                        raw_bytes = base64.b64decode(api_data["data_base64"])
+                        if len(raw_bytes) > 50000 and raw_bytes.startswith(b"PK"):
+                            with open(destino, "wb") as f_out:
+                                f_out.write(raw_bytes)
+                            print(f"[NUBE] [OK] ¡Base de datos descargada con éxito vía Google Apps Script! ({len(raw_bytes)/(1024*1024):.1f} MB)")
+                            return True
+                        else:
+                            print(f"[NUBE] [AVISO] Google Apps Script devolvió datos no válidos ({len(raw_bytes)} bytes).")
+            except Exception as ex_script:
+                print(f"[NUBE] [AVISO] Falló descarga por Apps Script: {ex_script}")
+
         if he.code == 404 or he.code == 403:
             print(f"[NUBE] [AVISO] El documento en Google Drive está privado o restringido (HTTP {he.code}).")
             print(f"[NUBE] Para activar la sincronización automática, haz clic en 'Compartir' en Google Sheets y selecciona 'Cualquier persona con el enlace'.")
+        elif he.code == 400:
+            print(f"[NUBE] [AVISO] Google Sheets no pudo exportar automáticamente (HTTP 400).")
+            print(f"[NUBE] Esto sucede cuando la hoja tiene muchas imágenes y supera el límite de exportación directa de Google.")
         else:
             print(f"[NUBE] [AVISO] Error HTTP {he.code} al descargar de la nube: {he}")
         print(f"[NUBE] Se utilizará la copia local existente de '{destino}'.")
@@ -909,17 +956,17 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 img_bytes = imagenes_por_fila.get((ws_title, fila_db + 1)) or imagenes_por_fila.get(fila_db + 1)
                 
         img_relative_path = ""
+        clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", prod["cod"])
+        img_filename = f"prod_{clean_cod}.webp"
+        img_path = os.path.join(temp_dir, img_filename)
+
         if img_bytes:
             try:
-                clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", prod["cod"])
-                img_filename = f"prod_{clean_cod}.webp"
-                img_path = os.path.join(temp_dir, img_filename)
-                
                 # Calcular el hash MD5 de los bytes de imagen originales del Excel
                 img_hash = hashlib.md5(img_bytes).hexdigest()
                 
                 # Si el archivo no existe o el hash cambió, procesamos e invalidamos la caché
-                if not os.path.exists(img_path) or image_hashes.get(clean_cod) != img_hash:
+                if not os.path.exists(img_path) or image_hashes.get(clean_cod) != img_hash or forzar_imagenes:
                     with open(img_path, "wb") as f_img:
                         f_img.write(img_bytes)
                     
@@ -945,6 +992,9 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 img_relative_path = f"{temp_dir}/{img_filename}"
             except Exception as e:
                 print(f"  [AVISO] No se pudo guardar imagen para {prod['cod']}: {e}")
+        elif os.path.exists(img_path) and os.path.getsize(img_path) > 400:
+            # Reutilizar imagen existente en disco (Caché Persistente)
+            img_relative_path = f"{temp_dir}/{img_filename}"
                 
         prod_copy = prod.copy()
         prod_copy["img_path"] = img_relative_path
@@ -3723,30 +3773,47 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     return html_path, total_prods
 
 def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None):
-    # Copiar Excel local de la raíz si existe y es más nuevo que la caché
+    # 1. Si está activa la descarga de Google Sheets, intentar actualizar
+    descarga_exitosa = False
+    if descargar_nube and URL_GOOGLE_SHEETS:
+        descarga_exitosa = descargar_base_de_datos_nube(URL_GOOGLE_SHEETS, ARCHIVO_EXCEL)
+
+    # 2. Si no se descargó de la nube (o falló), usar el Excel local catalogos.xlsx si existe
     local_root_excel = "catalogos.xlsx"
-    if os.path.exists(local_root_excel):
-        if not os.path.exists(ARCHIVO_EXCEL) or os.path.getmtime(local_root_excel) > os.path.getmtime(ARCHIVO_EXCEL):
-            print(f"\n[LOCAL] Detectado '{local_root_excel}' en la raíz más reciente que la caché. Copiando...")
+    if not descarga_exitosa and os.path.exists(local_root_excel):
+        archivo_valido = os.path.exists(ARCHIVO_EXCEL) and os.path.getsize(ARCHIVO_EXCEL) > 50000
+        if not archivo_valido or os.path.getmtime(local_root_excel) >= os.path.getmtime(ARCHIVO_EXCEL) or forzar_imagenes:
+            print(f"\n[LOCAL] Copiando base de datos local '{local_root_excel}' a la caché interna...")
             import shutil
             try:
                 dest_dir = os.path.dirname(ARCHIVO_EXCEL)
                 if dest_dir and not os.path.exists(dest_dir):
                     os.makedirs(dest_dir)
                 shutil.copy2(local_root_excel, ARCHIVO_EXCEL)
-                print(f"[LOCAL] [OK] Excel de la raíz copiado con éxito a la caché.")
+                print(f"[LOCAL] [OK] Base de datos local actualizada con éxito.")
             except Exception as e:
                 print(f"[LOCAL] [AVISO] No se pudo copiar '{local_root_excel}': {e}")
 
-    if descargar_nube and URL_GOOGLE_SHEETS:
-        descargar_base_de_datos_nube(URL_GOOGLE_SHEETS, ARCHIVO_EXCEL)
+    # Si la caché no existe o está corrupta, intentar restaurar desde catalogos.xlsx
+    if (not os.path.exists(ARCHIVO_EXCEL) or os.path.getsize(ARCHIVO_EXCEL) < 50000) and os.path.exists(local_root_excel):
+        import shutil
+        shutil.copy2(local_root_excel, ARCHIVO_EXCEL)
 
     if not os.path.exists(ARCHIVO_EXCEL):
         print(f"\nERROR: No se encontró '{ARCHIVO_EXCEL}'")
         raise FileNotFoundError(f"No se encontró el archivo base de datos Excel: {ARCHIVO_EXCEL}")
 
     print(f"\nAbriendo {ARCHIVO_EXCEL}...")
-    wb = load_workbook(ARCHIVO_EXCEL, data_only=True)
+    try:
+        wb = load_workbook(ARCHIVO_EXCEL, data_only=True)
+    except Exception as e_wb:
+        if os.path.exists(local_root_excel):
+            print(f"[AVISO] La caché estaba dañada. Restaurando desde '{local_root_excel}'...")
+            import shutil
+            shutil.copy2(local_root_excel, ARCHIVO_EXCEL)
+            wb = load_workbook(ARCHIVO_EXCEL, data_only=True)
+        else:
+            raise e_wb
 
     # 1. Leer códigos a procesar
     codigos = []

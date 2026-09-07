@@ -8,7 +8,7 @@ let inMemoryCacheTime = 0;
 let pendingFetchPromise = null;
 
 const CACHE_TTL_MS = 25 * 1000; // 25 segundos en memoria Edge
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrXCYxH9JX-uO2rw5Wg7XY5PnbKso50ugmpkTnrPacwy12GoMpxn-AvlbRZ_m0a9k45w/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYCBXEqtkZCvqPqoHTnoiayUzhykM7HsqO98RY2vQKygVe4U8r-zlqTfF94Nm2X1APkA/exec";
 
 async function fetchFromGoogle() {
   const controller = new AbortController();
