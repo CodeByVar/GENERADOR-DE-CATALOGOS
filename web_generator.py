@@ -210,17 +210,36 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(cache_data)
                     return
 
-                stock_url = getattr(generar_catalogo, 'URL_STOCK_API', "https://script.google.com/macros/s/AKfycbyYCBXEqtkZCvqPqoHTnoiayUzhykM7HsqO98RY2vQKygVe4U8r-zlqTfF94Nm2X1APkA/exec")
-                req = urllib.request.Request(stock_url, headers={'User-Agent': 'Mozilla/5.0'})
-                ctx = ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
-                with urllib.request.urlopen(req, context=ctx, timeout=12) as response:
-                    content = response.read()
-                    if content and len(content) > 10 and not b"error" in content[:30]:
-                        self.server._stock_cache_data = content
-                        self.server._stock_cache_time = now
-                    self.wfile.write(content)
+                stock_urls = [
+                    "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
+                    "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"
+                ]
+                import concurrent.futures
+
+                def fetch_url(u):
+                    try:
+                        r = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+                        c = ssl.create_default_context()
+                        c.check_hostname = False
+                        c.verify_mode = ssl.CERT_NONE
+                        with urllib.request.urlopen(r, context=c, timeout=20) as resp:
+                            return json.loads(resp.read().decode('utf-8'))
+                    except Exception:
+                        return {}
+
+                merged = {}
+                with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                    futures = [executor.submit(fetch_url, u) for u in stock_urls]
+                    for fut in concurrent.futures.as_completed(futures):
+                        res = fut.result()
+                        if isinstance(res, dict):
+                            merged.update(res)
+
+                content = json.dumps(merged).encode('utf-8')
+                if len(merged) > 0:
+                    self.server._stock_cache_data = content
+                    self.server._stock_cache_time = now
+                self.wfile.write(content)
             except Exception as e:
                 # Fallback a caché previa si hubo timeout o error
                 fallback = getattr(self.server, '_stock_cache_data', None)

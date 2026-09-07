@@ -26,7 +26,7 @@ import time
 # para evitar tener el archivo catalogos.xlsx visible en la carpeta principal.
 ARCHIVO_EXCEL       = os.path.join("temp_imgs", "catalogos_db_cache.xlsx")
 URL_GOOGLE_SHEETS   = "https://docs.google.com/spreadsheets/d/181FkDYPFME5Fx75og4tNO3mvBMSGDY-M9IxGFcR28SI/edit?usp=sharing"
-URL_STOCK_API       = "https://script.google.com/macros/s/AKfycbyYCBXEqtkZCvqPqoHTnoiayUzhykM7HsqO98RY2vQKygVe4U8r-zlqTfF94Nm2X1APkA/exec"
+URL_STOCK_API       = "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec"
 HOJA_DB             = "FORMATO INVENTARIO"
 HOJA_VISTA          = "Vista_Catalogo"
 HOJA_CATALOGO       = "CATALOGO"
@@ -708,27 +708,30 @@ def detectar_columnas(ws):
     
     for r in range(1, max_scan_header + 1):
         row_vals = [str(ws.cell(row=r, column=c).value or "").strip().upper() for c in range(1, 20)]
-        for idx, val in enumerate(row_vals, start=1):
-            if not val:
+        for idx, raw_v in enumerate(row_vals, start=1):
+            if not raw_v:
                 continue
-            if any(k in val for k in ["CODIGO", "COD.", "ITEM", "REFERENCIA"]) and "BARRAS" not in val:
+            val = raw_v.replace("\r", " ").replace("\n", " ").strip()
+            compact = val.replace(" ", "")
+
+            if any(k in compact for k in ["CODIGO", "COD.", "ITEM", "REFERENCIA"]) and "BARRAS" not in compact:
                 cols["codigo"] = idx
                 found_headers = True
-            elif any(k in val for k in ["CATEGORIA", "RUBRO", "FAMILIA"]):
+            elif any(k in compact for k in ["CATEGORIA", "RUBRO", "FAMILIA"]):
                 cols["categoria"] = idx
-            elif any(k in val for k in ["TIPO", "MARCA", "LINEA"]):
+            elif any(k in compact for k in ["TIPO", "MARCA", "LINEA"]):
                 cols["tipo"] = idx
-            elif any(k in val for k in ["NOMBRE", "DESCRIPCION", "DESCRIP", "PRODUCTO"]) and "DETALLE" not in val:
+            elif any(k in compact for k in ["NOMBRE", "DESCRIPCION", "DESCRIP", "PRODUCTO"]) and "DETALLE" not in compact:
                 cols["nombre"] = idx
-            elif any(k in val for k in ["MEDIDA", "SIZE", "TAMANO", "TAMAÑO", "DIMENSION"]):
+            elif any(k in compact for k in ["MEDIDA", "SIZE", "TAMANO", "TAMAÑO", "DIMENSION"]):
                 cols["size"] = idx
-            elif any(k in val for k in ["DETALLE", "ESPECIFICACION", "CARACTERISTICA", "OBSERVACION"]):
+            elif any(k in compact for k in ["DETALLE", "ESPECIFICACION", "CARACTERISTICA", "OBSERVACION"]):
                 cols["detalle"] = idx
-            elif any(k in val for k in ["POR CAJA", "Q. POR CAJA", "Q.POR CAJA", "Q. POR", "CANT. CAJA", "CANT/CAJA", "X CAJA"]):
+            elif any(k in compact for k in ["PORCAJA", "Q.PORCAJA", "Q.POR", "Q,POR", "CANT.CAJA", "CANT/CAJA", "XCAJA"]) and "PRECIO" not in compact:
                 cols["cant_caja"] = idx
-            elif any(k in val for k in ["UNI", "UNIDAD", "U.M.", "EMPAQUE", "PRESENTACION"]):
+            elif (any(k in compact for k in ["UN/MED", "UNID/MED", "U.M.", "UNIDADMEDIDA"]) or compact in ["UNI", "UNIDAD", "EMPAQUE"]) and not any(bad in compact for bad in ["SALIDA", "TOTAL", "PRECIO", "VENTA", "IMPORT", "VALOR"]):
                 cols["uni"] = idx
-            elif any(k in val for k in ["IMAGEN", "FOTO", "IMG"]):
+            elif any(k in compact for k in ["IMAGEN", "FOTO", "IMG"]):
                 cols["imagen"] = idx
                 
         if found_headers:
@@ -1860,8 +1863,14 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     .packaging-info {
       font-size: 8pt;
       font-weight: 800;
-      color: #64748B;
+      color: #0F172A;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: 5px;
+      padding: 2px 7px;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
     }
     .order-selectors-dual {
       display: flex;
@@ -2915,8 +2924,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 safe_brand = str(b_name).replace('"', '&quot;').replace("'", "&#39;")
                 safe_unit = str(prod["uni"]).replace('"', '&quot;').replace("'", "&#39;")
 
+                cant_cj = prod.get("cant_caja", 1)
+                cant_cj_num = int(cant_cj) if isinstance(cant_cj, (int, float)) and cant_cj == int(cant_cj) else cant_cj
+                pkg_text = f"📦 {cant_cj_num} {prod['uni']} / Caja" if (cant_cj and cant_cj > 1) else f"📦 {prod['uni']}"
+                
                 html_out.append('            <div class="card-footer">')
-                html_out.append(f'              <span class="packaging-info" id="pkg_info_{prod["cod"]}">📦 {prod["uni"]}</span>')
+                html_out.append(f'              <span class="packaging-info" id="pkg_info_{prod["cod"]}" title="Viene {cant_cj_num} {prod["uni"]} por caja">{pkg_text}</span>')
                 html_out.append('              <div class="order-selectors-dual">')
                 html_out.append('                <div class="qty-group" title="Escribe la cantidad de Cajas o usa + / −">')
                 html_out.append('                  <span class="qty-label">Caja:</span>')
@@ -3020,7 +3033,10 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
   <script>
     const BUSINESS_PHONE = "{clean_biz_phone}";
-    const STOCK_API_URL = "{URL_STOCK_API}";
+    const STOCK_API_URLS = [
+      "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
+      "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"
+    ];
     let liveStockMap = {{}};
     const cart = {{}};
     let lastStockSyncTimestamp = 0;
@@ -3038,14 +3054,14 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos para render ultra-veloz)
       try {{
-        const cached = localStorage.getItem('cached_stock_data');
-        if (cached && (!liveStockMap || Object.keys(liveStockMap).length === 0)) {{
-          const parsed = JSON.parse(cached);
-          if (parsed && parsed.data) {{
-            liveStockMap = parsed.data;
+        const cachedRaw = localStorage.getItem('import_rivero_live_stock_cache');
+        if (cachedRaw) {{
+          const cachedObj = JSON.parse(cachedRaw);
+          if (cachedObj && cachedObj.data && Object.keys(cachedObj.data).length > 0) {{
+            liveStockMap = cachedObj.data;
             applyStockData(liveStockMap);
-            if (statusEl) {{
-              const timeStr = parsed.timeStr || '';
+            if (statusEl && !isManual) {{
+              const timeStr = cachedObj.timestamp ? new Date(cachedObj.timestamp).toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }}) : '';
               statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo${{timeStr ? ` (${{timeStr}})` : ''}}`;
             }}
           }}
@@ -3074,15 +3090,24 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         // Intento 2: Si /api/stock falló (ej: abriendo directo archivo file:///), consultar directo a Google Apps Script
         if (!res || !res.ok) {{
           try {{
-            const c2 = new AbortController();
-            const t2 = setTimeout(() => c2.abort(), 12000); // 12s máx directo
-            const directUrl = STOCK_API_URL + (STOCK_API_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
-            res = await fetch(directUrl, {{ 
-              cache: 'no-store',
-              redirect: 'follow',
-              signal: c2.signal 
-            }});
-            clearTimeout(t2);
+            const fetchDirectOne = async (u) => {{
+              const c = new AbortController();
+              const t = setTimeout(() => c.abort(), 18000);
+              try {{
+                const r = await fetch(u + (u.includes('?') ? '&' : '?') + '_t=' + Date.now(), {{ 
+                  cache: 'no-store', 
+                  redirect: 'follow', 
+                  signal: c.signal 
+                }});
+                clearTimeout(t);
+                return r.ok ? await r.json() : {{}};
+              }} catch(e) {{ clearTimeout(t); return {{}}; }}
+            }};
+            const directResults = await Promise.all(STOCK_API_URLS.map(fetchDirectOne));
+            const merged = Object.assign({{}}, ...directResults);
+            if (Object.keys(merged).length > 0) {{
+              res = {{ ok: true, json: async () => merged }};
+            }}
           }} catch (e) {{
             res = null;
           }}
@@ -3139,7 +3164,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const cards = document.querySelectorAll('.product-card');
       cards.forEach(card => {{
         const rawCode = card.getAttribute('data-code') || '';
-        const normCode = rawCode.toUpperCase().replace(/\\s+/g, '');
+        const normCode = rawCode.toUpperCase().replace(/\s+/g, '');
         const info = stockMap[normCode] || stockMap[rawCode.toUpperCase()];
         
         const pillEl = card.querySelector('.stock-status-pill') || document.getElementById(`stock_pill_${{rawCode}}`);
@@ -3147,18 +3172,31 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
         if (info) {{
           const cantCaja = info.c || info.cantPorCaja || 1;
-          const unMed = info.u || info.unidadMedida || "UNI";
+          let unMed = info.u || info.unidadMedida || "";
+          
+          // Si unMed viene con un número (como 600, 1440, 1200), descartarlo y usar la unidad real de la tarjeta
+          const inputEl = card.querySelector('.input-qty');
+          const cardUnit = (inputEl && inputEl.getAttribute('data-unit')) || card.getAttribute('data-unit') || "UNI";
+          if (!unMed || !isNaN(unMed) || /^\d+$/.test(String(unMed).trim())) {{
+            unMed = cardUnit;
+          }}
+
           if (pkgEl) {{
-            pkgEl.innerHTML = `📦 ${{cantCaja}} ${{unMed}} / Caja`;
-            pkgEl.setAttribute('title', `Viene ${{cantCaja}} ${{unMed}} por caja`);
+            if (cantCaja && cantCaja > 1) {{
+              pkgEl.innerHTML = `📦 ${{cantCaja}} ${{unMed}} / Caja`;
+              pkgEl.setAttribute('title', `Viene ${{cantCaja}} ${{unMed}} por caja`);
+            }} else {{
+              pkgEl.innerHTML = `📦 1 ${{unMed}} / Caja`;
+              pkgEl.setAttribute('title', `Viene 1 ${{unMed}} por caja`);
+            }}
           }}
           
-          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : 0);
+          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : (typeof info.stock === 'number' ? info.stock : (info.stock === true ? 999 : (info.stock === false ? 0 : 0))));
           const cajas = typeof info.b === 'number' ? info.b : (typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja));
-          const estado = info.e || info.estado || "AGOTADO";
+          const estado = info.e || info.estado || (stock > 0 || info.stock === true ? "DISPONIBLE" : "AGOTADO");
           
           if (pillEl) {{
-            if (stock <= 0 || estado === "AGOTADO") {{
+            if ((stock <= 0 && info.stock !== true) || estado === "AGOTADO") {{
               pillEl.className = "stock-status-pill stock-out";
               pillEl.innerHTML = "🔴 Agotado";
               pillEl.setAttribute('title', "Sin stock disponible en almacén");

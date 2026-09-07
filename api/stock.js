@@ -8,14 +8,16 @@ let inMemoryCacheTime = 0;
 let pendingFetchPromise = null;
 
 const CACHE_TTL_MS = 25 * 1000; // 25 segundos en memoria Edge
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYCBXEqtkZCvqPqoHTnoiayUzhykM7HsqO98RY2vQKygVe4U8r-zlqTfF94Nm2X1APkA/exec";
+const GOOGLE_SCRIPT_URLS = [
+  "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec", // UYUS
+  "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"  // VARIOS
+];
 
-async function fetchFromGoogle() {
+async function fetchOneUrl(url) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 segundos máx para no colgar al usuario
-
+  const timeoutId = setTimeout(() => controller.abort(), 18000);
   try {
-    const res = await fetch(GOOGLE_SCRIPT_URL, {
+    const res = await fetch(url, {
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -24,24 +26,25 @@ async function fetchFromGoogle() {
       signal: controller.signal,
       cache: 'no-store'
     });
-
     clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      throw new Error(`Google HTTP ${res.status}`);
-    }
-
+    if (!res.ok) return {};
     const data = await res.json();
-    if (data && !data.error) {
-      inMemoryCache = data;
-      inMemoryCacheTime = Date.now();
-      return data;
-    } else {
-      throw new Error((data && data.error) || 'Respuesta vacía o inválida de Google Apps Script');
-    }
+    return (data && !data.error) ? data : {};
   } catch (err) {
     clearTimeout(timeoutId);
-    throw err;
+    return {};
+  }
+}
+
+async function fetchFromGoogle() {
+  const results = await Promise.all(GOOGLE_SCRIPT_URLS.map(fetchOneUrl));
+  const merged = Object.assign({}, ...results);
+  if (Object.keys(merged).length > 0) {
+    inMemoryCache = merged;
+    inMemoryCacheTime = Date.now();
+    return merged;
+  } else {
+    throw new Error('No se pudo obtener datos de ninguna de las hojas de Google Sheets');
   }
 }
 
