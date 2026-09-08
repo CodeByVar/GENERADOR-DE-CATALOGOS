@@ -903,7 +903,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     """
     
     grid_cols_css = "grid-template-columns: repeat(3, 1fr) !important;"
-    min_height_css = "min-height: 272mm;" if layout != "mobile" else "min-height: 176mm;"
+    min_height_css = "min-height: auto;"
     cover_title_size = "28pt"
     brand_banner_height = "70px"
     brand_logo_height = "55px"
@@ -2732,7 +2732,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         elif "FERTON" in bname or "OMEGA" in bname:
             return "background-color: #000000; border: 1.5px solid rgba(251, 191, 36, 0.4); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);"
         elif "FERRAWYY" in bname:
-            return "background-color: #FFEDD5; border: 1.5px solid #FDBA74; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);"
+            return "background-color: #C2410C; border: 1.5px solid #9A3412; box-shadow: 0 4px 14px rgba(194, 65, 12, 0.45);"
         elif "GATE" in bname:
             return "background-color: #FEE2E2; border: 1.5px solid #FCA5A5; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);"
         elif "CROWN" in bname:
@@ -2765,7 +2765,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             strip_b64 = to_base64_src(logo_strip_path)
             html_out.append(f'            <img src="{strip_b64}" alt="{safe_b_strip}" />')
         else:
-            fallback_color = "#FFFFFF" if ("FERTON" in b_name_strip.upper() or "OMEGA" in b_name_strip.upper()) else "#0F172A"
+            fallback_color = "#FFFFFF" if ("FERTON" in b_name_strip.upper() or "OMEGA" in b_name_strip.upper() or "FERRAWYY" in b_name_strip.upper()) else "#0F172A"
             html_out.append(f'            <span class="cover-brand-mini-fallback" style="color: {fallback_color};">{safe_b_strip}</span>')
         html_out.append('          </div>')
     html_out.append('        </div>')
@@ -2899,7 +2899,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append(f'          <button type="button" class="btn-card-remove-live" onclick="quitarProductoEnVivo(event, \'{prod["cod"]}\')" title="Quitar este producto del catálogo">✕</button>')
                 html_out.append('          <div class="card-header">')
                 html_out.append(f'            <span style="font-weight: 800;">CÓDIGO: {prod["cod"]}</span>')
-                html_out.append(f'            <span class="stock-status-pill stock-in-stock" id="stock_pill_{prod["cod"]}">🟢 En Stock</span>')
+                html_out.append(f'            <span class="stock-status-pill stock-checking" id="stock_pill_{prod["cod"]}">⏳ Verificando...</span>')
                 html_out.append('          </div>')
                 
                 html_out.append('          <div class="card-body">')
@@ -3048,20 +3048,27 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       const statusEl = document.getElementById('live-stock-indicator');
       
-      if (isManual && statusEl) {{
-        statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando stock...';
+      if (isManual) {{
+        // Si el usuario hace clic manual, purgar toda memoria previa para garantizar datos 100% directos
+        try {{
+          localStorage.removeItem('import_rivero_live_stock_cache');
+          localStorage.removeItem('cached_stock_data');
+        }} catch(e) {{}}
+        if (statusEl) statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Sincronizando en vivo...';
       }}
 
-      // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (0 milisegundos para render ultra-veloz)
+      // 1. CARGA INMEDIATA DESDE CACHÉ LOCAL (Solo si es menor a 60 segundos de antigüedad)
       try {{
-        const cachedRaw = localStorage.getItem('import_rivero_live_stock_cache');
+        const cachedRaw = localStorage.getItem('import_rivero_live_stock_cache') || localStorage.getItem('cached_stock_data');
         if (cachedRaw) {{
           const cachedObj = JSON.parse(cachedRaw);
-          if (cachedObj && cachedObj.data && Object.keys(cachedObj.data).length > 0) {{
+          const cacheAgeMs = Date.now() - (cachedObj.timestamp || 0);
+          // Si tiene menos de 60 segundos, la usamos temporalmente para no esperar a la red
+          if (cachedObj && cachedObj.data && Object.keys(cachedObj.data).length > 0 && cacheAgeMs < 60000) {{
             liveStockMap = cachedObj.data;
             applyStockData(liveStockMap);
             if (statusEl && !isManual) {{
-              const timeStr = cachedObj.timestamp ? new Date(cachedObj.timestamp).toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }}) : '';
+              const timeStr = cachedObj.timeStr || (cachedObj.timestamp ? new Date(cachedObj.timestamp).toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }}) : '');
               statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo${{timeStr ? ` (${{timeStr}})` : ''}}`;
             }}
           }}
@@ -3072,16 +3079,16 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         statusEl.innerHTML = '<span class="pulse-dot-loading"></span> Conectando almacén...';
       }}
 
-      // 2. CONSULTA ULTRA RÁPIDA CON VERCEL EDGE CDN
+      // 2. CONSULTA EN VIVO SIN CACHÉ
       try {{
         let res = null;
         
-        // Intento 1: Llamar a /api/stock (aprovecha Edge CDN en Vercel, o bypass si es manual)
-        const apiUrl = isManual ? ('/api/stock?force=1&_t=' + Date.now()) : '/api/stock';
+        // Intento 1: Llamar a /api/stock (con _t para evitar caché de navegador y force=1 si es manual)
+        const apiUrl = isManual ? ('/api/stock?force=1&_t=' + Date.now()) : ('/api/stock?_t=' + Date.now());
         try {{
           const c1 = new AbortController();
-          const t1 = setTimeout(() => c1.abort(), 8000); // 8s máx en Edge
-          res = await fetch(apiUrl, {{ signal: c1.signal }});
+          const t1 = setTimeout(() => c1.abort(), 9000);
+          res = await fetch(apiUrl, {{ signal: c1.signal, cache: 'no-store' }});
           clearTimeout(t1);
         }} catch (e) {{
           res = null;
@@ -3092,7 +3099,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           try {{
             const fetchDirectOne = async (u) => {{
               const c = new AbortController();
-              const t = setTimeout(() => c.abort(), 18000);
+              const t = setTimeout(() => c.abort(), 16000);
               try {{
                 const r = await fetch(u + (u.includes('?') ? '&' : '?') + '_t=' + Date.now(), {{ 
                   cache: 'no-store', 
@@ -3115,18 +3122,20 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         
         if (!res || !res.ok) throw new Error(res ? ('HTTP ' + res.status) : 'Sin respuesta de servidor');
         const data = await res.json();
-        if (data && !data.error) {{
+        if (data && !data.error && Object.keys(data).length > 0) {{
           liveStockMap = data;
           lastStockSyncTimestamp = Date.now();
           const now = new Date();
           const timeStr = now.toLocaleTimeString([], {{ hour: '2-digit', minute: '2-digit' }});
           
           try {{
-            localStorage.setItem('cached_stock_data', JSON.stringify({{
+            const cachePayload = JSON.stringify({{
               timestamp: Date.now(),
               timeStr: timeStr,
               data: liveStockMap
-            }}));
+            }});
+            localStorage.setItem('import_rivero_live_stock_cache', cachePayload);
+            localStorage.setItem('cached_stock_data', cachePayload);
           }} catch(e) {{}}
           
           applyStockData(liveStockMap);
@@ -3135,22 +3144,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{timeStr}})`;
           }}
         }} else {{
-          throw new Error(data.error || 'Respuesta inválida');
+          throw new Error(data?.error || 'Respuesta vacía o inválida');
         }}
       }} catch (err) {{
         console.warn("Stock en vivo:", err.message);
         if (statusEl) {{
-          const cached = localStorage.getItem('cached_stock_data');
-          if (cached) {{
-            try {{
-              const parsed = JSON.parse(cached);
-              if (parsed && parsed.timeStr) {{
-                statusEl.innerHTML = `<span class="pulse-dot-online"></span> Stock en vivo (${{parsed.timeStr}})`;
-                isFetchingLiveStock = false;
-                return;
-              }}
-            }} catch(e) {{}}
-          }}
           statusEl.innerHTML = '<span class="pulse-dot-online"></span> Stock en vivo';
         }}
       }} finally {{
@@ -3159,7 +3157,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }}
 
     function applyStockData(stockMap) {{
-      if (!stockMap || typeof stockMap !== 'object') return;
+      if (!stockMap || typeof stockMap !== 'object' || Object.keys(stockMap).length === 0) return;
       
       const cards = document.querySelectorAll('.product-card');
       cards.forEach(card => {{
@@ -3174,7 +3172,6 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           const cantCaja = info.c || info.cantPorCaja || 1;
           let unMed = info.u || info.unidadMedida || "";
           
-          // Si unMed viene con un número (como 600, 1440, 1200), descartarlo y usar la unidad real de la tarjeta
           const inputEl = card.querySelector('.input-qty');
           const cardUnit = (inputEl && inputEl.getAttribute('data-unit')) || card.getAttribute('data-unit') || "UNI";
           if (!unMed || !isNaN(unMed) || /^\d+$/.test(String(unMed).trim())) {{
@@ -3191,12 +3188,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             }}
           }}
           
-          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : (typeof info.stock === 'number' ? info.stock : (info.stock === true ? 999 : (info.stock === false ? 0 : 0))));
+          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : (typeof info.stock === 'number' ? info.stock : (info.stock === true ? 999 : 0)));
           const cajas = typeof info.b === 'number' ? info.b : (typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja));
-          const estado = info.e || info.estado || (stock > 0 || info.stock === true ? "DISPONIBLE" : "AGOTADO");
+          const estado = info.e || info.estado || (stock > 0 && info.stock !== false ? "DISPONIBLE" : "AGOTADO");
           
           if (pillEl) {{
-            if ((stock <= 0 && info.stock !== true) || estado === "AGOTADO") {{
+            if (stock <= 0 || estado === "AGOTADO" || info.stock === false) {{
               pillEl.className = "stock-status-pill stock-out";
               pillEl.innerHTML = "🔴 Agotado";
               pillEl.setAttribute('title', "Sin stock disponible en almacén");
@@ -3218,10 +3215,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             }}
           }}
         }} else {{
+          // POLÍTICA ZERO-TRUST: Si el producto NO está registrado en la hoja de stock devuelta por Google
           if (pillEl) {{
-            pillEl.className = "stock-status-pill stock-in-stock";
-            pillEl.innerHTML = "🟢 Disponible";
+            pillEl.className = "stock-status-pill stock-out";
+            pillEl.innerHTML = "🔴 Agotado";
+            pillEl.setAttribute('title', "Producto no registrado en inventario actual");
           }}
+          card.classList.add('is-out-of-stock');
         }}
       }});
     }}
@@ -3235,17 +3235,17 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }} else {{
         fetchLiveStock(false);
       }}
-      // Intervalo regular silencioso cada 30 segundos
-      setInterval(() => fetchLiveStock(false), 30000);
+      // Intervalo regular cada 15 segundos
+      setInterval(() => fetchLiveStock(false), 15000);
 
-      // Auto-refresco al recuperar el foco de la pestaña si pasaron >30s
+      // Auto-refresco al recuperar el foco de la pestaña si pasaron >15s
       document.addEventListener('visibilitychange', () => {{
-        if (document.visibilityState === 'visible' && (Date.now() - lastStockSyncTimestamp > 30000)) {{
+        if (document.visibilityState === 'visible' && (Date.now() - lastStockSyncTimestamp > 15000)) {{
           fetchLiveStock(false);
         }}
       }});
       window.addEventListener('focus', () => {{
-        if (Date.now() - lastStockSyncTimestamp > 30000) {{
+        if (Date.now() - lastStockSyncTimestamp > 15000) {{
           fetchLiveStock(false);
         }}
       }});
@@ -4038,7 +4038,10 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
         generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=otro_layout, output_filename=otro_filename, forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean, whatsapp_phone=whatsapp_phone)
         # Guardar el diseño actual con su nombre específico también
         generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=layout, output_filename=f"catalogos_{layout}.html", forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean, whatsapp_phone=whatsapp_phone)
-        print(f"  [HTML] Generadas copias específicas: 'catalogos_desktop.html' y 'catalogos_mobile.html'")
+        import shutil
+        if os.path.exists("catalogos.html"):
+            shutil.copyfile("catalogos.html", "index.html")
+        print(f"  [HTML] Generadas copias específicas: 'catalogos_desktop.html', 'catalogos_mobile.html' e 'index.html'")
     except Exception as e:
         print(f"  [AVISO] No se pudo generar la copia del diseño alternativo: {e}")
 

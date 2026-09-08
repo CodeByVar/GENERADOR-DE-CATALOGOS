@@ -196,17 +196,19 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         elif parsed_url.path == "/api/stock":
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
             self.end_headers()
             try:
-                # Comprobar si existe caché reciente en memoria del servidor local (< 20s)
+                # Comprobar si existe micro-caché reciente en memoria del servidor local (< 6s)
                 import time
                 now = time.time()
                 cache_data = getattr(self.server, '_stock_cache_data', None)
                 cache_time = getattr(self.server, '_stock_cache_time', 0)
                 is_fresh = "fresh" in query_params or "force" in query_params
 
-                if not is_fresh and cache_data and (now - cache_time < 25):
+                if not is_fresh and cache_data and (now - cache_time < 6):
                     self.wfile.write(cache_data)
                     return
 
@@ -1170,14 +1172,6 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <span class="slider"></span>
         </label>
       </div>
-      
-      <div class="toggle-row">
-        <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">Diseño del Folleto</span>
-        <select id="layout" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: var(--text-main); padding: 5px 8px; border-radius: 6px; font-family: inherit; font-size: 8.5pt; outline: none; cursor: pointer; font-weight: 700;">
-          <option value="desktop" selected>A4 Impresora (2 Columnas)</option>
-          <option value="mobile">Celular / WhatsApp (1 Columna)</option>
-        </select>
-      </div>
 
       <!-- Teléfono de WhatsApp para pedidos -->
       <div class="toggle-row">
@@ -2026,7 +2020,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     function iniciarGeneracion() {{
       const codes = textareaCodes.value;
       const sync = document.getElementById('sync').checked;
-      const layout = document.getElementById('layout').value;
+      const layout = document.getElementById('layout')?.value || 'desktop';
       const forceImages = document.getElementById('force_images').checked;
       const whatsapp = document.getElementById('whatsapp').value;
       

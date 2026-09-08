@@ -2,12 +2,12 @@ export const config = {
   runtime: 'edge',
 };
 
-// Caché en memoria en la instancia Edge
+// Micro-caché en memoria en la instancia Edge (solo para proteger cuotas simultáneas de Google)
 let inMemoryCache = null;
 let inMemoryCacheTime = 0;
 let pendingFetchPromise = null;
 
-const CACHE_TTL_MS = 25 * 1000; // 25 segundos en memoria Edge
+const CACHE_TTL_MS = 6 * 1000; // 6 segundos de micro-caché en servidor Edge
 const GOOGLE_SCRIPT_URLS = [
   "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec", // UYUS
   "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"  // VARIOS
@@ -15,7 +15,7 @@ const GOOGLE_SCRIPT_URLS = [
 
 async function fetchOneUrl(url) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 18000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
     const res = await fetch(url, {
       method: 'GET',
@@ -64,13 +64,13 @@ export default async function handler(request) {
 
   const now = Date.now();
 
-  // Si la caché en memoria es fresca y no se forzó actualización, devolverla al instante (< 15ms)
+  // Si la micro-caché es ultra reciente (< 6 segundos) y no se forzó actualización, servirla al instante
   if (!isForced && inMemoryCache && (now - inMemoryCacheTime < CACHE_TTL_MS)) {
     return new Response(JSON.stringify(inMemoryCache), {
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=300',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=6',
         'X-Stock-Cache': 'HIT-MEMORY',
         ...baseCorsHeaders
       }
@@ -87,27 +87,24 @@ export default async function handler(request) {
 
   try {
     const data = await pendingFetchPromise;
-    const cacheControlHeader = isForced 
-      ? 'no-cache, no-store, must-revalidate, max-age=0'
-      : 'public, s-maxage=30, stale-while-revalidate=300';
 
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': cacheControlHeader,
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=6',
         'X-Stock-Cache': isForced ? 'BYPASS' : 'MISS',
         ...baseCorsHeaders
       }
     });
   } catch (err) {
-    // Si Google falla o tarda mucho, pero tenemos una copia previa en memoria, entregarla (Respaldo Resiliente)
+    // Si Google falla o tarda mucho, pero tenemos una copia previa en memoria, entregarla
     if (inMemoryCache) {
       return new Response(JSON.stringify(inMemoryCache), {
         status: 200,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
-          'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
           'X-Stock-Cache': 'STALE-FALLBACK',
           ...baseCorsHeaders
         }
