@@ -236,9 +236,10 @@ BRAND_THEMES = {
         "display_name": "FERTON",
         "header_bg": "000000",
         "subtitle_color": "FBBF24",
-        "category_bg": "FEE2E2",
-        "category_fg": "991B1B",
-        "card_header_bg": "1E293B",
+        "category_bg": "1E293B",
+        "category_fg": "FBBF24",
+        "card_header_bg": "FBBF24",
+        "card_header_fg": "000000",
         "card_detail_bg": "FFFFFF",
         "card_photo_bg": "FFFFFF",
         "card_measure_bg": "FEF3C7",
@@ -1338,31 +1339,34 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       position: absolute;
       top: 6px;
       right: 6px;
-      width: 22px;
-      height: 22px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: #EF4444;
       color: #FFFFFF;
       border: 2px solid #FFFFFF;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       display: none !important;
       align-items: center;
       justify-content: center;
-      z-index: 50;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-      transition: all 0.2s ease;
+      z-index: 99;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       line-height: 1;
       padding: 0;
+      opacity: 0.92;
     }
     /* El botón de eliminar SOLO es visible dentro del panel del generador (administrador) */
-    body.is-generator-iframe .product-card:hover .btn-card-remove-live {
+    body.is-generator-iframe .btn-card-remove-live {
       display: flex !important;
     }
     .btn-card-remove-live:hover {
-      background: #B91C1C;
-      transform: scale(1.25);
+      background: #DC2626;
+      transform: scale(1.18);
+      opacity: 1;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.7);
     }
     
     /* ──── 1. TECH CARD (DongCheng, etc.) ──── */
@@ -1649,10 +1653,10 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       break-inside: avoid;
     }
     .card-dark-luxury .card-header {
-      background: rgba(255, 255, 255, 0.02);
-      color: var(--brand-header);
-      padding: 7px 9px 3px 9px;
-      font-size: 9pt;
+      background: rgba(255, 255, 255, 0.05);
+      color: #F8FAFC;
+      padding: 8px 10px 4px 10px;
+      font-size: 9.5pt;
       font-weight: 800;
       text-align: left;
     }
@@ -1691,14 +1695,14 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }
     .card-dark-luxury .measure-pill {
       text-align: center;
-      font-size: 8pt;
-      font-weight: 700;
-      padding: 4px 8px;
+      font-size: 8.5pt;
+      font-weight: 800;
+      padding: 4px 10px;
       border-radius: 12px;
       margin-bottom: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--brand-header);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.1);
+      color: #F8FAFC;
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
     .card-dark-luxury .card-footer {
       display: flex;
@@ -1706,13 +1710,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       align-items: center;
       margin-top: auto;
       padding-top: 6px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      border-top: 1px dashed rgba(255, 255, 255, 0.18);
       gap: 3px;
     }
     .card-dark-luxury .packaging-info {
-      font-size: 7.5pt;
-      font-weight: 600;
-      color: #94A3B8;
+      font-size: 8pt;
+      font-weight: 800;
+      color: #F8FAFC;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
     .card-dark-luxury .availability-pill {
       background: rgba(16, 185, 129, 0.2);
@@ -1722,6 +1728,41 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       padding: 3px 8px;
       border-radius: 10px;
     }
+    .card-dark-luxury .qty-label {
+      color: #F8FAFC;
+      font-weight: 800;
+    }
+
+    /* FERTON Custom Branding - Dark luxury with vibrant Ferton Gold (#FBBF24) */
+    .brand-section-ferton .card-dark-luxury {
+      background: #111827;
+      border: 1.5px solid rgba(251, 191, 36, 0.4);
+      border-top: 4px solid #FBBF24;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+    .brand-section-ferton .card-dark-luxury .card-header {
+      background: rgba(251, 191, 36, 0.12);
+      color: #FBBF24;
+      border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+      font-size: 9.5pt;
+      font-weight: 800;
+    }
+    .brand-section-ferton .card-dark-luxury .measure-pill {
+      background: rgba(251, 191, 36, 0.15);
+      color: #FDE68A;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      font-weight: 800;
+      font-size: 8.5pt;
+    }
+    .brand-section-ferton .card-dark-luxury .packaging-info {
+      background: rgba(251, 191, 36, 0.14);
+      color: #FBBF24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      font-weight: 800;
+    }
+    .brand-section-ferton .card-dark-luxury .qty-label {
+      color: #FBBF24;
+      font-weight: 800;
     }
     
     /* OMEGA Custom Branding - Black box background with light blue accents */
@@ -3032,6 +3073,34 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
   <div id="stock-toast-box" class="stock-toast"></div>
 
   <script>
+    // Detección de entorno: Si está incrustado en el generador (iframe de administración)
+    try {{
+      if (window.self !== window.top) {{
+        document.body.classList.add('is-generator-iframe');
+      }}
+    }} catch(e) {{
+      document.body.classList.add('is-generator-iframe');
+    }}
+
+    // Escuchar comandos administrativos desde el panel de control
+    window.addEventListener('message', function(ev) {{
+      if (ev.data && ev.data.type === 'PURGE_OUT_OF_STOCK') {{
+        const outCards = document.querySelectorAll('.product-card.is-out-of-stock');
+        const purgedCodes = [];
+        outCards.forEach(card => {{
+          const code = card.getAttribute('data-code');
+          if (code) purgedCodes.push(code.toUpperCase());
+          card.style.display = 'none';
+        }});
+        if (typeof filterCatalogLive === 'function') {{
+          filterCatalogLive(document.getElementById('catalog-live-search')?.value || '');
+        }}
+        if (window.parent && window.parent !== window) {{
+          window.parent.postMessage({{ type: 'PURGED_OUT_OF_STOCK_RESULT', count: purgedCodes.length, codes: purgedCodes }}, '*');
+        }}
+      }}
+    }});
+
     const BUSINESS_PHONE = "{clean_biz_phone}";
     const STOCK_API_URLS = [
       "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
@@ -3273,8 +3342,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       }} catch(err) {{}}
     }}
 
+    function normalizeSearchStr(str) {{
+      return (str || '').normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toUpperCase();
+    }}
+
     function filterCatalogLive(query) {{
-      const q = (query || '').trim().toUpperCase();
+      const q = normalizeSearchStr(query).trim();
       const clearBtn = document.getElementById('catalog-search-clear-btn');
       if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
 
@@ -3282,11 +3355,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       const cards = document.querySelectorAll('.product-card');
       let visibleCount = 0;
 
-      const activeBrand = (currentBrandFilter || 'all').trim().toUpperCase();
+      const activeBrand = normalizeSearchStr(currentBrandFilter || 'all').trim();
 
       cards.forEach(card => {{
-        const searchTarget = (card.getAttribute('data-search') || '').toUpperCase();
-        const cardBrand = (card.getAttribute('data-brand') || '').trim().toUpperCase();
+        const searchTarget = normalizeSearchStr(card.getAttribute('data-search') || '');
+        const cardBrand = normalizeSearchStr(card.getAttribute('data-brand') || '').trim();
 
         const matchesBrand = (activeBrand === 'ALL' || cardBrand === activeBrand);
         const matchesQuery = (words.length === 0) || words.every(w => searchTarget.includes(w));
@@ -3810,7 +3883,38 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         
     return html_path, total_prods
 
-def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None):
+def obtener_stock_en_vivo_servidor():
+    """Consulta la API de Google Apps Script para obtener el mapa de stock actualizado en el servidor."""
+    stock_urls = [
+        "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
+        "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"
+    ]
+    import urllib.request
+    import ssl
+    import concurrent.futures
+    import json
+
+    def fetch_url(u):
+        try:
+            r = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+            c = ssl.create_default_context()
+            c.check_hostname = False
+            c.verify_mode = ssl.CERT_NONE
+            with urllib.request.urlopen(r, context=c, timeout=15) as resp:
+                return json.loads(resp.read().decode('utf-8'))
+        except Exception:
+            return {}
+
+    merged = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(fetch_url, u) for u in stock_urls]
+        for fut in concurrent.futures.as_completed(futures):
+            res = fut.result()
+            if isinstance(res, dict):
+                merged.update(res)
+    return merged
+
+def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None, filtrar_agotados=False):
     # 1. Si está activa la descarga de Google Sheets, intentar actualizar
     descarga_exitosa = False
     if descargar_nube and URL_GOOGLE_SHEETS:
@@ -3921,6 +4025,29 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
     if not codigos:
         print(f"No se encontraron códigos de producto a procesar.")
         raise ValueError(f"No se encontraron códigos de producto en las hojas de inventario ni en Vista_Catalogo.")
+
+    # Filtro opcional de stock en servidor antes de procesar
+    if filtrar_agotados:
+        print("\n>>> [STOCK] Filtrando catálogo: Consultando stock en tiempo real...")
+        try:
+            stock_map = obtener_stock_en_vivo_servidor()
+            if stock_map and len(stock_map) > 0:
+                codigos_filtrados = []
+                for c in codigos:
+                    c_norm = normalizar_codigo(c).upper().replace(" ", "")
+                    info = stock_map.get(c_norm) or stock_map.get(normalizar_codigo(c).upper())
+                    if info:
+                        stk = info.get("s", info.get("stockActual", info.get("stock", 0)))
+                        est = info.get("e", info.get("estado", ""))
+                        if stk > 0 and est != "AGOTADO" and info.get("stock") is not False:
+                            codigos_filtrados.append(c)
+                omitidos = len(codigos) - len(codigos_filtrados)
+                print(f">>> [STOCK] Filtro completado: {len(codigos_filtrados)} productos con stock (se omitieron {omitidos} agotados).")
+                codigos = codigos_filtrados
+            else:
+                print(">>> [STOCK AVISO] No se pudo conectar a la API de stock; se mantendrán todos los códigos.")
+        except Exception as ex_stk:
+            print(f">>> [STOCK AVISO] Excepción al filtrar stock: {ex_stk}")
 
     print(f"Códigos a procesar: {len(codigos)}")
 
@@ -4044,6 +4171,19 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
         print(f"  [HTML] Generadas copias específicas: 'catalogos_desktop.html', 'catalogos_mobile.html' e 'index.html'")
     except Exception as e:
         print(f"  [AVISO] No se pudo generar la copia del diseño alternativo: {e}")
+
+    # Guardar lista de últimos códigos generados para el panel de control
+    try:
+        import json
+        with open("ultimos_codigos.json", "w", encoding="utf-8") as f_last:
+            json.dump({
+                "codigos": codigos,
+                "total": len(codigos),
+                "layout": layout
+            }, f_last, indent=2, ensure_ascii=False)
+        print(f">>> [HISTORIAL] Guardados {len(codigos)} códigos en 'ultimos_codigos.json' para el panel de control.")
+    except Exception as ex_u:
+        print(f"[AVISO] No se pudo guardar ultimos_codigos.json: {ex_u}")
 
     # 6. Proceso completado exitosamente (Solo HTML)
     total_no_encontrados = len([c for c in codigos if not buscar_producto_en_db(c, db, db_norm, db_clean)])

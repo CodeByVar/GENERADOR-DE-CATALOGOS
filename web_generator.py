@@ -108,9 +108,11 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             layout_raw = query_params.get('layout', ['desktop'])[0]
             force_images_raw = query_params.get('force_images', ['false'])[0]
             whatsapp_raw = query_params.get('whatsapp', [''])[0]
+            filter_stock_raw = query_params.get('filter_stock', ['false'])[0]
             
             descargar_nube = (sync_raw.lower() == 'true')
             forzar_imagenes = (force_images_raw.lower() == 'true')
+            filtrar_agotados = (filter_stock_raw.lower() == 'true')
             if codes_raw and codes_raw.strip():
                 import re
                 tokens = re.split(r'[\r\n,;\t]+', codes_raw)
@@ -125,12 +127,14 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 writer.write(f">>> Códigos recibidos: {len(codigos_custom)} ítems.\n")
             else:
                 writer.write(">>> Leyendo códigos desde la hoja Vista_Catalogo en Excel...\n")
+            if filtrar_agotados:
+                writer.write(">>> [FILTRO] Activado: Se omitirán productos agotados según el stock de Google Sheets.\n")
                 
             with RedirectStdout(writer):
                 try:
                     import importlib
                     importlib.reload(generar_catalogo)
-                    generar_catalogo.generar(descargar_nube=descargar_nube, codigos_custom=codigos_custom, layout=layout_raw, forzar_imagenes=forzar_imagenes, whatsapp_phone=whatsapp_raw)
+                    generar_catalogo.generar(descargar_nube=descargar_nube, codigos_custom=codigos_custom, layout=layout_raw, forzar_imagenes=forzar_imagenes, whatsapp_phone=whatsapp_raw, filtrar_agotados=filtrar_agotados)
                     # Enviar señal de éxito final
                     writer.write("EVENT_SUCCESS: Proceso finalizado con éxito.\n")
                 except BaseException as e:
@@ -249,6 +253,43 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(fallback)
                 else:
                     self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+            return
+
+        # 1.8 Endpoint API para obtener los códigos del último catálogo generado
+        elif parsed_url.path == "/api/ultimos_codigos":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            codigos_res = []
+            if os.path.exists("ultimos_codigos.json"):
+                try:
+                    with open("ultimos_codigos.json", "r", encoding="utf-8") as f_u:
+                        data_u = json.load(f_u)
+                        codigos_res = data_u.get("codigos", [])
+                except Exception:
+                    pass
+            # Si no existe archivo de historial, extraer automáticamente de catalogos.html o index.html (excluyendo scripts de JS)
+            if not codigos_res:
+                ref_file = "catalogos.html" if os.path.exists("catalogos.html") else ("index.html" if os.path.exists("index.html") else None)
+                if ref_file:
+                    try:
+                        import re
+                        with open(ref_file, "r", encoding="utf-8", errors="ignore") as f_ref:
+                            content = f_ref.read()
+                            content_clean = re.sub(r'<script.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+                            matches = re.findall(r'data-code="([^"]+)"', content_clean)
+                            seen = set()
+                            for m in matches:
+                                mu = m.strip().upper()
+                                if mu and mu not in seen and "{" not in mu and "$" not in mu:
+                                    seen.add(mu)
+                                    codigos_res.append(mu)
+                    except Exception:
+                        pass
+            else:
+                codigos_res = [c for c in codigos_res if "{" not in c and "$" not in c]
+            self.wfile.write(json.dumps({"codigos": codigos_res, "total": len(codigos_res)}).encode('utf-8'))
             return
 
         # 2. Servir el PDF de catálogo
@@ -1025,6 +1066,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <span id="badge-count-text">0 códigos listos</span>
         </div>
         <div class="active-actions">
+          <button class="btn-chip" id="btn-purge-stock" onclick="depurarProductosAgotados()" title="Eliminar productos agotados usando el stock en vivo de Google Sheets" style="display: flex; align-items: center; gap: 4px; background: rgba(239, 68, 68, 0.16); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.35);">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+            <span id="btn-purge-stock-text">Quitar Agotados</span>
+          </button>
           <button class="btn-chip" onclick="copiarListaSeleccionada()" title="Copiar códigos" style="display: flex; align-items: center; gap: 4px;">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             <span>Copiar</span>
@@ -1042,6 +1087,18 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       <!-- TAB 1: Pegado Manual -->
       <div class="tab-content active" id="tab-manual">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 5px;">
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button class="btn-chip" id="btn-load-last" onclick="cargarUltimosCodigosGenerados()" title="Cargar los códigos del último catálogo generado para seguir trabajando sobre ellos" style="display: flex; align-items: center; gap: 4px; background: rgba(245, 158, 11, 0.2); color: var(--primary); border-color: rgba(245, 158, 11, 0.4); font-weight: 800; cursor: pointer;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span id="btn-load-last-text">🔄 Cargar Último Catálogo</span>
+            </button>
+            <button class="btn-chip" id="btn-append-mode" onclick="toggleAppendMode()" title="Al pegar o agregar nuevos códigos, anexar al final en vez de reemplazar" style="display: flex; align-items: center; gap: 4px; font-size: 7.5pt; background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35); cursor: pointer;">
+              <span id="append-mode-label">➕ Modo Anexar: ACTIVO</span>
+            </button>
+          </div>
+          <span style="font-size: 7.5pt; color: var(--text-muted);" id="last-catalog-info-label"></span>
+        </div>
         <textarea id="codes" placeholder="Pega los códigos aquí (uno por línea o separados por comas)...&#10;Ejemplo:&#10;DSM02-100&#10;FF02-100&#10;Deja vacío para procesar todo el inventario." oninput="onTextareaChanged()"></textarea>
       </div>
 
@@ -1173,6 +1230,17 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         </label>
       </div>
 
+      <div class="toggle-row" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+          <span class="label-text" style="color: #F87171; font-weight: 700; font-size: 8.5pt;">Omitir productos agotados (solo con stock)</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="filter_stock">
+          <span class="slider"></span>
+        </label>
+      </div>
+
       <!-- Teléfono de WhatsApp para pedidos -->
       <div class="toggle-row">
         <div style="display: flex; align-items: center; gap: 6px;">
@@ -1236,6 +1304,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
             <span>Ver Completo</span>
           </button>
+          <button class="device-btn" id="btn-purge-preview" onclick="depurarAgotadosEnVistaPrevia()" style="background-color: rgba(239, 68, 68, 0.18); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.35); display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 700;" title="Quitar productos agotados directamente de la vista previa">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+            <span>Quitar Agotados</span>
+          </button>
           <a id="btn-download-html" href="#" download="catalogos_desktop.html" class="device-btn" style="background-color: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); text-decoration: none; display: flex; align-items: center; gap: 5px; pointer-events: none; opacity: 0.5;" onclick="return document.getElementById('btn-download-html').getAttribute('href') !== '#'">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             <span>Descargar HTML</span>
@@ -1255,7 +1327,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <p style="margin: 0; font-size: 9pt;">Los resultados aparecerán aquí una vez inicies la generación.</p>
         </div>
         
-        <iframe id="preview-iframe" src="{"catalogos_desktop.html" if desktop_available == "true" else ("catalogos.html" if preview_available == "true" else "about:blank")}" style="display: {'block' if preview_available == 'true' else 'none'};"></iframe>
+        <iframe id="preview-iframe" onload="onIframeLoaded()" src="{"catalogos_desktop.html" if desktop_available == "true" else ("catalogos.html" if preview_available == "true" else "about:blank")}" style="display: {'block' if preview_available == 'true' else 'none'};"></iframe>
       </div>
 
     </div>
@@ -1282,6 +1354,187 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     let selectedCodesSet = new Set();
     let currentSearchResults = [];
     let activeBrandSelected = null;
+    let appendModeActive = true;
+    let ultimosCodigosGeneradosCache = [];
+
+    // ─── 0. FUNCIONES DE HISTORIAL, ANEXAR Y DEPURACIÓN DE STOCK ───
+    function toggleAppendMode() {{
+      appendModeActive = !appendModeActive;
+      const btn = document.getElementById('btn-append-mode');
+      const lbl = document.getElementById('append-mode-label');
+      if (appendModeActive) {{
+        btn.style.background = 'rgba(16, 185, 129, 0.15)';
+        btn.style.color = '#34D399';
+        btn.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+        lbl.innerText = '➕ Modo Anexar: ACTIVO';
+        log('[MODO] Modo Anexar activado: los nuevos códigos se sumarán a la lista existente.');
+      }} else {{
+        btn.style.background = 'rgba(255, 255, 255, 0.08)';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        lbl.innerText = '🔄 Modo Reemplazar';
+        log('[MODO] Modo Reemplazar activado: al cargar o pegar se sustituirá la lista.');
+      }}
+    }}
+
+    async function cargarUltimosCodigosGenerados() {{
+      const btnText = document.getElementById('btn-load-last-text');
+      const originalText = btnText ? btnText.innerText : '🔄 Cargar Último Catálogo';
+      if (btnText) btnText.innerText = 'Cargando...';
+      
+      try {{
+        let codes = [];
+        const res = await fetch('/api/ultimos_codigos');
+        if (res.ok) {{
+          const data = await res.json();
+          codes = data.codigos || [];
+        }}
+        
+        if (codes.length === 0) {{
+          try {{
+            const localSaved = localStorage.getItem('rivero_last_generated_codes');
+            if (localSaved) {{
+              codes = JSON.parse(localSaved);
+            }}
+          }} catch(e) {{}}
+        }}
+
+        // Filtrar cualquier texto inválido o variable residual
+        codes = (codes || []).filter(c => c && typeof c === 'string' && !c.includes('$') && !c.includes('{') && !c.includes('}'));
+        
+        if (codes.length === 0) {{
+          alert('No se encontraron códigos del último catálogo generado todavía. Genera un catálogo primero.');
+          if (btnText) btnText.innerText = originalText;
+          return;
+        }}
+
+        ultimosCodigosGeneradosCache = codes;
+
+        if (appendModeActive && selectedCodesSet.size > 0) {{
+          let agregados = 0;
+          codes.forEach(c => {{
+            const u = (c || '').toUpperCase().trim();
+            if (u && !selectedCodesSet.has(u)) {{
+              selectedCodesSet.add(u);
+              agregados++;
+            }}
+          }});
+          syncSetToTextarea();
+          log(`[HISTORIAL] Se anexaron ${{agregados}} códigos del último catálogo (Total ahora: ${{selectedCodesSet.size}}).`, 'success');
+          alert(`¡Listo! Se anexaron ${{agregados}} códigos sobre lo que ya tenías.\\nTotal actual: ${{selectedCodesSet.size}} códigos listos.`);
+        }} else {{
+          selectedCodesSet.clear();
+          codes.forEach(c => {{
+            const u = (c || '').toUpperCase().trim();
+            if (u) selectedCodesSet.add(u);
+          }});
+          syncSetToTextarea();
+          log(`[HISTORIAL] Se cargaron exitosamente ${{selectedCodesSet.size}} códigos del último catálogo generado.`, 'success');
+          alert(`🎉 ¡Listo! Se cargaron los ${{selectedCodesSet.size}} productos del último catálogo.`);
+        }}
+        
+        const infoLbl = document.getElementById('last-catalog-info-label');
+        if (infoLbl) infoLbl.innerText = `(${{codes.length}} en historial)`;
+        switchSmartTab('manual');
+      }} catch(err) {{
+        log(`[ERROR] No se pudo cargar el historial: ${{err.message}}`, 'error');
+      }} finally {{
+        if (btnText) btnText.innerText = originalText;
+      }}
+    }}
+
+    async function consultarUltimosCodigosSilencioso() {{
+      try {{
+        const res = await fetch('/api/ultimos_codigos');
+        if (res.ok) {{
+          const data = await res.json();
+          let codes = (data.codigos || []).filter(c => c && typeof c === 'string' && !c.includes('$') && !c.includes('{') && !c.includes('}'));
+          if (codes.length > 0) {{
+            ultimosCodigosGeneradosCache = codes;
+            const infoLbl = document.getElementById('last-catalog-info-label');
+            if (infoLbl) infoLbl.innerText = `(${{codes.length}} en historial)`;
+            const btnText = document.getElementById('btn-load-last-text');
+            if (btnText) btnText.innerText = `🔄 Cargar Último (${{codes.length}})`;
+          }}
+        }}
+      }} catch(e) {{}}
+    }}
+
+    async function depurarProductosAgotados() {{
+      const btn = document.getElementById('btn-purge-stock');
+      const btnText = document.getElementById('btn-purge-stock-text');
+      const originalText = btnText ? btnText.innerText : 'Quitar Agotados';
+      if (btnText) btnText.innerText = 'Consultando stock...';
+      if (btn) btn.disabled = true;
+
+      log(">>> [STOCK] Consultando stock en tiempo real desde Google Sheets para depurar agotados...");
+
+      try {{
+        const res = await fetch('/api/stock', {{ cache: 'no-store' }});
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const stockMap = await res.json();
+        if (stockMap.error) throw new Error(stockMap.error);
+
+        if (selectedCodesSet.size === 0 && allInventoryProducts.length > 0) {{
+          allInventoryProducts.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+        }}
+
+        if (selectedCodesSet.size === 0) {{
+          alert("No hay códigos seleccionados para depurar.");
+          if (btnText) btnText.innerText = originalText;
+          if (btn) btn.disabled = false;
+          return;
+        }}
+
+        const codigosAEliminar = [];
+        selectedCodesSet.forEach(rawCode => {{
+          const norm = rawCode.toUpperCase().replace(/\\s+/g, '');
+          const info = stockMap[norm] || stockMap[rawCode.toUpperCase()];
+          if (!info) {{
+            codigosAEliminar.push(rawCode);
+          }} else {{
+            const stk = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : (typeof info.stock === 'number' ? info.stock : (info.stock === true ? 999 : 0)));
+            const est = info.e || info.estado || "";
+            if (stk <= 0 || est === "AGOTADO" || info.stock === false) {{
+              codigosAEliminar.push(rawCode);
+            }}
+          }}
+        }});
+
+        codigosAEliminar.forEach(c => selectedCodesSet.delete(c));
+        syncSetToTextarea();
+
+        const eliminados = codigosAEliminar.length;
+        const restantes = selectedCodesSet.size;
+
+        log(`>>> [STOCK OK] Depuración completada: se quitaron ${{eliminados}} productos agotados. Quedan ${{restantes}} disponibles con stock.`, 'success');
+        alert(`⚡ ¡Depuración de stock completada!\\n\\n• Productos agotados eliminados: ${{eliminados}}\\n• Productos disponibles con stock: ${{restantes}}`);
+      }} catch(err) {{
+        log(`>>> [STOCK ERROR] No se pudo consultar el stock: ${{err.message}}`, 'error');
+        alert("❌ Ocurrió un inconveniente al consultar el stock en Google Sheets. Revisa la consola.");
+      }} finally {{
+        if (btnText) btnText.innerText = originalText;
+        if (btn) btn.disabled = false;
+      }}
+    }}
+
+    function depurarAgotadosEnVistaPrevia() {{
+      if (!confirm("¿Deseas quitar todos los productos agotados del catálogo en vista previa y de la lista del generador?")) return;
+      try {{
+        if (iframe && iframe.contentWindow) {{
+          iframe.contentWindow.postMessage({{ type: 'PURGE_OUT_OF_STOCK' }}, '*');
+        }}
+      }} catch(e) {{}}
+      depurarProductosAgotados();
+    }}
+
+    function onIframeLoaded() {{
+      try {{
+        if (iframe && iframe.contentDocument && iframe.contentDocument.body) {{
+          iframe.contentDocument.body.classList.add('is-generator-iframe');
+        }}
+      }} catch(e) {{}}
+    }}
 
     // Cargar inventario desde API al inicio
     async function cargarInventarioAPI() {{
@@ -2023,15 +2276,19 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const layout = document.getElementById('layout')?.value || 'desktop';
       const forceImages = document.getElementById('force_images').checked;
       const whatsapp = document.getElementById('whatsapp').value;
+      const filterStock = document.getElementById('filter_stock')?.checked || false;
       
       consoleDiv.innerHTML = '';
       log(">>> Iniciando petición al backend...");
+      if (filterStock) {{
+        log(">>> [FILTRO ACTIVO] Se filtrarán los productos agotados según el stock en vivo de Google Sheets.");
+      }}
       
       btnRun.disabled = true;
       btnText.innerText = "Procesando...";
       btnSpinner.style.display = "block";
       
-      const url = `/generar?codes=${{encodeURIComponent(codes)}}&sync=${{sync}}&layout=${{layout}}&force_images=${{forceImages}}&whatsapp=${{encodeURIComponent(whatsapp)}}`;
+      const url = `/generar?codes=${{encodeURIComponent(codes)}}&sync=${{sync}}&layout=${{layout}}&force_images=${{forceImages}}&whatsapp=${{encodeURIComponent(whatsapp)}}&filter_stock=${{filterStock}}`;
       const source = new EventSource(url);
       
       source.onmessage = function(event) {{
@@ -2070,6 +2327,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         iframe.style.display = 'block';
         setDevice(currentDevice);
         document.getElementById('btn-full-preview').disabled = false;
+
+        // Asegurar que el iframe tenga la clase de administrador
+        onIframeLoaded();
+
+        // Guardar códigos en memoria local para rápida recuperación
+        try {{
+          const list = Array.from(selectedCodesSet).filter(c => c && !c.includes('$') && !c.includes('{') && !c.includes('}'));
+          if (list.length > 0) {{
+            localStorage.setItem('rivero_last_generated_codes', JSON.stringify(list));
+            ultimosCodigosGeneradosCache = list;
+            const infoLbl = document.getElementById('last-catalog-info-label');
+            if (infoLbl) infoLbl.innerText = `(${{list.length}} en historial)`;
+            const btnText = document.getElementById('btn-load-last-text');
+            if (btnText) btnText.innerText = `🔄 Cargar Último (${{list.length}})`;
+          }}
+        }} catch(e) {{}}
       }}
     }}
     
@@ -2097,6 +2370,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
     // Iniciar carga del inventario y estado
     cargarInventarioAPI();
+    consultarUltimosCodigosSilencioso();
     function publicarEnVercel() {{
       if (!confirm("¿Deseas publicar y actualizar el catálogo online en Vercel ahora mismo?")) return;
       
@@ -2131,7 +2405,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }};
     }}
 
-    // Escuchar eliminaciones en vivo desde la vista previa interactiva
+    // Escuchar eliminaciones en vivo y depuraciones desde la vista previa interactiva
     window.addEventListener('message', function(event) {{
       if (event.data && event.data.type === 'REMOVE_CATALOG_ITEM') {{
         const code = (event.data.code || '').toUpperCase();
@@ -2142,6 +2416,16 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           selectedCodesSet.delete(code);
           syncSetToTextarea();
           log(`[EDITOR EN VIVO] Producto '${{code}}' quitado de la selección directamente desde el catálogo.`, 'success');
+        }}
+      }} else if (event.data && event.data.type === 'PURGED_OUT_OF_STOCK_RESULT') {{
+        const purged = event.data.codes || [];
+        if (purged.length > 0) {{
+          if (selectedCodesSet.size === 0 && allInventoryProducts.length > 0) {{
+            allInventoryProducts.forEach(p => selectedCodesSet.add(p.cod.toUpperCase()));
+          }}
+          purged.forEach(c => selectedCodesSet.delete(c.toUpperCase()));
+          syncSetToTextarea();
+          log(`[DEPURACIÓN] Se quitaron ${{purged.length}} productos agotados del catálogo visual.`, 'success');
         }}
       }}
     }});
