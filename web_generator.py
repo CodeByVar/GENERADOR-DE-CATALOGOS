@@ -228,7 +228,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                         c = ssl.create_default_context()
                         c.check_hostname = False
                         c.verify_mode = ssl.CERT_NONE
-                        with urllib.request.urlopen(r, context=c, timeout=20) as resp:
+                        with urllib.request.urlopen(r, context=c, timeout=25) as resp:
                             return json.loads(resp.read().decode('utf-8'))
                     except Exception:
                         return {}
@@ -239,7 +239,18 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     for fut in concurrent.futures.as_completed(futures):
                         res = fut.result()
                         if isinstance(res, dict):
-                            merged.update(res)
+                            for k, v in res.items():
+                                if not k or not v:
+                                    continue
+                                raw_k = str(k).strip()
+                                upper_k = raw_k.upper()
+                                norm_k = upper_k.replace(" ", "")
+                                simple_k = re.sub(r'[\-._/]', '', norm_k)
+                                merged[raw_k] = v
+                                merged[upper_k] = v
+                                merged[norm_k] = v
+                                if simple_k != norm_k:
+                                    merged[simple_k] = v
 
                 content = json.dumps(merged).encode('utf-8')
                 if len(merged) > 0:

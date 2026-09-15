@@ -3232,15 +3232,23 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       cards.forEach(card => {{
         const rawCode = card.getAttribute('data-code') || '';
         const normCode = rawCode.toUpperCase().replace(/\s+/g, '');
-        const info = stockMap[normCode] || stockMap[rawCode.toUpperCase()];
+        const cleanCode = normCode.replace(/[\-._/]/g, '');
+        const info = stockMap[normCode] || stockMap[rawCode.toUpperCase()] || stockMap[cleanCode] || stockMap[rawCode.trim()];
         
         const pillEl = card.querySelector('.stock-status-pill') || document.getElementById(`stock_pill_${{rawCode}}`);
         const pkgEl = card.querySelector('.packaging-info') || document.getElementById(`pkg_info_${{rawCode}}`);
 
         if (info) {{
-          const cantCaja = info.c || info.cantPorCaja || 1;
+          let cantCaja = 1;
+          const rawC = info.c !== undefined ? info.c : info.cantPorCaja;
+          if (typeof rawC === 'number' && rawC > 0) {{
+            cantCaja = rawC;
+          }} else if (typeof rawC === 'string') {{
+            const parsedC = parseFloat(rawC.replace(/,/g, '').trim());
+            if (!isNaN(parsedC) && parsedC > 0) cantCaja = parsedC;
+          }}
+
           let unMed = info.u || info.unidadMedida || "";
-          
           const inputEl = card.querySelector('.input-qty');
           const cardUnit = (inputEl && inputEl.getAttribute('data-unit')) || card.getAttribute('data-unit') || "UNI";
           if (!unMed || !isNaN(unMed) || /^\d+$/.test(String(unMed).trim())) {{
@@ -3257,8 +3265,31 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             }}
           }}
           
-          const stock = typeof info.s === 'number' ? info.s : (typeof info.stockActual === 'number' ? info.stockActual : (typeof info.stock === 'number' ? info.stock : (info.stock === true ? 999 : 0)));
-          const cajas = typeof info.b === 'number' ? info.b : (typeof info.cajas === 'number' ? info.cajas : Math.floor(stock / cantCaja));
+          let stock = 0;
+          const rawS = (info.s !== undefined && info.s !== null && info.s !== "") ? info.s :
+                       ((info.stockActual !== undefined && info.stockActual !== null && info.stockActual !== "") ? info.stockActual : info.stock);
+          if (typeof rawS === 'number') {{
+            stock = isNaN(rawS) ? 0 : rawS;
+          }} else if (typeof rawS === 'string') {{
+            const sParsed = parseFloat(rawS.replace(/,/g, '').trim());
+            stock = isNaN(sParsed) ? 0 : sParsed;
+          }} else if (rawS === true) {{
+            stock = 999;
+          }} else if (rawS === false) {{
+            stock = 0;
+          }}
+
+          let cajas = 0;
+          const rawB = (info.b !== undefined && info.b !== null && info.b !== "") ? info.b : info.cajas;
+          if (typeof rawB === 'number') {{
+            cajas = isNaN(rawB) ? Math.floor(stock / cantCaja) : rawB;
+          }} else if (typeof rawB === 'string') {{
+            const bParsed = parseFloat(rawB.replace(/,/g, '').trim());
+            cajas = isNaN(bParsed) ? Math.floor(stock / cantCaja) : bParsed;
+          }} else {{
+            cajas = Math.floor(stock / cantCaja);
+          }}
+
           const estado = info.e || info.estado || (stock > 0 && info.stock !== false ? "DISPONIBLE" : "AGOTADO");
           
           if (pillEl) {{
@@ -3900,7 +3931,7 @@ def obtener_stock_en_vivo_servidor():
             c = ssl.create_default_context()
             c.check_hostname = False
             c.verify_mode = ssl.CERT_NONE
-            with urllib.request.urlopen(r, context=c, timeout=15) as resp:
+            with urllib.request.urlopen(r, context=c, timeout=25) as resp:
                 return json.loads(resp.read().decode('utf-8'))
         except Exception:
             return {}
@@ -3911,7 +3942,18 @@ def obtener_stock_en_vivo_servidor():
         for fut in concurrent.futures.as_completed(futures):
             res = fut.result()
             if isinstance(res, dict):
-                merged.update(res)
+                for k, v in res.items():
+                    if not k or not v:
+                        continue
+                    raw_k = str(k).strip()
+                    upper_k = raw_k.upper()
+                    norm_k = upper_k.replace(" ", "")
+                    simple_k = re.sub(r'[\-._/]', '', norm_k)
+                    merged[raw_k] = v
+                    merged[upper_k] = v
+                    merged[norm_k] = v
+                    if simple_k != norm_k:
+                        merged[simple_k] = v
     return merged
 
 def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None, filtrar_agotados=False):

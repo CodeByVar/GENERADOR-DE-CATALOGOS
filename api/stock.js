@@ -15,7 +15,7 @@ const GOOGLE_SCRIPT_URLS = [
 
 async function fetchOneUrl(url) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 28000);
   try {
     const res = await fetch(url, {
       method: 'GET',
@@ -38,7 +38,26 @@ async function fetchOneUrl(url) {
 
 async function fetchFromGoogle() {
   const results = await Promise.all(GOOGLE_SCRIPT_URLS.map(fetchOneUrl));
-  const merged = Object.assign({}, ...results);
+  const merged = {};
+  for (const res of results) {
+    if (res && typeof res === 'object') {
+      for (const [k, v] of Object.entries(res)) {
+        if (!k || !v) continue;
+        const rawKey = String(k).trim();
+        const upperKey = rawKey.toUpperCase();
+        const normKey = upperKey.replace(/\s+/g, '');
+        const simpleKey = normKey.replace(/[\-._/]/g, '');
+
+        merged[rawKey] = v;
+        merged[upperKey] = v;
+        merged[normKey] = v;
+        if (simpleKey !== normKey) {
+          merged[simpleKey] = v;
+        }
+      }
+    }
+  }
+
   if (Object.keys(merged).length > 0) {
     inMemoryCache = merged;
     inMemoryCacheTime = Date.now();
