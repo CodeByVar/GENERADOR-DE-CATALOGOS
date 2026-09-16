@@ -728,7 +728,7 @@ def detectar_columnas(ws):
                 cols["size"] = idx
             elif any(k in compact for k in ["DETALLE", "ESPECIFICACION", "CARACTERISTICA", "OBSERVACION"]):
                 cols["detalle"] = idx
-            elif any(k in compact for k in ["PORCAJA", "Q.PORCAJA", "Q.POR", "Q,POR", "CANT.CAJA", "CANT/CAJA", "XCAJA"]) and "PRECIO" not in compact:
+            elif any(k in compact for k in ["PORCAJA", "Q.PORCAJA", "Q.POR", "Q,POR", "CANT.CAJA", "CANT/CAJA", "XCAJA", "CANTIDADDECAJA", "CANTIDADCAJA", "NCANTIDAD", "N°CANTIDAD", "EMPAQUE"]) and not any(bad in compact for bad in ["PRECIO", "COSTO", "VALOR", "VENTA"]):
                 cols["cant_caja"] = idx
             elif (any(k in compact for k in ["UN/MED", "UNID/MED", "U.M.", "UNIDADMEDIDA"]) or compact in ["UNI", "UNIDAD", "EMPAQUE"]) and not any(bad in compact for bad in ["SALIDA", "TOTAL", "PRECIO", "VENTA", "IMPORT", "VALOR"]):
                 cols["uni"] = idx

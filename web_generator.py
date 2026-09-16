@@ -11,6 +11,7 @@ import socketserver
 import webbrowser
 import os
 import sys
+import re
 import urllib.parse
 import urllib.request
 import ssl
@@ -114,7 +115,6 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             forzar_imagenes = (force_images_raw.lower() == 'true')
             filtrar_agotados = (filter_stock_raw.lower() == 'true')
             if codes_raw and codes_raw.strip():
-                import re
                 tokens = re.split(r'[\r\n,;\t]+', codes_raw)
                 codigos_custom = [t.strip().strip('"\'') for t in tokens if t.strip().strip('"\'')]
             else:
@@ -228,9 +228,16 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                         c = ssl.create_default_context()
                         c.check_hostname = False
                         c.verify_mode = ssl.CERT_NONE
-                        with urllib.request.urlopen(r, context=c, timeout=25) as resp:
-                            return json.loads(resp.read().decode('utf-8'))
-                    except Exception:
+                        with urllib.request.urlopen(r, context=c, timeout=18) as resp:
+                            data_parsed = json.loads(resp.read().decode('utf-8'))
+                            if isinstance(data_parsed, dict) and not data_parsed.get("error"):
+                                print(f">>> [STOCK API OK] {len(data_parsed)} productos obtenidos de Google Drive ({u[:50]}...)")
+                                return data_parsed
+                            else:
+                                print(f">>> [STOCK API AVISO] Respuesta vacía o con error: {data_parsed}")
+                                return {}
+                    except Exception as err:
+                        print(f">>> [STOCK API ERROR] No se pudo leer {u[:50]}... -> {err}")
                         return {}
 
                 merged = {}
@@ -256,9 +263,17 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 if len(merged) > 0:
                     self.server._stock_cache_data = content
                     self.server._stock_cache_time = now
-                self.wfile.write(content)
+                    print(f">>> [STOCK TOTAL] Total sincronizado y unificado en catálogo: {len(merged)} claves de productos.")
+                    self.wfile.write(content)
+                else:
+                    # Si Google tardó o ambas fallaron, usar caché previa en memoria si existe
+                    fallback = getattr(self.server, '_stock_cache_data', None)
+                    if fallback:
+                        print(">>> [STOCK] Sirviendo última copia previa de stock guardada en memoria.")
+                        self.wfile.write(fallback)
+                    else:
+                        self.wfile.write(content)
             except Exception as e:
-                # Fallback a caché previa si hubo timeout o error
                 fallback = getattr(self.server, '_stock_cache_data', None)
                 if fallback:
                     self.wfile.write(fallback)
@@ -285,7 +300,6 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 ref_file = "catalogos.html" if os.path.exists("catalogos.html") else ("index.html" if os.path.exists("index.html") else None)
                 if ref_file:
                     try:
-                        import re
                         with open(ref_file, "r", encoding="utf-8", errors="ignore") as f_ref:
                             content = f_ref.read()
                             content_clean = re.sub(r'<script.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
@@ -2363,7 +2377,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       if (btn) btn.innerText = 'Conectando...';
       log(">>> [STOCK] Probando conexión con Google Apps Script (Uyus + Varios)...");
       try {{
-        const res = await fetch("/api/stock", {{ cache: 'no-store' }});
+        const res = await fetch("/api/stock?force=1&_t=" + Date.now(), { cache: 'no-store' });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         if (data.error) throw new Error(data.error);
