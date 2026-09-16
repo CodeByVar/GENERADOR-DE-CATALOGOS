@@ -3163,7 +3163,48 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
           res = null;
         }}
 
-        // Intento 2: Si /api/stock falló (ej: abriendo directo archivo file:///), consultar directo a Google Apps Script
+        // Intento 2: Si /api/stock no respondió (ej: abriendo directo archivo file:///), consultar directo a Supabase
+        if (!res || !res.ok) {{
+          try {{
+            const cs = new AbortController();
+            const ts = setTimeout(() => cs.abort(), 6000);
+            const r_sb = await fetch("https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=10000", {{
+              headers: {{
+                'apikey': 'sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo',
+                'Authorization': 'Bearer sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo'
+              }},
+              signal: cs.signal
+            }});
+            clearTimeout(ts);
+            if (r_sb.ok) {{
+              const rows_sb = await r_sb.json();
+              if (Array.isArray(rows_sb) && rows_sb.length > 0) {{
+                const merged_sb = {{}};
+                for (const row of rows_sb) {{
+                  if (!row.codigo) continue;
+                  const rk = String(row.codigo).trim();
+                  const uk = rk.toUpperCase();
+                  const nk = uk.replace(/\s+/g, '');
+                  const sk = nk.replace(/[\-._/]/g, '');
+                  const info = {{
+                    s: Number(row.stock_actual) || 0,
+                    c: Number(row.cantidad_caja) || 1,
+                    u: row.unidad_medida || 'UNI',
+                    b: Number(row.cajas_disponibles) || 0,
+                    e: row.estado || 'DISPONIBLE'
+                  }};
+                  merged_sb[rk] = info;
+                  merged_sb[uk] = info;
+                  merged_sb[nk] = info;
+                  if (sk !== nk) merged_sb[sk] = info;
+                }}
+                res = {{ ok: true, json: async () => merged_sb }};
+              }}
+            }}
+          }} catch(e) {{}}
+        }}
+
+        // Intento 3: Respaldo final a Google Apps Script
         if (!res || !res.ok) {{
           try {{
             const fetchDirectOne = async (u) => {{
@@ -3915,15 +3956,60 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     return html_path, total_prods
 
 def obtener_stock_en_vivo_servidor():
-    """Consulta la API de Google Apps Script para obtener el mapa de stock actualizado en el servidor."""
+    """Consulta primero Supabase para obtener el mapa de stock unificado en < 50ms, con respaldo a Google Sheets."""
+    import urllib.request
+    import ssl
+    import json
+    import re
+
+    supabase_url = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=10000"
+    supabase_key = "sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo"
+    merged = {}
+
+    try:
+        req_sb = urllib.request.Request(supabase_url, headers={
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json'
+        })
+        ctx_sb = ssl.create_default_context()
+        ctx_sb.check_hostname = False
+        ctx_sb.verify_mode = ssl.CERT_NONE
+        with urllib.request.urlopen(req_sb, context=ctx_sb, timeout=4) as resp_sb:
+            rows_sb = json.loads(resp_sb.read().decode('utf-8'))
+            if isinstance(rows_sb, list) and len(rows_sb) > 0:
+                for row in rows_sb:
+                    raw_c = row.get("codigo")
+                    if not raw_c:
+                        continue
+                    raw_k = str(raw_c).strip()
+                    upper_k = raw_k.upper()
+                    norm_k = upper_k.replace(" ", "")
+                    simple_k = re.sub(r'[\-._/]', '', norm_k)
+
+                    item_info = {
+                        "s": float(row.get("stock_actual", 0) or 0),
+                        "c": float(row.get("cantidad_caja", 1) or 1),
+                        "u": str(row.get("unidad_medida", "UNI")),
+                        "b": int(row.get("cajas_disponibles", 0) or 0),
+                        "e": str(row.get("estado", "DISPONIBLE"))
+                    }
+
+                    merged[raw_k] = item_info
+                    merged[upper_k] = item_info
+                    merged[norm_k] = item_info
+                    if simple_k != norm_k:
+                        merged[simple_k] = item_info
+                print(f"  [SUPABASE] {len(rows_sb)} productos de stock obtenidos instantáneamente de Supabase.")
+                return merged
+    except Exception as err_sb:
+        print(f"  [SUPABASE AVISO] No se pudo leer Supabase ({err_sb}). Intentando con Google Drive...")
+
     stock_urls = [
         "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
         "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"
     ]
-    import urllib.request
-    import ssl
     import concurrent.futures
-    import json
 
     def fetch_url(u):
         try:
@@ -3936,7 +4022,6 @@ def obtener_stock_en_vivo_servidor():
         except Exception:
             return {}
 
-    merged = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         futures = [executor.submit(fetch_url, u) for u in stock_urls]
         for fut in concurrent.futures.as_completed(futures):

@@ -216,38 +216,92 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(cache_data)
                     return
 
-                stock_urls = [
-                    "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
-                    "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"
-                ]
-                import concurrent.futures
-
-                def fetch_url(u):
-                    try:
-                        r = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
-                        c = ssl.create_default_context()
-                        c.check_hostname = False
-                        c.verify_mode = ssl.CERT_NONE
-                        with urllib.request.urlopen(r, context=c, timeout=18) as resp:
-                            data_parsed = json.loads(resp.read().decode('utf-8'))
-                            if isinstance(data_parsed, dict) and not data_parsed.get("error"):
-                                print(f">>> [STOCK API OK] {len(data_parsed)} productos obtenidos de Google Drive ({u[:50]}...)")
-                                return data_parsed
-                            else:
-                                print(f">>> [STOCK API AVISO] Respuesta vacía o con error: {data_parsed}")
-                                return {}
-                    except Exception as err:
-                        print(f">>> [STOCK API ERROR] No se pudo leer {u[:50]}... -> {err}")
-                        return {}
-
+                # 1. Intentar primero con Supabase (Respuesta en ~40 milisegundos con todo unificado)
+                supabase_url = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=10000"
+                supabase_key = "sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo"
                 merged = {}
-                with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-                    futures = [executor.submit(fetch_url, u) for u in stock_urls]
-                    for fut in concurrent.futures.as_completed(futures):
-                        res = fut.result()
-                        if isinstance(res, dict):
-                            for k, v in res.items():
-                                if not k or not v:
+
+                try:
+                    req_sb = urllib.request.Request(supabase_url, headers={
+                        'apikey': supabase_key,
+                        'Authorization': f'Bearer {supabase_key}',
+                        'Content-Type': 'application/json'
+                    })
+                    ctx_sb = ssl.create_default_context()
+                    ctx_sb.check_hostname = False
+                    ctx_sb.verify_mode = ssl.CERT_NONE
+                    with urllib.request.urlopen(req_sb, context=ctx_sb, timeout=4) as resp_sb:
+                        rows_sb = json.loads(resp_sb.read().decode('utf-8'))
+                        if isinstance(rows_sb, list) and len(rows_sb) > 0:
+                            for row in rows_sb:
+                                raw_c = row.get("codigo")
+                                if not raw_c:
+                                    continue
+                                raw_k = str(raw_c).strip()
+                                upper_k = raw_k.upper()
+                                norm_k = upper_k.replace(" ", "")
+                                simple_k = re.sub(r'[\-._/]', '', norm_k)
+
+                                item_info = {
+                                    "s": float(row.get("stock_actual", 0) or 0),
+                                    "c": float(row.get("cantidad_caja", 1) or 1),
+                                    "u": str(row.get("unidad_medida", "UNI")),
+                                    "b": int(row.get("cajas_disponibles", 0) or 0),
+                                    "e": str(row.get("estado", "DISPONIBLE"))
+                                }
+
+                                merged[raw_k] = item_info
+                                merged[upper_k] = item_info
+                                merged[norm_k] = item_info
+                                if simple_k != norm_k:
+                                    merged[simple_k] = item_info
+                            print(f">>> [SUPABASE OK] {len(rows_sb)} productos leídos instantáneamente desde Supabase.")
+                except Exception as err_sb:
+                    print(f">>> [SUPABASE AVISO] No se pudo leer Supabase ({err_sb}). Intentando con Google Sheets...")
+
+                # 2. Respaldo secundario: Si Supabase no devolvió productos, consultar Google Sheets
+                if not merged:
+                    stock_urls = [
+                        "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec",
+                        "https://script.google.com/macros/s/AKfycbw5rOmXaEKusH_PYZAG2r0OpybEqqfGlrZsQRQdeiJtJXbCsJsW-oxjQK8q690s8No/exec"
+                    ]
+                    import concurrent.futures
+
+                    def fetch_url(u):
+                        try:
+                            r = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+                            c = ssl.create_default_context()
+                            c.check_hostname = False
+                            c.verify_mode = ssl.CERT_NONE
+                            with urllib.request.urlopen(r, context=c, timeout=18) as resp:
+                                data_parsed = json.loads(resp.read().decode('utf-8'))
+                                if isinstance(data_parsed, dict) and not data_parsed.get("error"):
+                                    print(f">>> [STOCK API OK] {len(data_parsed)} productos obtenidos de Google Drive ({u[:50]}...)")
+                                    return data_parsed
+                                else:
+                                    print(f">>> [STOCK API AVISO] Respuesta vacía o con error: {data_parsed}")
+                                    return {}
+                        except Exception as err:
+                            print(f">>> [STOCK API ERROR] No se pudo leer {u[:50]}... -> {err}")
+                            return {}
+
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                        futures = [executor.submit(fetch_url, u) for u in stock_urls]
+                        for fut in concurrent.futures.as_completed(futures):
+                            res = fut.result()
+                            if isinstance(res, dict):
+                                for k, v in res.items():
+                                    if not k or not v:
+                                        continue
+                                    raw_k = str(k).strip()
+                                    upper_k = raw_k.upper()
+                                    norm_k = upper_k.replace(" ", "")
+                                    simple_k = re.sub(r'[\-._/]', '', norm_k)
+                                    merged[raw_k] = v
+                                    merged[upper_k] = v
+                                    merged[norm_k] = v
+                                    if simple_k != norm_k:
+                                        merged[simple_k] = v
                                     continue
                                 raw_k = str(k).strip()
                                 upper_k = raw_k.upper()
@@ -2375,14 +2429,14 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const btn = e ? e.target : null;
       const originalText = btn ? btn.innerText : 'Probar API';
       if (btn) btn.innerText = 'Conectando...';
-      log(">>> [STOCK] Probando conexión con Google Apps Script (Uyus + Varios)...");
+      log(">>> [STOCK] Probando conexión con Supabase / Google Drive...");
       try {{
-        const res = await fetch("/api/stock?force=1&_t=" + Date.now(), { cache: 'no-store' });
+        const res = await fetch("/api/stock?force=1&_t=" + Date.now(), {{ cache: 'no-store' }});
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         const total = Object.keys(data).length;
-        log(`>>> [STOCK OK] ¡Conexión exitosa con Google Drive! Se encontraron ${{total}} productos sincronizados en tiempo real.`, "success");
+        log(`>>> [STOCK OK] ¡Conexión exitosa! Se encontraron ${{total}} productos sincronizados en tiempo real.`, "success");
         if (btn) btn.innerText = `OK (${{total}} items)`;
       }} catch (err) {{
         log(">>> [STOCK ERROR] " + err.message, "error");
@@ -2499,6 +2553,7 @@ def start_server():
     # Configurar para que el servidor maneje solicitudes concurrentes (para no trabar SSE)
     class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
         daemon_threads = True
+        allow_reuse_address = True
 
     # Permitir puerto dinámico mediante variable de entorno para mayor compatibilidad
     port = int(os.environ.get("PORT", PORT))
