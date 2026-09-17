@@ -2976,7 +2976,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append('                  <span class="qty-label">Caja:</span>')
                 html_out.append('                  <div class="product-qty-selector">')
                 html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'cajas\', -1)">−</button>')
-                html_out.append(f'                    <input type="number" id="cajas_{prod["cod"]}" class="input-qty" value="0" min="0" oninput="onDirectInput(\'{prod["cod"]}\')" onchange="onDirectInput(\'{prod["cod"]}\')" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
+                html_out.append(f'                    <input type="number" id="cajas_{prod["cod"]}" class="input-qty" value="0" min="0" oninput="onDirectInput(\'{prod["cod"]}\')" onchange="onDirectInput(\'{prod["cod"]}\')" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" data-box="{cant_cj_num}" placeholder="0" />')
                 html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'cajas\', 1)">+</button>')
                 html_out.append('                  </div>')
                 html_out.append('                </div>')
@@ -2984,7 +2984,7 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
                 html_out.append('                  <span class="qty-label">Uni:</span>')
                 html_out.append('                  <div class="product-qty-selector">')
                 html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'uni\', -1)">−</button>')
-                html_out.append(f'                    <input type="number" id="uni_{prod["cod"]}" class="input-qty" value="0" min="0" oninput="onDirectInput(\'{prod["cod"]}\')" onchange="onDirectInput(\'{prod["cod"]}\')" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" placeholder="0" />')
+                html_out.append(f'                    <input type="number" id="uni_{prod["cod"]}" class="input-qty" value="0" min="0" oninput="onDirectInput(\'{prod["cod"]}\')" onchange="onDirectInput(\'{prod["cod"]}\')" data-code="{prod["cod"]}" data-name="{safe_name}" data-brand="{safe_brand}" data-unit="{safe_unit}" data-box="{cant_cj_num}" placeholder="0" />')
                 html_out.append(f'                    <button type="button" class="btn-qty" onclick="stepProductQty(\'{prod["cod"]}\', \'uni\', 1)">+</button>')
                 html_out.append('                  </div>')
                 html_out.append('                </div>')
@@ -3289,8 +3289,13 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             if (!isNaN(parsedC) && parsedC > 0) cantCaja = parsedC;
           }}
 
-          let unMed = info.u || info.unidadMedida || "";
           const inputEl = card.querySelector('.input-qty');
+          const cardBox = (inputEl && inputEl.getAttribute('data-box')) ? parseFloat(inputEl.getAttribute('data-box')) : 1;
+          if (cantCaja <= 1 && cardBox > 1) {{
+            cantCaja = cardBox;
+          }}
+
+          let unMed = info.u || info.unidadMedida || "";
           const cardUnit = (inputEl && inputEl.getAttribute('data-unit')) || card.getAttribute('data-unit') || "UNI";
           if (!unMed || !isNaN(unMed) || /^\d+$/.test(String(unMed).trim())) {{
             unMed = cardUnit;
@@ -3962,46 +3967,59 @@ def obtener_stock_en_vivo_servidor():
     import json
     import re
 
-    supabase_url = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=10000"
+    supabase_base_url = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=1000&offset="
     supabase_key = "sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo"
     merged = {}
 
     try:
-        req_sb = urllib.request.Request(supabase_url, headers={
-            'apikey': supabase_key,
-            'Authorization': f'Bearer {supabase_key}',
-            'Content-Type': 'application/json'
-        })
-        ctx_sb = ssl.create_default_context()
-        ctx_sb.check_hostname = False
-        ctx_sb.verify_mode = ssl.CERT_NONE
-        with urllib.request.urlopen(req_sb, context=ctx_sb, timeout=4) as resp_sb:
-            rows_sb = json.loads(resp_sb.read().decode('utf-8'))
-            if isinstance(rows_sb, list) and len(rows_sb) > 0:
-                for row in rows_sb:
-                    raw_c = row.get("codigo")
-                    if not raw_c:
-                        continue
-                    raw_k = str(raw_c).strip()
-                    upper_k = raw_k.upper()
-                    norm_k = upper_k.replace(" ", "")
-                    simple_k = re.sub(r'[\-._/]', '', norm_k)
+        import concurrent.futures
+        def fetch_sb_page(offset):
+            try:
+                req_sb = urllib.request.Request(f"{supabase_base_url}{offset}", headers={
+                    'apikey': supabase_key,
+                    'Authorization': f'Bearer {supabase_key}',
+                    'Content-Type': 'application/json'
+                })
+                ctx_sb = ssl.create_default_context()
+                ctx_sb.check_hostname = False
+                ctx_sb.verify_mode = ssl.CERT_NONE
+                with urllib.request.urlopen(req_sb, context=ctx_sb, timeout=6) as resp_sb:
+                    data_p = json.loads(resp_sb.read().decode('utf-8'))
+                    return data_p if isinstance(data_p, list) else []
+            except Exception:
+                return []
 
-                    item_info = {
-                        "s": float(row.get("stock_actual", 0) or 0),
-                        "c": float(row.get("cantidad_caja", 1) or 1),
-                        "u": str(row.get("unidad_medida", "UNI")),
-                        "b": int(row.get("cajas_disponibles", 0) or 0),
-                        "e": str(row.get("estado", "DISPONIBLE"))
-                    }
+        offsets = [0, 1000, 2000, 3000, 4000, 5000, 6000]
+        all_sb_rows = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=7) as ex_sb:
+            for p_rows in ex_sb.map(fetch_sb_page, offsets):
+                all_sb_rows.extend(p_rows)
 
-                    merged[raw_k] = item_info
-                    merged[upper_k] = item_info
-                    merged[norm_k] = item_info
-                    if simple_k != norm_k:
-                        merged[simple_k] = item_info
-                print(f"  [SUPABASE] {len(rows_sb)} productos de stock obtenidos instantáneamente de Supabase.")
-                return merged
+        if len(all_sb_rows) > 0:
+            for row in all_sb_rows:
+                raw_c = row.get("codigo")
+                if not raw_c:
+                    continue
+                raw_k = str(raw_c).strip()
+                upper_k = raw_k.upper()
+                norm_k = upper_k.replace(" ", "")
+                simple_k = re.sub(r'[\-._/]', '', norm_k)
+
+                item_info = {
+                    "s": float(row.get("stock_actual", 0) or 0),
+                    "c": float(row.get("cantidad_caja", 1) or 1),
+                    "u": str(row.get("unidad_medida", "UNI")),
+                    "b": int(row.get("cajas_disponibles", 0) or 0),
+                    "e": str(row.get("estado", "DISPONIBLE"))
+                }
+
+                merged[raw_k] = item_info
+                merged[upper_k] = item_info
+                merged[norm_k] = item_info
+                if simple_k != norm_k:
+                    merged[simple_k] = item_info
+            print(f"  [SUPABASE] ¡Éxito! {len(all_sb_rows)} productos de stock obtenidos instantáneamente de Supabase.")
+            return merged
     except Exception as err_sb:
         print(f"  [SUPABASE AVISO] No se pudo leer Supabase ({err_sb}). Intentando con Google Drive...")
 

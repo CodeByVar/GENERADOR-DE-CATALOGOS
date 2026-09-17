@@ -216,46 +216,59 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(cache_data)
                     return
 
-                # 1. Intentar primero con Supabase (Respuesta en ~40 milisegundos con todo unificado)
-                supabase_url = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=10000"
+                # 1. Intentar primero con Supabase (Paginación paralela para traer TODOS los 5,300+ productos en < 1s)
+                supabase_base_url = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=1000&offset="
                 supabase_key = "sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo"
                 merged = {}
 
                 try:
-                    req_sb = urllib.request.Request(supabase_url, headers={
-                        'apikey': supabase_key,
-                        'Authorization': f'Bearer {supabase_key}',
-                        'Content-Type': 'application/json'
-                    })
-                    ctx_sb = ssl.create_default_context()
-                    ctx_sb.check_hostname = False
-                    ctx_sb.verify_mode = ssl.CERT_NONE
-                    with urllib.request.urlopen(req_sb, context=ctx_sb, timeout=4) as resp_sb:
-                        rows_sb = json.loads(resp_sb.read().decode('utf-8'))
-                        if isinstance(rows_sb, list) and len(rows_sb) > 0:
-                            for row in rows_sb:
-                                raw_c = row.get("codigo")
-                                if not raw_c:
-                                    continue
-                                raw_k = str(raw_c).strip()
-                                upper_k = raw_k.upper()
-                                norm_k = upper_k.replace(" ", "")
-                                simple_k = re.sub(r'[\-._/]', '', norm_k)
+                    import concurrent.futures
+                    def fetch_sb_page(offset):
+                        try:
+                            req_sb = urllib.request.Request(f"{supabase_base_url}{offset}", headers={
+                                'apikey': supabase_key,
+                                'Authorization': f'Bearer {supabase_key}',
+                                'Content-Type': 'application/json'
+                            })
+                            ctx_sb = ssl.create_default_context()
+                            ctx_sb.check_hostname = False
+                            ctx_sb.verify_mode = ssl.CERT_NONE
+                            with urllib.request.urlopen(req_sb, context=ctx_sb, timeout=6) as resp_sb:
+                                data_p = json.loads(resp_sb.read().decode('utf-8'))
+                                return data_p if isinstance(data_p, list) else []
+                        except Exception:
+                            return []
 
-                                item_info = {
-                                    "s": float(row.get("stock_actual", 0) or 0),
-                                    "c": float(row.get("cantidad_caja", 1) or 1),
-                                    "u": str(row.get("unidad_medida", "UNI")),
-                                    "b": int(row.get("cajas_disponibles", 0) or 0),
-                                    "e": str(row.get("estado", "DISPONIBLE"))
-                                }
+                    offsets = [0, 1000, 2000, 3000, 4000, 5000, 6000]
+                    all_sb_rows = []
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=7) as ex_sb:
+                        for p_rows in ex_sb.map(fetch_sb_page, offsets):
+                            all_sb_rows.extend(p_rows)
 
-                                merged[raw_k] = item_info
-                                merged[upper_k] = item_info
-                                merged[norm_k] = item_info
-                                if simple_k != norm_k:
-                                    merged[simple_k] = item_info
-                            print(f">>> [SUPABASE OK] {len(rows_sb)} productos leídos instantáneamente desde Supabase.")
+                    if len(all_sb_rows) > 0:
+                        for row in all_sb_rows:
+                            raw_c = row.get("codigo")
+                            if not raw_c:
+                                continue
+                            raw_k = str(raw_c).strip()
+                            upper_k = raw_k.upper()
+                            norm_k = upper_k.replace(" ", "")
+                            simple_k = re.sub(r'[\-._/]', '', norm_k)
+
+                            item_info = {
+                                "s": float(row.get("stock_actual", 0) or 0),
+                                "c": float(row.get("cantidad_caja", 1) or 1),
+                                "u": str(row.get("unidad_medida", "UNI")),
+                                "b": int(row.get("cajas_disponibles", 0) or 0),
+                                "e": str(row.get("estado", "DISPONIBLE"))
+                            }
+
+                            merged[raw_k] = item_info
+                            merged[upper_k] = item_info
+                            merged[norm_k] = item_info
+                            if simple_k != norm_k:
+                                merged[simple_k] = item_info
+                        print(f">>> [SUPABASE OK] ¡ÉXITO! {len(all_sb_rows)} productos leídos instantáneamente desde Supabase.")
                 except Exception as err_sb:
                     print(f">>> [SUPABASE AVISO] No se pudo leer Supabase ({err_sb}). Intentando con Google Sheets...")
 

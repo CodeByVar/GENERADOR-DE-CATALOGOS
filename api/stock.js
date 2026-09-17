@@ -8,7 +8,7 @@ let inMemoryCacheTime = 0;
 let pendingFetchPromise = null;
 
 const CACHE_TTL_MS = 6 * 1000; // 6 segundos de micro-caché en servidor Edge
-const SUPABASE_REST_URL = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=10000";
+const SUPABASE_BASE_URL = "https://mjiezwmldydnlcpshlpq.supabase.co/rest/v1/catalogo_stock?select=codigo,stock_actual,cantidad_caja,unidad_medida,cajas_disponibles,estado&limit=1000&offset=";
 const SUPABASE_KEY = "sb_publishable_5Nxl1zMTRm6ngigdYQUA-g_lOKdUpzo";
 
 const GOOGLE_SCRIPT_URLS = [
@@ -18,22 +18,34 @@ const GOOGLE_SCRIPT_URLS = [
 
 async function fetchFromSupabase() {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000);
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
-    const res = await fetch(SUPABASE_REST_URL, {
-      method: 'GET',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      signal: controller.signal,
-      cache: 'no-store'
-    });
+    const offsets = [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
+    const fetchPage = async (off) => {
+      try {
+        const res = await fetch(`${SUPABASE_BASE_URL}${off}`, {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      } catch (e) {
+        return [];
+      }
+    };
+
+    const pages = await Promise.all(offsets.map(fetchPage));
     clearTimeout(timeoutId);
-    if (!res.ok) return null;
-    const rows = await res.json();
-    if (!Array.isArray(rows) || rows.length === 0) return null;
+
+    const rows = pages.flat();
+    if (rows.length === 0) return null;
 
     const merged = {};
     for (const row of rows) {
