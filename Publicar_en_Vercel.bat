@@ -20,6 +20,8 @@ if exist "catalogos.html" (
 
 echo.
 echo [2/4] Preparando cambios para Git...
+git config user.name "CodeByVar"
+git config user.email "jesusvargasvida@gmail.com"
 git add index.html catalogos.html catalogos_desktop.html catalogos_mobile.html prelista.html vercel.json generar_catalogo.py web_generator.py Publicar_en_Vercel.bat api/stock.js api/prelista.js Google_Apps_Script_Prelista.js *.png *.jpg *.jpeg *.webp
 git add -u
 
