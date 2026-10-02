@@ -20,6 +20,13 @@ import subprocess
 import generar_catalogo
 from datetime import date
 
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 PORT = 5000
 
 class SSEStdoutWriter:
@@ -105,7 +112,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             
             # Recuperar parámetros
             codes_raw = query_params.get('codes', [''])[0]
-            sync_raw = query_params.get('sync', ['true'])[0]
+            sync_raw = query_params.get('sync', ['false'])[0]
             layout_raw = query_params.get('layout', ['desktop'])[0]
             force_images_raw = query_params.get('force_images', ['false'])[0]
             whatsapp_raw = query_params.get('whatsapp', [''])[0]
@@ -124,11 +131,15 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             
             writer.write(">>> Iniciando generación de catálogo desde el servidor web...\n")
             if codigos_custom:
-                writer.write(f">>> Códigos recibidos: {len(codigos_custom)} ítems.\n")
+                writer.write(f">>> Códigos recibidos: {len(codigos_custom)} ítems para el catálogo.\n")
             else:
-                writer.write(">>> Leyendo códigos desde la hoja Vista_Catalogo en Excel...\n")
+                writer.write(">>> Leyendo códigos desde el Excel local (hoja Vista_Catalogo)...\n")
+            if descargar_nube:
+                writer.write(">>> [NUBE] Sincronización con Google Drive activada.\n")
+            else:
+                writer.write(">>> [LOCAL DIRECTO] Usando 'catalogos.xlsx' local (rápido, sin límites de peso de Drive).\n")
             if filtrar_agotados:
-                writer.write(">>> [FILTRO] Activado: Se omitirán productos agotados según el stock de Google Sheets.\n")
+                writer.write(">>> [FILTRO] Activado: Se omitirán productos agotados según el stock en tiempo real.\n")
                 
             with RedirectStdout(writer):
                 try:
@@ -159,23 +170,32 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     shutil.copyfile("catalogos.html", "index.html")
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
-                writer.write(">>> [VERCEL] Registrando archivos en Git...\n")
-                subprocess.run(["git", "add", "index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js"], capture_output=True)
+                import glob
+                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js"]
+                for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
+                    add_files.extend(glob.glob(img_pat))
+                subprocess.run(["git", "add"] + add_files, capture_output=True)
                 subprocess.run(["git", "add", "-u"], capture_output=True)
                 
                 writer.write(">>> [VERCEL] Creando punto de actualización en historial...\n")
                 subprocess.run(["git", "commit", "-m", "Actualizacion del catalogo online para clientes"], capture_output=True)
                 
                 writer.write(">>> [VERCEL] Subiendo cambios a GitHub / Vercel en la nube...\n")
-                res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
-                if res.returncode == 0:
-                    writer.write(">>> [VERCEL] [OK] Subida completada con éxito!\n")
-                    writer.write(">>> [VERCEL] Vercel se está actualizando en vivo en tu enlace web.\n")
-                    writer.write("EVENT_SUCCESS: Catálogo publicado con éxito en Vercel.\n")
-                else:
-                    err_msg = res.stderr or res.stdout
-                    writer.write(f">>> [VERCEL AVISO] {err_msg.strip()}\n")
-                    writer.write("EVENT_ERROR: Error al subir cambios a GitHub / Vercel.\n")
+                try:
+                    res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True, timeout=60)
+                    if res.returncode == 0:
+                        writer.write(">>> [VERCEL] [OK] Subida completada con éxito!\n")
+                        writer.write(">>> [VERCEL] Vercel se está actualizando en vivo en tu enlace web.\n")
+                        writer.write("EVENT_SUCCESS: Catálogo publicado con éxito en Vercel.\n")
+                    else:
+                        err_msg = res.stderr or res.stdout
+                        writer.write(f">>> [VERCEL AVISO] {err_msg.strip()}\n")
+                        writer.write(">>> [CONSEJO] Si requiere inicio de sesión en GitHub, ejecuta 'Publicar_en_Vercel.bat' en la carpeta.\n")
+                        writer.write("EVENT_ERROR: Error al subir cambios a GitHub / Vercel.\n")
+                except subprocess.TimeoutExpired:
+                    writer.write(">>> [VERCEL AVISO] Git tardó demasiado (puede requerir inicio de sesión en GitHub).\n")
+                    writer.write(">>> [SOLUCIÓN] Haz doble clic en 'Publicar_en_Vercel.bat' para iniciar sesión en GitHub con ventana visible.\n")
+                    writer.write("EVENT_ERROR: Tiempo de espera agotado al conectar con GitHub.\n")
             except Exception as ex:
                 writer.write(f">>> [VERCEL ERROR] {ex}\n")
                 writer.write("EVENT_ERROR: Ocurrió una excepción al publicar.\n")
@@ -255,12 +275,21 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                             norm_k = upper_k.replace(" ", "")
                             simple_k = re.sub(r'[\-._/]', '', norm_k)
 
+                            def _safe_float(v, d=0.0):
+                                if v is None or v == "": return d
+                                try: return float(str(v).replace(",", "").strip())
+                                except Exception: return d
+                            def _safe_int(v, d=0):
+                                if v is None or v == "": return d
+                                try: return int(float(str(v).replace(",", "").strip()))
+                                except Exception: return d
+
                             item_info = {
-                                "s": float(row.get("stock_actual", 0) or 0),
-                                "c": float(row.get("cantidad_caja", 1) or 1),
-                                "u": str(row.get("unidad_medida", "UNI")),
-                                "b": int(row.get("cajas_disponibles", 0) or 0),
-                                "e": str(row.get("estado", "DISPONIBLE"))
+                                "s": _safe_float(row.get("stock_actual"), 0.0),
+                                "c": _safe_float(row.get("cantidad_caja"), 1.0) or 1.0,
+                                "u": str(row.get("unidad_medida") or "UNI"),
+                                "b": _safe_int(row.get("cajas_disponibles"), 0),
+                                "e": str(row.get("estado") or "DISPONIBLE")
                             }
 
                             merged[raw_k] = item_info
@@ -384,14 +413,36 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"codigos": codigos_res, "total": len(codigos_res)}).encode('utf-8'))
             return
 
+        # 1.9 Endpoint API para prelista (proxy a Google Apps Script)
+        elif parsed_url.path == "/api/prelista":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            
+            script_url = "https://script.google.com/macros/s/AKfycbwZluWpdw3riIr35gdrHhgdn7cRLcoNOuqQffxbnPIFqFbu2EgsxZffipAs0c4_gDpbKg/exec"
+            query_str = parsed_url.query
+            target_url = f"{script_url}?{query_str}" if query_str else script_url
+            try:
+                r = urllib.request.Request(target_url, headers={'User-Agent': 'Mozilla/5.0'})
+                c = ssl.create_default_context()
+                c.check_hostname = False
+                c.verify_mode = ssl.CERT_NONE
+                with urllib.request.urlopen(r, context=c, timeout=14) as resp:
+                    self.wfile.write(resp.read())
+            except Exception as e_script:
+                self.wfile.write(json.dumps({"success": False, "error": str(e_script)}).encode('utf-8'))
+            return
+
         # 2. Servir el PDF de catálogo
         elif parsed_url.path == "/catalogos.pdf":
             self.serve_file("catalogos.pdf", "application/pdf")
             return
             
-        # 3. Servir el catálogo en HTML
-        elif parsed_url.path in ("/catalogos.html", "/catalogos_desktop.html", "/catalogos_mobile.html"):
-            filename = parsed_url.path[1:] # quitar la barra inicial
+        # 3. Servir el catálogo o prelista en HTML
+        elif parsed_url.path in ("/catalogos.html", "/catalogos_desktop.html", "/catalogos_mobile.html", "/prelista.html", "/prelista"):
+            filename = "prelista.html" if parsed_url.path in ("/prelista", "/prelista.html") else parsed_url.path[1:]
             filename = urllib.parse.unquote(filename)
             self.serve_file(filename, "text/html; charset=utf-8")
             return
@@ -1149,6 +1200,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>Procesar Pedido</span>
         </button>
+        <button class="smart-tab-btn" onclick="switchSmartTab('prelista')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17l10 5 10-5M2 12l10 5 10-5M2 7l10 5 10-5"></path></svg>
+          <span style="color: #38BDF8; font-weight: 800;">🚢 Prelista</span>
+        </button>
       </div>
 
       <!-- Barra de Estado de Selección Activa -->
@@ -1305,11 +1360,80 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         </div>
       </div>
 
+      <!-- TAB 6: Prelista / Mercadería en Tránsito (Google Sheets) -->
+      <div class="tab-content" id="tab-prelista">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 8pt; font-weight: 800; color: #38BDF8;">📦 Hoja / Contenedor:</span>
+            <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 4px 8px; border-radius: 6px; outline: none;" onchange="consultarPrelistaPanel(this.value)">
+              <option value="Hoja 48">Hoja 48</option>
+              <option value="Hoja 47">Hoja 47</option>
+              <option value="Hoja 46">Hoja 46</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-chip" onclick="consultarPrelistaPanel(null, true)" title="Refrescar datos en vivo desde Google Sheets" style="display: flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); cursor: pointer;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span>Sincronizar</span>
+            </button>
+            <a href="/prelista.html" target="_blank" class="btn-chip" style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35); text-decoration: none;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              <span>Abrir Web Prelista</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Entrada Manual de Códigos para Prelista -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-panel); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+          <div style="font-size: 7.5pt; font-weight: 800; color: var(--text-muted); margin-bottom: 4px;">
+            <span>➕ METER CÓDIGOS MANUALES AL GENERADOR / PRELISTA:</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="prelista-manual-code-input" placeholder="Escribe un código o varios separados por comas (ej: THWS030301, TPBX0171)..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-size: 8pt; font-family: inherit; outline: none;">
+            <button class="btn-chip" onclick="agregarCodigoManualPrelista()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 10px; font-weight: 800; font-size: 8pt; white-space: nowrap; cursor: pointer;">
+              ➕ Agregar
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones de Acción de Prelista -->
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+          <button class="btn-chip" id="btn-load-prelista-codes" onclick="cargarCodigosPrelistaAlGenerador()" style="flex-grow: 1; background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.2)); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38BDF8; font-weight: 800; font-size: 8pt; padding: 7px 10px; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;" title="Cargar todos los códigos de esta hoja al generador">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            <span id="btn-load-prelista-label">📥 Cargar Códigos de Prelista al Generador</span>
+          </button>
+        </div>
+
+        <!-- Tabla Previa de Mercadería en Tránsito -->
+        <div style="max-height: 160px; overflow-y: auto; background: var(--bg-console); border: 1px solid var(--border-panel); border-radius: 6px; padding: 4px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 7.5pt; text-align: left;">
+            <thead>
+              <tr style="color: var(--text-muted); border-bottom: 1px solid var(--border-panel);">
+                <th style="padding: 3px 6px;">CÓDIGO</th>
+                <th style="padding: 3px 6px;">DETALLE</th>
+                <th style="padding: 3px 6px;">VIENEN</th>
+                <th style="padding: 3px 6px;">LIBRES</th>
+                <th style="padding: 3px 6px;">PRECIO CAJA</th>
+                <th style="padding: 3px 6px; text-align: center;">ACCIÓN</th>
+              </tr>
+            </thead>
+            <tbody id="prelista-panel-table-body">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-dim);">Abre esta pestaña o haz clic en "Sincronizar" para consultar Google Sheets...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Ajustes de Generación -->
       <div class="toggle-row">
-        <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">Sincronizar base de datos desde Google Drive</span>
+        <div>
+          <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">Descargar base desde Google Drive</span>
+          <div style="font-size: 7.5pt; color: var(--text-dim); margin-top: 2px;">(Por defecto desactivado: se usa <b>catalogos.xlsx</b> local sin límite de peso)</div>
+        </div>
         <label class="switch">
-          <input type="checkbox" id="sync" checked>
+          <input type="checkbox" id="sync">
           <span class="slider"></span>
         </label>
       </div>
@@ -1671,7 +1795,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     }}
 
     function switchSmartTab(tabId) {{
-      const tabs = ['manual', 'search', 'brands', 'templates', 'order'];
+      const tabs = ['manual', 'search', 'brands', 'templates', 'order', 'prelista'];
       tabs.forEach(t => {{
         const el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('active', t === tabId);
@@ -1688,6 +1812,139 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         const raw = document.getElementById('order-raw-input')?.value;
         if (raw) parseWhatsAppOrder(raw);
       }}
+      if (tabId === 'prelista') {{
+        consultarPrelistaPanel();
+      }}
+    }}
+
+    // ─── 0.5. PRELISTA EN EL GENERADOR ───
+    let prelistaProductsCache = [];
+
+    async function consultarPrelistaPanel(sheetName, isForced) {{
+      const tbody = document.getElementById('prelista-panel-table-body');
+      const sel = document.getElementById('prelista-panel-sheet-select');
+      const activeSheet = sheetName || (sel ? sel.value : 'Hoja 48');
+      
+      if (tbody) {{
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">Consultando datos de ${{activeSheet}} en Google Sheets...</td></tr>`;
+      }}
+
+      try {{
+        const res = await fetch(`/api/prelista?sheet=${{encodeURIComponent(activeSheet)}}${{isForced ? '&force=1' : ''}}`);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        
+        if (data && Array.isArray(data.productos)) {{
+          prelistaProductsCache = data.productos;
+          
+          if (sel && Array.isArray(data.availableSheets)) {{
+            sel.innerHTML = '';
+            data.availableSheets.forEach(s => {{
+              const opt = document.createElement('option');
+              opt.value = s;
+              opt.textContent = s;
+              if (s === data.sheet) opt.selected = true;
+              sel.appendChild(opt);
+            }});
+          }}
+
+          const btnLbl = document.getElementById('btn-load-prelista-label');
+          if (btnLbl) {{
+            btnLbl.innerText = `📥 Cargar Códigos de Prelista al Generador (${{data.productos.length}} items)`;
+          }}
+
+          renderPrelistaPanelTable(data.productos);
+          log(`[PRELISTA] ¡Éxito! ${{data.productos.length}} productos en tránsito obtenidos de ${{data.sheet}}.`, 'success');
+        }} else {{
+          throw new Error(data.error || "Formato de datos no reconocido");
+        }}
+      }} catch(err) {{
+        if (tbody) {{
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: #FCA5A5;">Error al consultar Google Sheets: ${{err.message}}.</td></tr>`;
+        }}
+        log(`[PRELISTA ERROR] ${{err.message}}`, 'error');
+      }}
+    }}
+
+    function renderPrelistaPanelTable(prods) {{
+      const tbody = document.getElementById('prelista-panel-table-body');
+      if (!tbody) return;
+
+      if (!prods || prods.length === 0) {{
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No hay productos en esta hoja de prelista.</td></tr>`;
+        return;
+      }}
+
+      tbody.innerHTML = prods.map(p => {{
+        const isAdded = selectedCodesSet.has(p.codigo.toUpperCase());
+        return `
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: ${{isAdded ? 'rgba(56, 189, 248, 0.08)' : 'transparent'}};">
+            <td style="padding: 4px 6px; font-weight: 800; color: #FFFFFF;">${{p.codigo}}</td>
+            <td style="padding: 4px 6px; color: var(--text-main); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{p.detalle}}">${{p.detalle}}</td>
+            <td style="padding: 4px 6px; color: var(--text-muted);">${{p.cajasVienen}} cjs</td>
+            <td style="padding: 4px 6px; font-weight: 700; color: ${{p.stockReserva > 0 ? '#34D399' : '#F87171'}};">${{p.stockReserva}} cjs</td>
+            <td style="padding: 4px 6px; color: var(--primary); font-weight: 700;">US$ ${{Number(p.precioRefUni || 0).toFixed(2)}}</td>
+            <td style="padding: 4px 6px; text-align: center;">
+              <button class="btn-chip" onclick="toggleCodigoPrelista('${{p.codigo}}')" style="font-size: 7pt; padding: 2px 6px; background: ${{isAdded ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}}; color: ${{isAdded ? '#FCA5A5' : '#34D399'}};">
+                ${{isAdded ? '✕ Quitar' : '➕ Añadir'}}
+              </button>
+            </td>
+          </tr>
+        `;
+      }}).join('');
+    }}
+
+    function toggleCodigoPrelista(codigo) {{
+      const u = codigo.toUpperCase().trim();
+      if (selectedCodesSet.has(u)) {{
+        selectedCodesSet.delete(u);
+      }} else {{
+        selectedCodesSet.add(u);
+      }}
+      syncSetToTextarea();
+      renderPrelistaPanelTable(prelistaProductsCache);
+    }}
+
+    function cargarCodigosPrelistaAlGenerador() {{
+      if (prelistaProductsCache.length === 0) {{
+        alert("Primero sincroniza la prelista para cargar sus códigos.");
+        return;
+      }}
+      let agregados = 0;
+      prelistaProductsCache.forEach(p => {{
+        const u = p.codigo.toUpperCase().trim();
+        if (u) {{
+          selectedCodesSet.add(u);
+          agregados++;
+        }}
+      }});
+      syncSetToTextarea();
+      renderPrelistaPanelTable(prelistaProductsCache);
+      log(`[PRELISTA] Se cargaron ${{agregados}} códigos de la prelista a la selección activa.`, 'success');
+      alert(`🎉 ¡Listo! Se cargaron ${{agregados}} códigos de la prelista al Generador de Catálogos.\\nTotal actual listos: ${{selectedCodesSet.size}} códigos.`);
+    }}
+
+    function agregarCodigoManualPrelista() {{
+      const input = document.getElementById('prelista-manual-code-input');
+      const val = input ? input.value.trim() : '';
+      if (!val) {{
+        alert("Escribe uno o varios códigos separados por coma o espacio.");
+        return;
+      }}
+      const tokens = val.split(/[\\s,;]+/);
+      let count = 0;
+      tokens.forEach(t => {{
+        const u = t.toUpperCase().trim();
+        if (u && u.length >= 2) {{
+          selectedCodesSet.add(u);
+          count++;
+        }}
+      }});
+      syncSetToTextarea();
+      input.value = '';
+      renderPrelistaPanelTable(prelistaProductsCache);
+      log(`[MANUAL] Se agregaron ${{count}} código(s) manuales a la lista activa.`, 'success');
+      alert(`¡Listo! Se agregaron ${{count}} código(s) manuales.`);
     }}
 
     // ─── 1. BÚSQUEDA PREDICTIVA ───
@@ -2554,7 +2811,7 @@ def iniciar_tunel_ssh(port):
     import platform
     if platform.system() == "Windows":
         # Usamos localhost.run con IP directa 127.0.0.1, que resolvió el problema del usuario
-        comando = f"ssh -R 80:127.0.0.1:{port} nokey@localhost.run"
+        comando = f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL -R 80:127.0.0.1:{port} nokey@localhost.run"
         try:
             print("[TÚNEL] Iniciando túnel web público en una ventana nueva...")
             # Popen con start cmd /k abre una nueva consola independiente de Windows que no bloquea este script
@@ -2568,13 +2825,22 @@ def start_server():
         daemon_threads = True
         allow_reuse_address = True
 
-    # Permitir puerto dinámico mediante variable de entorno para mayor compatibilidad
-    port = int(os.environ.get("PORT", PORT))
-    server_address = ('', port)
+    initial_port = int(os.environ.get("PORT", PORT))
+    httpd = None
+    port = initial_port
     
-    # Intentar liberar el puerto si se quedó colgado de una ejecución anterior
+    # Intentar en el puerto configurado o buscar el siguiente libre si está ocupado
     try:
-        httpd = ThreadingHTTPServer(server_address, CatalogWebHandler)
+        for p in range(initial_port, initial_port + 10):
+            try:
+                server_address = ('', p)
+                httpd = ThreadingHTTPServer(server_address, CatalogWebHandler)
+                port = p
+                break
+            except OSError as ex_bind:
+                if p == initial_port + 9:
+                    raise ex_bind
+                continue
         ip_local = obtener_ip_local()
         print(f"\n=======================================================")
         print(f"  SERVIDOR DEL GENERADOR DE CATÁLOGOS CORRIENDO (OFICINA)")

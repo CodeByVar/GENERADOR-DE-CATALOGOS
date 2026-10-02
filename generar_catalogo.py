@@ -21,19 +21,40 @@ import hashlib
 import json
 import time
 
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 # ─── CONFIGURACIÓN ────────────────────────────────────────────
-# La base de datos Excel se guarda como caché interna en temp_imgs
-# para evitar tener el archivo catalogos.xlsx visible en la carpeta principal.
-ARCHIVO_EXCEL       = os.path.join("temp_imgs", "catalogos_db_cache.xlsx")
+def obtener_archivo_excel():
+    """
+    Retorna la ruta del archivo Excel de productos disponible.
+    Prioriza 'catalogos.xlsx' en la carpeta raíz (directo y rápido),
+    seguido de 'catalogos - copia.xlsx' y la caché interna.
+    """
+    posibles = [
+        "catalogos.xlsx",
+        "catalogos - copia.xlsx",
+        os.path.join("temp_imgs", "catalogos_db_cache.xlsx")
+    ]
+    for ruta in posibles:
+        if os.path.exists(ruta) and os.path.getsize(ruta) > 50000:
+            return ruta
+    return "catalogos.xlsx"
+
+ARCHIVO_EXCEL       = obtener_archivo_excel()
 URL_GOOGLE_SHEETS   = "https://docs.google.com/spreadsheets/d/181FkDYPFME5Fx75og4tNO3mvBMSGDY-M9IxGFcR28SI/edit?usp=sharing"
 URL_STOCK_API       = "https://script.google.com/macros/s/AKfycbz3pjscUdPvuSLWgTA1KugkoffYyWw9zJRqrg22eJCK-by3aTHLF2oZ7t0S3SwmOnwS/exec"
 HOJA_DB             = "FORMATO INVENTARIO"
 HOJA_VISTA          = "Vista_Catalogo"
 HOJA_CATALOGO       = "CATALOGO"
-COLUMNA_CODIGOS     = 10   # columna J en Vista_Catalogo
+COLUMNA_CODIGOS     = 10   # columna J en Vista_Catalogo (se auto-detecta si está en otra columna)
 FILA_INICIO_CODIGOS = 4
 
-# Columnas en DC MANU
+# Columnas por defecto (se auto-detectan mediante encabezados en cada hoja)
 COL_CATEGORIA = 2   # B
 COL_CODIGO    = 3   # C
 COL_IMAGEN    = 4   # D  ← imágenes están en esta columna
@@ -474,6 +495,90 @@ BRAND_THEMES = {
         "card_photo_bg": "FFFFFF",
         "card_measure_bg": "FEE2E2",
         "card_measure_fg": "991B1B",
+    },
+    "KAILI": {
+        "logo": "LOGO KAILI.png",
+        "display_name": "KAILI",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "E51921", # Kaili Red
+        "category_bg": "FEE2E2",
+        "category_fg": "991B1B",
+        "card_header_bg": "E51921",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEE2E2",
+        "card_measure_fg": "991B1B",
+    },
+    "KAILI INDUSTRIAL": {
+        "logo": "LOGO KAILI.png",
+        "display_name": "KAILI INDUSTRIAL",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "E51921",
+        "category_bg": "FEE2E2",
+        "category_fg": "991B1B",
+        "card_header_bg": "E51921",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEE2E2",
+        "card_measure_fg": "991B1B",
+    },
+    "KAMASA": {
+        "logo": "LOGO KAMASA.png",
+        "display_name": "KAMASA",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "000000",
+        "category_bg": "FEF08A", # Light yellow
+        "category_fg": "854D0E",
+        "card_header_bg": "000000", # Deep black
+        "card_header_fg": "FFE600", # Vivid Kamasa yellow
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEF9C3",
+        "card_measure_fg": "713F12",
+    },
+    "KAMASA PROFESSIONAL": {
+        "logo": "LOGO KAMASA.png",
+        "display_name": "KAMASA PROFESSIONAL",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "000000",
+        "category_bg": "FEF08A",
+        "category_fg": "854D0E",
+        "card_header_bg": "000000",
+        "card_header_fg": "FFE600",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FEF9C3",
+        "card_measure_fg": "713F12",
+    },
+    "ASAKI": {
+        "logo": "LOGO ASAKI.png",
+        "display_name": "ASAKI",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "EA580C", # Signature Asaki Orange
+        "category_bg": "FFEDD5", # Soft light orange
+        "category_fg": "9A3412", # Dark orange
+        "card_header_bg": "EA580C",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FFEDD5",
+        "card_measure_fg": "C2410C",
+    },
+    "ASKI": {
+        "logo": "LOGO ASAKI.png",
+        "display_name": "ASAKI",
+        "header_bg": "FFFFFF",
+        "subtitle_color": "EA580C",
+        "category_bg": "FFEDD5",
+        "category_fg": "9A3412",
+        "card_header_bg": "EA580C",
+        "card_header_fg": "FFFFFF",
+        "card_detail_bg": "FFFFFF",
+        "card_photo_bg": "FFFFFF",
+        "card_measure_bg": "FFEDD5",
+        "card_measure_fg": "C2410C",
     }
 }
 
@@ -663,24 +768,23 @@ def buscar_producto_en_db(cod, db, db_norm=None, db_clean=None):
 def detectar_hojas_inventario(wb):
     """
     Identifica las hojas que contienen inventario/productos.
-    Prioriza 'FORMATO INVENTARIO' o nombres similares, o todas las hojas excepto vistas/catálogos.
+    Prioriza 'FORMATO INVENTARIO' y cualquier hoja de productos/marcas,
+    excluyendo vistas, catálogos, configuraciones o auxiliares.
     """
-    candidatas = []
-    # 1. Coincidencia por nombre de inventario o formato
+    hojas_excluidas = ["VISTA", "CATALOGO", "CONFIG", "RESUMEN", "PORTADA", "HISTORIAL", "VENTAS", "DATOS", "CLIENTES", "PROVEEDOR", "INSTRUCCION", "PLANTILLA", "MENU", "INDEX", "GRAFICA"]
+    
+    formato_hojas = []
+    otras_hojas = []
     for name in wb.sheetnames:
         name_clean = name.strip().upper()
+        if any(ex in name_clean for ex in hojas_excluidas):
+            continue
         if "FORMATO" in name_clean or "INVENTARIO" in name_clean or "INVENT" in name_clean:
-            candidatas.append(wb[name])
+            formato_hojas.append(wb[name])
+        else:
+            otras_hojas.append(wb[name])
             
-    if candidatas:
-        return candidatas
-        
-    # 2. Si no hay con esas palabras, tomar todas excepto las de vista o catálogo generado
-    for name in wb.sheetnames:
-        name_clean = name.strip().upper()
-        if not any(k in name_clean for k in ["VISTA", "CATALOGO", "CONFIG", "RESUMEN", "PORTADA"]):
-            candidatas.append(wb[name])
-            
+    candidatas = formato_hojas + otras_hojas
     if not candidatas:
         candidatas = [wb.active or wb[wb.sheetnames[0]]]
         
@@ -704,11 +808,12 @@ def detectar_columnas(ws):
     }
     start_row = FILA_INICIO_DB
     
-    max_scan_header = min(10, ws.max_row) if ws.max_row else 10
+    max_scan_header = min(12, ws.max_row) if ws.max_row else 12
     found_headers = False
+    max_scan_cols = min(ws.max_column + 1, 35) if ws.max_column else 30
     
     for r in range(1, max_scan_header + 1):
-        row_vals = [str(ws.cell(row=r, column=c).value or "").strip().upper() for c in range(1, 20)]
+        row_vals = [str(ws.cell(row=r, column=c).value or "").strip().upper() for c in range(1, max_scan_cols)]
         for idx, raw_v in enumerate(row_vals, start=1):
             if not raw_v:
                 continue
@@ -737,41 +842,123 @@ def detectar_columnas(ws):
                 
         if found_headers:
             start_row = r + 1
+            # Si la siguiente fila contiene textos descriptivos de encabezado (subtítulos), saltar
+            next_row_vals = " ".join([str(ws.cell(row=start_row, column=c).value or "").strip().upper() for c in range(1, 10)])
+            if any(k in next_row_vals for k in ["CODIGO", "DETALLE", "DESCRIPCION", "PRECIO"]):
+                start_row += 1
             break
             
     return cols, start_row
+
+def extraer_bytes_de_imagen(img):
+    """
+    Extrae los bytes binarios de un objeto de imagen de openpyxl de forma robusta y universal.
+    Soporta:
+    1. img._data() si es callable de openpyxl
+    2. img.ref si es BytesIO / stream
+    3. img.ref.fp si es objeto PIL Image con puntero a archivo
+    4. img.ref.save(...) si es objeto PIL Image en memoria
+    5. img.image si PIL Image está en img.image
+    6. img.path si apunta a un archivo en disco
+    """
+    # 1. Probar método nativo _data() de openpyxl
+    if callable(getattr(img, '_data', None)):
+        try:
+            data = img._data()
+            if data and len(data) > 0:
+                return data
+        except Exception:
+            pass
+
+    # 2. Probar img.ref o img.image
+    ref = getattr(img, 'ref', None) or getattr(img, 'image', None)
+    if ref is not None:
+        if hasattr(ref, 'read'):
+            try:
+                if hasattr(ref, 'seek'):
+                    ref.seek(0)
+                data = ref.read()
+                if hasattr(ref, 'seek'):
+                    ref.seek(0)
+                if data and len(data) > 0:
+                    return data
+            except Exception:
+                pass
+        if hasattr(ref, 'fp') and hasattr(ref.fp, 'read'):
+            try:
+                if hasattr(ref.fp, 'seek'):
+                    ref.fp.seek(0)
+                data = ref.fp.read()
+                if hasattr(ref.fp, 'seek'):
+                    ref.fp.seek(0)
+                if data and len(data) > 0:
+                    return data
+            except Exception:
+                pass
+        if hasattr(ref, 'save') and hasattr(ref, 'size'):
+            try:
+                import io
+                buf = io.BytesIO()
+                fmt = getattr(ref, 'format', None) or 'PNG'
+                ref.save(buf, format=fmt)
+                return buf.getvalue()
+            except Exception:
+                pass
+
+    # 3. Probar atributo path
+    img_p = getattr(img, 'path', None)
+    if img_p and isinstance(img_p, str) and os.path.exists(img_p):
+        try:
+            with open(img_p, 'rb') as f_ip:
+                return f_ip.read()
+        except Exception:
+            pass
+
+    return None
 
 def extraer_imagenes_db(ws_db, filas_interes=None):
     """
     Extrae las imágenes de la hoja de base de datos directamente de los objetos en memoria.
     Devuelve dict: { fila: bytes_imagen }
-    Si se pasa filas_interes, solo extrae las imágenes que estén en esas filas específicas.
+    Si se pasa filas_interes, extrae las imágenes que coincidan con esas filas específicas (+- 2 filas).
     """
     imagenes_por_fila = {}
-    if not hasattr(ws_db, '_images'):
+    if not hasattr(ws_db, '_images') or not ws_db._images:
         return imagenes_por_fila
+        
     print(f"  Imágenes detectadas en hoja '{ws_db.title}': {len(ws_db._images)}")
     for img in ws_db._images:
         try:
-            ancla = img.anchor
-            if hasattr(ancla, '_from'):
-                fila = ancla._from.row + 1
-            elif hasattr(ancla, 'row'):
-                fila = ancla.row + 1
-            else:
+            ancla = getattr(img, 'anchor', None)
+            fila = None
+            if ancla is not None:
+                if hasattr(ancla, '_from') and hasattr(ancla._from, 'row'):
+                    fila = ancla._from.row + 1
+                elif hasattr(ancla, 'from_row'):
+                    fila = ancla.from_row + 1
+                elif hasattr(ancla, 'row'):
+                    fila = ancla.row + 1
+                elif isinstance(ancla, str):
+                    row_match = re.search(r'\d+', ancla)
+                    if row_match:
+                        fila = int(row_match.group())
+            
+            if fila is None:
                 continue
             
-            # OPTIMIZACIÓN: Omitir la extracción de bytes si la fila no nos interesa
-            if filas_interes is not None and fila not in filas_interes:
-                continue
-                
-            if hasattr(img, 'ref') and img.ref:
-                img.ref.seek(0)
-                img_bytes = img.ref.read()
-                img.ref.seek(0)
+            # Si se especificaron filas de interés, verificar con tolerancia (+-2 filas)
+            if filas_interes is not None:
+                cerca = any(r in filas_interes for r in [fila, fila - 1, fila + 1, fila - 2, fila + 2])
+                if not cerca:
+                    continue
+            
+            img_bytes = extraer_bytes_de_imagen(img)
+            if img_bytes and len(img_bytes) > 0:
                 imagenes_por_fila[fila] = img_bytes
-        except Exception as e:
+        except Exception:
             pass
+            
+    print(f"  Imágenes extraídas con éxito de '{ws_db.title}': {len(imagenes_por_fila)}")
     return imagenes_por_fila
 
 def get_color(color_str, default="000000"):
@@ -950,14 +1137,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             brands_prods[brand_name][cat] = []
             brands_cats_orden[brand_name].append(cat)
             
-        # Extraer imagen
+        # Extraer imagen con tolerancia de filas (+-2)
         fila_db = prod["fila_db"]
         ws_title = prod.get("ws_title", "")
-        img_bytes = imagenes_por_fila.get((ws_title, fila_db)) or imagenes_por_fila.get(fila_db)
-        if not img_bytes:
-            img_bytes = imagenes_por_fila.get((ws_title, fila_db - 1)) or imagenes_por_fila.get(fila_db - 1)
-            if not img_bytes:
-                img_bytes = imagenes_por_fila.get((ws_title, fila_db + 1)) or imagenes_por_fila.get(fila_db + 1)
+        img_bytes = None
+        for r_offset in [0, -1, 1, -2, 2]:
+            r_chk = fila_db + r_offset
+            img_bytes = imagenes_por_fila.get((ws_title, r_chk)) or imagenes_por_fila.get(r_chk)
+            if img_bytes:
+                break
                 
         img_relative_path = ""
         clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", prod["cod"])
@@ -1859,6 +2047,54 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     }
     .brand-section-lutian .card-tech .card-header {
       background: #84CC16;
+      color: #FFFFFF;
+      border-bottom: none;
+      padding: 10px 14px;
+      font-weight: 700;
+    }
+
+    /* KAILI Custom Branding - Pure red border and solid red header matching brand */
+    .brand-section-kaili .card-tech,
+    .brand-section-kaili-industrial .card-tech {
+      border: 1.5px solid #E51921;
+      border-top: 1.5px solid #E51921;
+      box-shadow: 0 6px 18px rgba(229, 25, 33, 0.08);
+    }
+    .brand-section-kaili .card-tech .card-header,
+    .brand-section-kaili-industrial .card-tech .card-header {
+      background: #E51921;
+      color: #FFFFFF;
+      border-bottom: none;
+      padding: 10px 14px;
+      font-weight: 700;
+    }
+
+    /* KAMASA Custom Branding - Black border, solid black header with vibrant yellow text */
+    .brand-section-kamasa .card-tech,
+    .brand-section-kamasa-professional .card-tech {
+      border: 1.5px solid #000000;
+      border-top: 1.5px solid #000000;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+    .brand-section-kamasa .card-tech .card-header,
+    .brand-section-kamasa-professional .card-tech .card-header {
+      background: #000000;
+      color: #FFE600;
+      border-bottom: 2px solid #FFE600;
+      padding: 10px 14px;
+      font-weight: 800;
+    }
+
+    /* ASAKI / ASKI Custom Branding - Orange border and solid orange header matching brand */
+    .brand-section-asaki .card-tech,
+    .brand-section-aski .card-tech {
+      border: 1.5px solid #EA580C;
+      border-top: 1.5px solid #EA580C;
+      box-shadow: 0 6px 18px rgba(234, 88, 12, 0.08);
+    }
+    .brand-section-asaki .card-tech .card-header,
+    .brand-section-aski .card-tech .card-header {
+      background: #EA580C;
       color: #FFFFFF;
       border-bottom: none;
       padding: 10px 14px;
@@ -2786,6 +3022,12 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
             return "background-color: #FFFFFF; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);"
         elif "DWT" in bname:
             return "background-color: #FFFFFF; border: 1.5px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);"
+        elif "KAILI" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #FECACA; box-shadow: 0 4px 14px rgba(229, 25, 33, 0.25);"
+        elif "KAMASA" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #FDE047; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);"
+        elif "ASAKI" in bname or "ASKI" in bname:
+            return "background-color: #FFFFFF; border: 1.5px solid #FED7AA; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);"
         else:
             return "background-color: #FFFFFF; border: 1.5px solid rgba(255, 255, 255, 0.35); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);"
 
@@ -2873,6 +3115,15 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         elif "NEVA" in bname_upper:
             sec_bg = "#FAF9F5" # Warm ivory/linen background
             fg_sub = get_color(b_theme["subtitle_color"], "000000")
+        elif "KAILI" in bname_upper:
+            sec_bg = "#FFFBFB" # Soft clean red-tinted light background
+            fg_sub = get_color(b_theme["subtitle_color"], "E51921")
+        elif "KAMASA" in bname_upper:
+            sec_bg = "#FAF9F5" # Soft warm ivory background
+            fg_sub = get_color(b_theme["subtitle_color"], "000000")
+        elif "ASAKI" in bname_upper or "ASKI" in bname_upper:
+            sec_bg = "#FFF9F5" # Warm orange-tinted background
+            fg_sub = get_color(b_theme["subtitle_color"], "EA580C")
         elif is_dark:
             sec_bg = "#0B0F19"
             fg_sub = get_color(b_theme.get("subtitle_color"), "FBBF24")
@@ -4005,12 +4256,21 @@ def obtener_stock_en_vivo_servidor():
                 norm_k = upper_k.replace(" ", "")
                 simple_k = re.sub(r'[\-._/]', '', norm_k)
 
+                def _safe_float(v, d=0.0):
+                    if v is None or v == "": return d
+                    try: return float(str(v).replace(",", "").strip())
+                    except Exception: return d
+                def _safe_int(v, d=0):
+                    if v is None or v == "": return d
+                    try: return int(float(str(v).replace(",", "").strip()))
+                    except Exception: return d
+
                 item_info = {
-                    "s": float(row.get("stock_actual", 0) or 0),
-                    "c": float(row.get("cantidad_caja", 1) or 1),
-                    "u": str(row.get("unidad_medida", "UNI")),
-                    "b": int(row.get("cajas_disponibles", 0) or 0),
-                    "e": str(row.get("estado", "DISPONIBLE"))
+                    "s": _safe_float(row.get("stock_actual"), 0.0),
+                    "c": _safe_float(row.get("cantidad_caja"), 1.0) or 1.0,
+                    "u": str(row.get("unidad_medida") or "UNI"),
+                    "b": _safe_int(row.get("cajas_disponibles"), 0),
+                    "e": str(row.get("estado") or "DISPONIBLE")
                 }
 
                 merged[raw_k] = item_info
@@ -4059,48 +4319,31 @@ def obtener_stock_en_vivo_servidor():
                         merged[simple_k] = v
     return merged
 
-def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None, filtrar_agotados=False):
-    # 1. Si está activa la descarga de Google Sheets, intentar actualizar
+def generar(descargar_nube=False, codigos_custom=None, layout="desktop", forzar_imagenes=False, whatsapp_phone=None, filtrar_agotados=False):
+    # 1. Determinar el archivo Excel a utilizar
+    excel_path = obtener_archivo_excel()
     descarga_exitosa = False
     if descargar_nube and URL_GOOGLE_SHEETS:
-        descarga_exitosa = descargar_base_de_datos_nube(URL_GOOGLE_SHEETS, ARCHIVO_EXCEL)
-
-    # 2. Si no se descargó de la nube (o falló), usar el Excel local catalogos.xlsx si existe
-    local_root_excel = "catalogos.xlsx"
-    if not descarga_exitosa and os.path.exists(local_root_excel):
-        archivo_valido = os.path.exists(ARCHIVO_EXCEL) and os.path.getsize(ARCHIVO_EXCEL) > 50000
-        if not archivo_valido or os.path.getmtime(local_root_excel) >= os.path.getmtime(ARCHIVO_EXCEL) or forzar_imagenes:
-            print(f"\n[LOCAL] Copiando base de datos local '{local_root_excel}' a la caché interna...")
-            import shutil
-            try:
-                dest_dir = os.path.dirname(ARCHIVO_EXCEL)
-                if dest_dir and not os.path.exists(dest_dir):
-                    os.makedirs(dest_dir)
-                shutil.copy2(local_root_excel, ARCHIVO_EXCEL)
-                print(f"[LOCAL] [OK] Base de datos local actualizada con éxito.")
-            except Exception as e:
-                print(f"[LOCAL] [AVISO] No se pudo copiar '{local_root_excel}': {e}")
-
-    # Si la caché no existe o está corrupta, intentar restaurar desde catalogos.xlsx
-    if (not os.path.exists(ARCHIVO_EXCEL) or os.path.getsize(ARCHIVO_EXCEL) < 50000) and os.path.exists(local_root_excel):
-        import shutil
-        shutil.copy2(local_root_excel, ARCHIVO_EXCEL)
-
-    if not os.path.exists(ARCHIVO_EXCEL):
-        print(f"\nERROR: No se encontró '{ARCHIVO_EXCEL}'")
-        raise FileNotFoundError(f"No se encontró el archivo base de datos Excel: {ARCHIVO_EXCEL}")
-
-    print(f"\nAbriendo {ARCHIVO_EXCEL}...")
-    try:
-        wb = load_workbook(ARCHIVO_EXCEL, data_only=True)
-    except Exception as e_wb:
-        if os.path.exists(local_root_excel):
-            print(f"[AVISO] La caché estaba dañada. Restaurando desde '{local_root_excel}'...")
-            import shutil
-            shutil.copy2(local_root_excel, ARCHIVO_EXCEL)
-            wb = load_workbook(ARCHIVO_EXCEL, data_only=True)
+        print("\n>>> Sincronización con Google Drive solicitada...")
+        cache_dest = os.path.join("temp_imgs", "catalogos_db_cache.xlsx")
+        descarga_exitosa = descargar_base_de_datos_nube(URL_GOOGLE_SHEETS, cache_dest)
+        if descarga_exitosa:
+            excel_path = cache_dest
         else:
-            raise e_wb
+            print(f"[AVISO] No se pudo descargar desde Google Drive (por peso/límite). Usando archivo local: '{excel_path}'")
+
+    if not os.path.exists(excel_path):
+        print(f"\nERROR: No se encontró '{excel_path}' en la carpeta.")
+        raise FileNotFoundError(f"No se encontró el archivo base de datos Excel: {excel_path}")
+
+    tam_mb = os.path.getsize(excel_path) / (1024 * 1024)
+    print(f"\n[EXCEL] Leyendo base de datos local directamente de '{excel_path}' ({tam_mb:.1f} MB)...")
+    print(f"[EXCEL] Abriendo libro de trabajo con openpyxl...")
+    try:
+        wb = load_workbook(excel_path, data_only=True)
+    except Exception as e_wb:
+        print(f"ERROR al abrir '{excel_path}': {e_wb}")
+        raise e_wb
 
     # 1. Leer códigos a procesar
     codigos = []
@@ -4125,19 +4368,48 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
         # Buscar en hoja Vista_Catalogo si existe
         ws_vista = None
         for name in wb.sheetnames:
-            if "VISTA" in name.upper():
+            name_u = name.upper()
+            if "VISTA" in name_u or "PEDIDO" in name_u or "SELECCION" in name_u:
                 ws_vista = wb[name]
                 break
         if not ws_vista and HOJA_VISTA in wb.sheetnames:
             ws_vista = wb[HOJA_VISTA]
             
         if ws_vista:
-            empty_count = 0
+            print(f">>> Leyendo códigos desde la hoja '{ws_vista.title}'...")
+            col_target = COLUMNA_CODIGOS
+            fila_ini = FILA_INICIO_CODIGOS
             max_vista_rows = min(ws_vista.max_row + 10, 5000) if ws_vista.max_row else 1000
-            for row in range(FILA_INICIO_CODIGOS, max_vista_rows):
-                val = ws_vista.cell(row=row, column=COLUMNA_CODIGOS).value
+
+            # Verificar si la columna configurada tiene valores
+            tiene_valores = False
+            for r in range(fila_ini, min(fila_ini + 30, max_vista_rows)):
+                if ws_vista.cell(row=r, column=col_target).value:
+                    tiene_valores = True
+                    break
+
+            # Si la columna configurada está vacía, auto-detectar cuál columna tiene códigos
+            if not tiene_valores:
+                print(f"  [AUTO-SCAN] Columna {col_target} vacía en '{ws_vista.title}'. Escaneando columnas de la hoja...")
+                for c_cand in range(1, min(ws_vista.max_column + 1, 20) if ws_vista.max_column else 15):
+                    for r in range(1, min(fila_ini + 25, max_vista_rows)):
+                        val_c = str(ws_vista.cell(row=r, column=c_cand).value or "").strip()
+                        if val_c and any(k in val_c.upper() for k in ["CODIGO", "COD.", "ITEM", "REFERENCIA"]):
+                            col_target = c_cand
+                            fila_ini = r + 1
+                            tiene_valores = True
+                            print(f"  [AUTO-SCAN] Detectada columna de códigos en columna {col_target} ('{val_c}').")
+                            break
+                    if tiene_valores:
+                        break
+
+            empty_count = 0
+            for row in range(fila_ini, max_vista_rows):
+                val = ws_vista.cell(row=row, column=col_target).value
                 if val and str(val).strip():
-                    codigos.append(normalizar_codigo(val))
+                    norm_c = normalizar_codigo(val)
+                    if norm_c:
+                        codigos.append(norm_c)
                     empty_count = 0
                 else:
                     empty_count += 1
@@ -4146,7 +4418,7 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
 
     if not codigos:
         # Si no se ingresaron códigos manuales ni en Vista_Catalogo, procesar automáticamente todo el inventario
-        print(">>> No se ingresaron códigos específicos: Cargando todo el inventario...")
+        print(">>> No se encontraron códigos específicos: Cargando todo el inventario de las hojas...")
         hojas_temp = detectar_hojas_inventario(wb)
         vistos_set = set()
         for ws_cur in hojas_temp:
@@ -4267,7 +4539,7 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
 
     print(f"Productos cargados en base de datos: {len(db)}")
 
-    # 3. Determinar las filas de interés por hoja y extraer imágenes de forma optimizada
+    # 3. Determinar las filas de interés por hoja (+-2 filas de tolerancia) y extraer imágenes
     filas_por_hoja = {ws_cur.title: set() for ws_cur in hojas_inv}
     
     for cod in codigos:
@@ -4276,9 +4548,8 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
             ws_name = prod.get("ws_title", hojas_inv[0].title)
             r = prod["fila_db"]
             if ws_name in filas_por_hoja:
-                filas_por_hoja[ws_name].add(r)
-                filas_por_hoja[ws_name].add(r - 1)
-                filas_por_hoja[ws_name].add(r + 1)
+                for off in [-2, -1, 0, 1, 2]:
+                    filas_por_hoja[ws_name].add(r + off)
 
     imagenes_por_fila = {}
     for ws_cur in hojas_inv:
@@ -4290,15 +4561,11 @@ def generar(descargar_nube=True, codigos_custom=None, layout="desktop", forzar_i
                 if r not in imagenes_por_fila:
                     imagenes_por_fila[r] = img_data
 
-    # 4. Eliminar hoja CATALOGO del Excel para reducir drásticamente el tamaño del archivo
-    if HOJA_CATALOGO in wb.sheetnames:
-        print(f"Limpiando hoja de catálogo antigua del Excel para reducir espacio...")
-        del wb[HOJA_CATALOGO]
-        try:
-            wb.save(ARCHIVO_EXCEL)
-            print(f"Excel guardado y optimizado ({ARCHIVO_EXCEL})")
-        except Exception as e:
-            print(f"  [AVISO] No se pudo optimizar el tamaño de '{ARCHIVO_EXCEL}': {e}")
+    # 4. Liberar memoria del archivo Excel (NO se guarda para proteger el archivo local y ahorrar gigabytes de RAM)
+    try:
+        wb.close()
+    except Exception:
+        pass
 
     # 5. Generar HTML y extraer fotos a disco (primero el layout seleccionado)
     html_file, total_prods = generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout=layout, output_filename="catalogos.html", forzar_imagenes=forzar_imagenes, db_norm=db_norm, db_clean=db_clean, whatsapp_phone=whatsapp_phone)
@@ -4344,13 +4611,22 @@ def obtener_resumen_inventario():
     """
     Lee el archivo Excel disponible y retorna un resumen ligero de productos, marcas y categorías
     para alimentar el buscador predictivo y los filtros del panel web.
+    Usa caché en JSON en temp_imgs/resumen_inventario.json para responder en milisegundos.
     """
-    excel_path = ARCHIVO_EXCEL
+    excel_path = obtener_archivo_excel()
     if not os.path.exists(excel_path):
-        if os.path.exists("catalogos.xlsx"):
-            excel_path = "catalogos.xlsx"
-        else:
-            return {"productos": [], "marcas": {}, "categorias": {}, "total": 0}
+        return {"productos": [], "marcas": {}, "categorias": {}, "total": 0}
+        
+    resumen_cache_path = os.path.join("temp_imgs", "resumen_inventario.json")
+    if os.path.exists(resumen_cache_path) and os.path.getsize(resumen_cache_path) > 100:
+        try:
+            excel_mtime = os.path.getmtime(excel_path)
+            cache_mtime = os.path.getmtime(resumen_cache_path)
+            if cache_mtime >= excel_mtime:
+                with open(resumen_cache_path, "r", encoding="utf-8") as f_rc:
+                    return json.load(f_rc)
+        except Exception:
+            pass
             
     try:
         wb = load_workbook(excel_path, data_only=True)
@@ -4425,13 +4701,27 @@ def obtener_resumen_inventario():
             if brand_name not in categorias:
                 categorias[brand_name] = {}
             categorias[brand_name][cat_str] = categorias[brand_name].get(cat_str, 0) + 1
-            
-    return {
+
+    try:
+        wb.close()
+    except Exception:
+        pass
+        
+    resultado = {
         "productos": productos,
         "marcas": marcas,
         "categorias": categorias,
         "total": len(productos)
     }
+    
+    try:
+        os.makedirs("temp_imgs", exist_ok=True)
+        with open(resumen_cache_path, "w", encoding="utf-8") as f_out:
+            json.dump(resultado, f_out, ensure_ascii=False)
+    except Exception:
+        pass
+
+    return resultado
 
 if __name__ == "__main__":
     generar()
