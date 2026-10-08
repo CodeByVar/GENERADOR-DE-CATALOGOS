@@ -6,17 +6,25 @@ export const config = {
 // Pega aquí la URL de tu Web App (terminada en /exec) una vez la implementes:
 let APPS_SCRIPT_PRELISTA_URL = process.env.APPS_SCRIPT_PRELISTA_URL || "https://script.google.com/macros/s/AKfycbwZluWpdw3riIr35gdrHhgdn7cRLcoNOuqQffxbnPIFqFbu2EgsxZffipAs0c4_gDpbKg/exec";
 
-// Micro-caché en servidor Edge
-let cacheData = null;
-let cacheTime = 0;
-const CACHE_TTL_MS = 8 * 1000; // 8 segundos
+// Códigos que el administrador excluyó para no mostrar ni vender a clientes
+const EXCLUDED_CODES_LIST = [
+  // EXCLUDED_CODES_START
+  "SUM022",
+  "DC-LLAVERO"
+  // EXCLUDED_CODES_END
+];
+const EXCLUDED_CODES = new Set(EXCLUDED_CODES_LIST.map(c => String(c).toUpperCase().trim()));
 
-// Datos de demostración inicial basados en la Hoja 48 de tu Google Sheet
-// (Garantiza que la web funcione de inmediato mientras conectas tu script)
+// Micro-caché en servidor Edge por hoja
+const cacheMap = new Map();
+const CACHE_TTL_MS = 10 * 1000; // 10 segundos
+
+// Datos de demostración inicial basados en las hojas más recientes de tu Google Sheet
+// (Garantiza que la web funcione de inmediato mientras conecta tu script)
 const DEMO_PRELISTA = {
   success: true,
-  sheet: "Hoja 48",
-  availableSheets: ["Hoja 48", "Hoja 47", "Hoja 46", "Hoja 45"],
+  sheet: "Hoja 49",
+  availableSheets: ["Hoja 50", "Hoja 49", "Hoja 48", "Hoja 47", "Hoja 46", "Hoja 45"],
   tipoCambio: 11.5,
   totalProductos: 26,
   actualizadoEn: new Date().toISOString(),
@@ -395,9 +403,12 @@ export default async function handler(request) {
     });
   }
 
+  const cacheKey = (sheetParam || '__DEFAULT__').trim().toUpperCase();
+
   // Si la caché es reciente y no se forzó actualización
-  if (!isForced && cacheData && (now - cacheTime < CACHE_TTL_MS) && (!sheetParam || cacheData.sheet === sheetParam)) {
-    return new Response(JSON.stringify(cacheData), {
+  const cached = cacheMap.get(cacheKey);
+  if (!isForced && cached && (now - cached.time < CACHE_TTL_MS)) {
+    return new Response(JSON.stringify(cached.data), {
       status: 200,
       headers: {
         ...baseCorsHeaders,
@@ -413,7 +424,7 @@ export default async function handler(request) {
     if (isForced) fetchUrl.searchParams.set('force', '1');
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     const res = await fetch(fetchUrl.toString(), {
       method: 'GET',
@@ -432,8 +443,14 @@ export default async function handler(request) {
 
     const data = await res.json();
     if (data && data.success) {
-      cacheData = data;
-      cacheTime = now;
+      if (Array.isArray(data.productos) && EXCLUDED_CODES.size > 0) {
+        data.productos = data.productos.filter(p => !EXCLUDED_CODES.has(String(p.codigo || '').toUpperCase().trim()));
+        data.totalProductos = data.productos.length;
+      }
+      cacheMap.set(cacheKey, { data, time: now });
+      if (data.sheet) {
+        cacheMap.set(data.sheet.trim().toUpperCase(), { data, time: now });
+      }
       return new Response(JSON.stringify(data), {
         status: 200,
         headers: {
@@ -448,7 +465,9 @@ export default async function handler(request) {
 
   } catch (err) {
     // Si falla Google Apps Script por red o cuota, responder con los datos en memoria o demo
-    const fallback = cacheData || DEMO_PRELISTA;
+    const cachedAny = cacheMap.get(cacheKey) || cacheMap.get('__DEFAULT__');
+    const fallback = cachedAny ? cachedAny.data : { ...DEMO_PRELISTA };
+    if (sheetParam && fallback) fallback.sheet = sheetParam;
     return new Response(JSON.stringify(fallback), {
       status: 200,
       headers: {

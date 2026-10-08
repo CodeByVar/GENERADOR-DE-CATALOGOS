@@ -957,6 +957,176 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ──── BARRA DE MODO ADMINISTRADOR ──── */
+    .admin-bar {
+      background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
+      border-bottom: 2px solid #F59E0B;
+      padding: 10px 18px;
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .admin-bar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .admin-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .admin-badge {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #F59E0B;
+      color: #FBBF24;
+      font-size: 8pt;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .admin-sheet-picker {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8pt;
+      color: #94A3B8;
+      font-weight: 700;
+    }
+
+    .admin-sheet-select {
+      background: #090D16;
+      border: 1.5px solid #38BDF8;
+      color: #38BDF8;
+      font-weight: 800;
+      font-size: 8.5pt;
+      padding: 4px 10px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .admin-stats-pill {
+      font-size: 8pt;
+      color: #CBD5E1;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .admin-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-admin-save {
+      background: linear-gradient(135deg, #16A34A, #15803D);
+      border: none;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 8.5pt;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+      transition: all 0.2s;
+    }
+
+    .btn-admin-save:hover {
+      background: linear-gradient(135deg, #22C55E, #16A34A);
+      transform: translateY(-1px);
+    }
+
+    .btn-admin-preview {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #E2E8F0;
+      font-weight: 700;
+      font-size: 8pt;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-admin-preview:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+    }
+
+    .btn-exclude-prod {
+      background: #FEE2E2;
+      border: 1px solid #FCA5A5;
+      color: #DC2626;
+      font-weight: 800;
+      font-size: 7.5pt;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-exclude-prod:hover {
+      background: #DC2626;
+      color: #FFFFFF;
+      border-color: #DC2626;
+    }
+
+    .btn-restore-prod {
+      background: #DCFCE7;
+      border: 1px solid #86EFAC;
+      color: #15803D;
+      font-weight: 800;
+      font-size: 7.5pt;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-restore-prod:hover {
+      background: #16A34A;
+      color: #FFFFFF;
+      border-color: #16A34A;
+    }
+
+    .product-card.is-excluded {
+      border: 2px dashed #F87171 !important;
+      background: #FFF5F5 !important;
+      opacity: 0.8;
+    }
+
+    .badge-excluded {
+      background: #DC2626;
+      color: #FFFFFF;
+      font-size: 7pt;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
     /* ──── RESPONSIVE ──── */
     @media (max-width: 768px) {
       .header-content {
@@ -1026,6 +1196,11 @@
       </div>
 
       <div class="header-actions">
+        <button class="btn-refresh" id="btn-admin-mode" onclick="toggleAdminMode()" title="Entrar a Modo Administrador para ocultar productos no vendibles">
+          <span id="btn-admin-icon">⚙️</span>
+          <span id="btn-admin-text">Modo Admin</span>
+        </button>
+
         <button class="btn-refresh" id="btn-refresh" onclick="fetchLiveStock(true)" title="Actualizar datos en tiempo real">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"></polyline>
@@ -1038,7 +1213,33 @@
     </div>
   </header>
 
-  <!-- CONTROLES, FILTROS Y BÚSQUEDA -->
+  <!-- BARRA DE MODO ADMINISTRADOR (SOLO VISIBLE CUANDO EL USUARIO ACTIVA EL MODO ADMIN) -->
+  <div id="admin-bar" class="admin-bar" style="display: none;">
+    <div class="admin-bar-content">
+      <div class="admin-bar-left">
+        <span class="admin-badge">🛠️ MODO ADMINISTRADOR</span>
+        <div class="admin-sheet-picker">
+          <label>Hoja Google Sheets:</label>
+          <select id="admin-sheet-select" class="admin-sheet-select" onchange="switchSheet(this.value)">
+            <option value="">Cargando hojas...</option>
+          </select>
+        </div>
+        <span class="admin-stats-pill" id="admin-stats-text">
+          0 productos activos
+        </span>
+      </div>
+      <div class="admin-bar-right">
+        <button type="button" class="btn-admin-save" onclick="guardarPrelistaAdmin()" title="Guardar lista para que los clientes solo vean los productos aprobados">
+          💾 Guardar y Publicar Prelista
+        </button>
+        <button type="button" class="btn-admin-preview" onclick="toggleAdminMode()" title="Ver la web tal como la verá el cliente">
+          👁️ Vista Cliente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLES, FILTROS Y BÚSQUEDA (VISTA LIMPIA PARA EL CLIENTE) -->
   <section class="controls-wrapper">
     <div class="filters-row">
       <div class="filter-item">
@@ -1233,16 +1434,27 @@
     // Estado global de la aplicación
     let allProducts = [];
     let cart = {}; // { [codigo]: cajas }
-    let currentSheet = "Hoja 48";
+    let currentSheet = ""; // Detecta automáticamente la hoja más reciente
+    let availableSheetsList = [];
     let businessPhone = ""; // Si se deja vacío, usa selector normal de WhatsApp
+    let isAdminMode = false;
+
+    // Lista de códigos excluidos (que el admin decide ocultar para los clientes)
+    const DEFAULT_EXCLUDED = /* DEFAULT_EXCLUDED_START */ ["SUM022", "DC-LLAVERO"] /* DEFAULT_EXCLUDED_END */;
+    let excludedCodesSet = new Set(DEFAULT_EXCLUDED.map(c => String(c).toUpperCase().trim()));
 
     // 1. INICIALIZACIÓN
     document.addEventListener("DOMContentLoaded", () => {
-      // Cargar parámetros de URL (?cliente=..., ?c=...)
+      // Cargar parámetros de URL (?cliente=..., ?c=..., ?sheet=..., ?hoja=..., ?admin=1)
       const urlParams = new URLSearchParams(window.location.search);
       const urlClient = urlParams.get('cliente') || urlParams.get('c');
+      const urlSheet = urlParams.get('sheet') || urlParams.get('hoja');
       const savedClient = localStorage.getItem('prelista_client_name');
       const savedPhone = localStorage.getItem('prelista_client_phone');
+
+      if (urlSheet) {
+        currentSheet = urlSheet.trim();
+      }
 
       if (urlClient) {
         setClientName(urlClient, true);
@@ -1251,6 +1463,34 @@
       } else {
         // Pedir nombre automáticamente al ingresar
         openWelcomeModal(false);
+      }
+
+      // Cargar exclusiones guardadas en localStorage
+      try {
+        const savedExcluded = localStorage.getItem('prelista_excluded_codes');
+        if (savedExcluded) {
+          const arr = JSON.parse(savedExcluded);
+          if (Array.isArray(arr)) {
+            arr.forEach(c => excludedCodesSet.add(String(c).toUpperCase().trim()));
+          }
+        }
+      } catch(e) {}
+
+      // Intentar cargar prelista_excluidos.json si el servidor local o estático lo tiene
+      fetch('/prelista_excluidos.json')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d && Array.isArray(d.excluidos)) {
+            d.excluidos.forEach(c => excludedCodesSet.add(String(c).toUpperCase().trim()));
+            renderProducts();
+            updateAdminStats();
+          }
+        })
+        .catch(() => {});
+
+      // Activar modo admin si se pide por URL (?admin=1) o sesión guardada
+      if (urlParams.get('admin') === '1' || sessionStorage.getItem('prelista_admin_active') === '1') {
+        setAdminMode(true);
       }
 
       // Cargar datos previos de destino/teléfono
@@ -1269,6 +1509,122 @@
       // Cargar productos en vivo
       fetchLiveStock();
     });
+
+    // 1.1. GESTIÓN DE MODO ADMINISTRADOR (OCULTAR / MOSTRAR PRODUCTOS)
+    function toggleAdminMode() {
+      setAdminMode(!isAdminMode);
+    }
+
+    function setAdminMode(active) {
+      isAdminMode = active;
+      sessionStorage.setItem('prelista_admin_active', active ? '1' : '0');
+
+      const adminBar = document.getElementById('admin-bar');
+      const btnAdmin = document.getElementById('btn-admin-mode');
+      const btnText = document.getElementById('btn-admin-text');
+
+      if (adminBar) adminBar.style.display = active ? 'block' : 'none';
+      if (btnAdmin) {
+        if (active) {
+          btnAdmin.style.background = '#F59E0B';
+          btnAdmin.style.color = '#0F172A';
+          btnAdmin.style.borderColor = '#F59E0B';
+          if (btnText) btnText.textContent = "Admin Activo ✓";
+        } else {
+          btnAdmin.style.background = '';
+          btnAdmin.style.color = '';
+          btnAdmin.style.borderColor = '';
+          if (btnText) btnText.textContent = "Modo Admin";
+        }
+      }
+
+      renderProducts();
+      updateAdminStats();
+
+      if (active) {
+        showToast("🛠️ Modo Administrador activado: puedes ocultar productos.");
+      } else {
+        showToast("👁️ Vista previa de Cliente activada.");
+      }
+    }
+
+    function toggleExcludeProduct(codigo) {
+      const u = String(codigo).toUpperCase().trim();
+      if (excludedCodesSet.has(u)) {
+        excludedCodesSet.delete(u);
+        showToast(`↩️ Producto ${codigo} restaurado (será visible para clientes).`);
+      } else {
+        excludedCodesSet.add(u);
+        // Si el usuario tenía cajas seleccionadas de ese producto, quitarlas
+        if (cart[codigo]) {
+          delete cart[codigo];
+          updateBottomBar();
+        }
+        showToast(`🗑️ Producto ${codigo} ocultado (no se venderá a clientes).`);
+      }
+
+      // Guardar de inmediato en localStorage del navegador
+      try {
+        localStorage.setItem('prelista_excluded_codes', JSON.stringify(Array.from(excludedCodesSet)));
+      } catch(e) {}
+
+      renderProducts();
+      updateAdminStats();
+    }
+
+    function updateAdminStats() {
+      const statsPill = document.getElementById('admin-stats-text');
+      if (!statsPill) return;
+      const totalProds = allProducts.length;
+      let countExcluidos = 0;
+      allProducts.forEach(p => {
+        if (excludedCodesSet.has(String(p.codigo).toUpperCase().trim())) {
+          countExcluidos++;
+        }
+      });
+      const visibles = totalProds - countExcluidos;
+      statsPill.textContent = `${visibles} productos visibles | 🚫 ${countExcluidos} excluidos`;
+    }
+
+    async function guardarPrelistaAdmin() {
+      const excluidosArr = Array.from(excludedCodesSet);
+      try {
+        localStorage.setItem('prelista_excluded_codes', JSON.stringify(excluidosArr));
+      } catch(e) {}
+
+      showToast("💾 Guardando cambios de la prelista...");
+
+      try {
+        const res = await fetch('/api/prelista/guardar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sheet: currentSheet,
+            excluidos: excluidosArr
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          alert(`🎉 ¡LISTA GUARDADA CON ÉXITO!\n\n` +
+                `• Total de productos ocultados: ${excluidosArr.length}\n` +
+                `• Los clientes NO podrán ver ni comprar los productos ocultados.\n\n` +
+                `🚀 PARA PUBLICAR EN VERCEL:\n` +
+                `Haz doble clic en el archivo 'Publicar_en_Vercel.bat' en tu carpeta.\n` +
+                `En 15 segundos estará en vivo para todos los clientes.`);
+        } else {
+          alert(`✅ Guardado en tu navegador.\n` +
+                `Productos ocultados: ${excluidosArr.length}.\n\n` +
+                `Asegúrate de tener abierta la aplicación web_generator.py para que guarde los archivos automáticamente.`);
+        }
+      } catch(err) {
+        alert(`✅ Guardado en tu navegador.\n` +
+              `Productos ocultados: ${excluidosArr.length}.\n\n` +
+              `Para aplicar a todos los clientes en la web, ejecuta Publicar_en_Vercel.bat.`);
+      }
+
+      updateAdminStats();
+    }
 
     // 2. MODAL DE BIENVENIDA / REGISTRO OBLIGATORIO
     function openWelcomeModal(canClose = true) {
@@ -1342,20 +1698,32 @@
       if (btnText) btnText.textContent = "Cargando...";
 
       try {
-        const fetchUrl = `/api/prelista?sheet=${encodeURIComponent(currentSheet)}${isManual ? '&force=1' : ''}`;
+        const queryParams = new URLSearchParams();
+        if (currentSheet) queryParams.set('sheet', currentSheet);
+        if (isManual) queryParams.set('force', '1');
+
+        const fetchUrl = `/api/prelista${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
         const res = await fetch(fetchUrl);
         if (!res.ok) throw new Error("Error en la conexión");
 
         const data = await res.json();
         if (data && Array.isArray(data.productos)) {
           allProducts = data.productos;
-          if (data.sheet) currentSheet = data.sheet;
+          if (data.sheet) {
+            currentSheet = data.sheet;
+          }
+
+          if (Array.isArray(data.availableSheets)) {
+            availableSheetsList = data.availableSheets;
+            populateSheetFilter(data.availableSheets, currentSheet);
+          }
 
           populateBrandFilter();
           renderProducts();
+          updateAdminStats();
 
           if (isManual) {
-            showToast("✅ Prelista actualizada con los últimos datos.");
+            showToast(`✅ Prelista sincronizada.`);
           }
         }
       } catch (err) {
@@ -1364,6 +1732,37 @@
         if (btnRefresh) btnRefresh.classList.remove('spinning');
         if (btnText) btnText.textContent = "Sincronizar";
       }
+    }
+
+    // 3.1. POBLAR SELECTOR DE HOJAS EN MODO ADMINISTRADOR
+    function populateSheetFilter(sheets, selectedSheet) {
+      const select = document.getElementById('admin-sheet-select');
+      if (!select) return;
+
+      select.innerHTML = '';
+      sheets.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = `📦 ${s}`;
+        if (s === selectedSheet) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      if (selectedSheet) {
+        select.value = selectedSheet;
+      }
+    }
+
+    function switchSheet(sheetName) {
+      if (!sheetName || sheetName === currentSheet) return;
+      currentSheet = sheetName;
+
+      // Actualizar URL sin recargar para compartir enlace directo si se desea
+      const url = new URL(window.location);
+      url.searchParams.set('sheet', sheetName);
+      window.history.replaceState({}, '', url);
+
+      fetchLiveStock(true);
     }
 
     // 4. POBLAR FILTRO DE MARCAS
@@ -1397,6 +1796,11 @@
       const onlyReserved = document.getElementById('check-only-reserved').checked;
 
       let filtered = allProducts.filter(p => {
+        const isExcluded = excludedCodesSet.has(String(p.codigo).toUpperCase().trim());
+        // En Modo Cliente (NO admin), los productos excluidos se ocultan al 100%
+        if (!isAdminMode && isExcluded) {
+          return false;
+        }
         if (onlyReserved && (!cart[p.codigo] || cart[p.codigo] <= 0)) {
           return false;
         }
@@ -1415,7 +1819,11 @@
       });
 
       document.getElementById('stats-count').textContent = filtered.length;
-      let totalAvailableBoxes = allProducts.reduce((sum, p) => sum + (p.stockReserva > 0 ? p.stockReserva : 0), 0);
+      let totalAvailableBoxes = filtered.reduce((sum, p) => {
+        const isExcluded = excludedCodesSet.has(String(p.codigo).toUpperCase().trim());
+        if (isExcluded) return sum;
+        return sum + (p.stockReserva > 0 ? p.stockReserva : 0);
+      }, 0);
       document.getElementById('stats-total-boxes').textContent = totalAvailableBoxes;
 
       if (filtered.length === 0) {
@@ -1430,6 +1838,7 @@
       }
 
       container.innerHTML = filtered.map(p => {
+        const isExcluded = excludedCodesSet.has(String(p.codigo).toUpperCase().trim());
         const qty = cart[p.codigo] || 0;
         const isSelected = qty > 0;
         const isSoldOut = p.stockReserva <= 0;
@@ -1443,7 +1852,7 @@
         const imgPng = `/temp_imgs/prod_${p.codigo}.png`;
 
         return `
-          <div class="product-card ${isSelected ? 'has-selection' : ''} ${isSoldOut ? 'is-sold-out' : ''}" id="card-${p.codigo}">
+          <div class="product-card ${isSelected ? 'has-selection' : ''} ${isSoldOut ? 'is-sold-out' : ''} ${isExcluded ? 'is-excluded' : ''}" id="card-${p.codigo}">
             
             <!-- Foto del Producto -->
             <div class="product-img-wrapper">
@@ -1460,13 +1869,34 @@
               <div class="product-meta-row">
                 <span class="code-pill">${p.codigo}</span>
                 <span class="brand-tag">${p.marca}</span>
-                <span class="stock-chip ${isSoldOut ? 'sold-out' : 'available'}">
-                  ${isSoldOut ? '🔴 Agotado en Preventa' : `🟢 Cupo libre: ${p.stockReserva} cajas`}
-                </span>
+                
+                ${isExcluded ? `
+                  <span class="badge-excluded">⛔ EXCLUIDO PARA CLIENTES</span>
+                ` : `
+                  <span class="stock-chip ${isSoldOut ? 'sold-out' : 'available'}">
+                    ${isSoldOut ? '🔴 Agotado en Preventa' : `🟢 Cupo libre: ${p.stockReserva} cajas`}
+                  </span>
+                `}
+
                 ${cajasLlegan > 0 && cajasLlegan !== p.stockReserva ? `
                   <span style="font-size: 7.5pt; color: var(--text-muted);">
                     (Llegan ${cajasLlegan} cajas)
                   </span>
+                ` : ''}
+
+                <!-- Botón de Administrador para Excluir o Restaurar -->
+                ${isAdminMode ? `
+                  <div style="margin-left: auto;">
+                    ${isExcluded ? `
+                      <button type="button" class="btn-restore-prod" onclick="toggleExcludeProduct('${p.codigo}')" title="Volver a permitir este producto para que los clientes lo vean">
+                        ↩️ Restaurar (Volver a Vender)
+                      </button>
+                    ` : `
+                      <button type="button" class="btn-exclude-prod" onclick="toggleExcludeProduct('${p.codigo}')" title="Ocultar este producto para que ningún cliente lo vea">
+                        🗑️ Ocultar (No Vender)
+                      </button>
+                    `}
+                  </div>
                 ` : ''}
               </div>
 
@@ -1482,8 +1912,8 @@
               </div>
             </div>
 
-            <!-- Selector de Cantidad de Cajas (Sin flechas, botones fluidos + y -) -->
-            <div class="controls-col">
+            <!-- Selector de Cantidad de Cajas (Solo si no está excluido) -->
+            <div class="controls-col" style="${isExcluded ? 'opacity: 0.3; pointer-events: none;' : ''}">
               <div style="font-size: 7.5pt; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
                 Cajas a apartar:
               </div>

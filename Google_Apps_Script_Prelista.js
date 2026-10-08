@@ -59,6 +59,14 @@ function doGet(e) {
           sheetNames.push(sh.getName());
         }
       }
+      sheetNames.sort(function(a, b) {
+        var matchA = a.match(/\d+/);
+        var matchB = b.match(/\d+/);
+        var numA = matchA ? parseInt(matchA[0], 10) : 0;
+        var numB = matchB ? parseInt(matchB[0], 10) : 0;
+        if (numA !== numB) return numB - numA;
+        return a.localeCompare(b);
+      });
       return jsonResponse({ success: true, sheets: sheetNames });
     }
 
@@ -123,11 +131,29 @@ function extraerDatosPrelista(targetSheetName) {
     }
   }
 
+  // Ordenar de forma natural descendente por número (ej: Hoja 50, Hoja 49, Hoja 48...)
+  availableSheets.sort(function(a, b) {
+    var matchA = a.match(/\d+/);
+    var matchB = b.match(/\d+/);
+    var numA = matchA ? parseInt(matchA[0], 10) : 0;
+    var numB = matchB ? parseInt(matchB[0], 10) : 0;
+    if (numA !== numB) return numB - numA;
+    return a.localeCompare(b);
+  });
+
   if (!sheet) {
-    // Si no se especificó o no se encontró, tomar la primera hoja tipo "Hoja XX" o la hoja activa
-    if (availableSheets.length > 0) {
+    // Si no se especificó hoja, buscar la más reciente que tenga datos reales (>= 3 filas)
+    for (var k = 0; k < availableSheets.length; k++) {
+      var candidate = ss.getSheetByName(availableSheets[k]);
+      if (candidate && candidate.getLastRow() >= 3) {
+        sheet = candidate;
+        break;
+      }
+    }
+    // Si ninguna tiene datos o todas están vacías, tomar la primera disponible
+    if (!sheet && availableSheets.length > 0) {
       sheet = ss.getSheetByName(availableSheets[0]);
-    } else {
+    } else if (!sheet) {
       sheet = ss.getActiveSheet();
     }
   }
@@ -177,9 +203,9 @@ function extraerDatosPrelista(targetSheetName) {
       } else if (cellVal === "CODIGO" || cellVal === "COD" || cellVal === "COD.") {
         colCodigo = c;
         headerRowIdx = r;
-      } else if (cellVal.indexOf("Q.") >= 0 && cellVal.indexOf("DE CAJAS") >= 0 || cellVal === "Q. DE CAJAS" || cellVal === "CANT. CAJAS") {
+      } else if (((cellVal.indexOf("CAJA") >= 0 && (cellVal.indexOf("Q") >= 0 || cellVal.indexOf("CANT") >= 0 || cellVal.indexOf("TOT") >= 0)) || cellVal === "CAJAS" || cellVal === "CJS" || cellVal === "Q. CAJAS" || cellVal === "Q. DE CAJAS") && cellVal.indexOf("POR") === -1 && cellVal.indexOf("X") === -1 && cellVal.indexOf("PRECIO") === -1) {
         colQCajas = c;
-      } else if (cellVal.indexOf("Q.") >= 0 && cellVal.indexOf("POR CAJA") >= 0 || cellVal === "Q. POR CAJA" || cellVal === "PACKING" || cellVal === "X CAJA") {
+      } else if (cellVal.indexOf("POR CAJA") >= 0 || cellVal.indexOf("X CAJA") >= 0 || cellVal === "PACKING" || cellVal === "EMPAQUE" || cellVal === "UNID/CAJA" || (cellVal.indexOf("Q.") >= 0 && cellVal.indexOf("POR") >= 0)) {
         colQPorCaja = c;
       } else if (cellVal === "UN/MED" || cellVal === "UN/ MED" || cellVal === "UNIDAD" || cellVal === "U.M." || cellVal === "MEDIDA") {
         colUnMed = c;
@@ -316,8 +342,12 @@ function extraerDatosPrelista(targetSheetName) {
 
 function parseNumero(val, defecto) {
   if (val === undefined || val === null || val === "") return defecto;
+  if (val instanceof Date) return defecto;
   if (typeof val === "number") return val;
-  var str = String(val).replace(/[^0-9.,-]/g, '').trim();
+  var str = String(val).trim();
+  // Si parece una fecha (ej: 2026-01-01 o 1/1/2026) ignorarla
+  if (/^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/.test(str)) return defecto;
+  str = str.replace(/[^0-9.,-]/g, '').trim();
   // Manejo de comas y puntos
   if (str.indexOf(',') >= 0 && str.indexOf('.') >= 0) {
     if (str.indexOf(',') > str.indexOf('.')) {

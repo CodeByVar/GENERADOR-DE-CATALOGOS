@@ -93,9 +93,75 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         with open(file_path, 'rb') as f:
             self.wfile.write(f.read())
 
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', '*')
+        self.end_headers()
+
     def do_POST(self):
-        # Desactivado por seguridad en red local (intranet) para evitar que clientes
-        # externos abran programas o carpetas en la máquina principal.
+        parsed_url = urllib.parse.urlparse(self.path)
+        if parsed_url.path == "/api/prelista/guardar":
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                data = json.loads(post_body.decode('utf-8'))
+                excluidos = data.get("excluidos", [])
+                sheet = data.get("sheet", "Hoja 49")
+                
+                # 1. Guardar prelista_excluidos.json
+                with open("prelista_excluidos.json", "w", encoding="utf-8") as f_ex:
+                    json.dump({"sheet": sheet, "excluidos": excluidos}, f_ex, indent=2, ensure_ascii=False)
+                
+                # 2. Actualizar EXCLUDED_CODES en api/prelista.js para Vercel
+                if os.path.exists("api/prelista.js"):
+                    with open("api/prelista.js", "r", encoding="utf-8") as f_api:
+                        api_content = f_api.read()
+                    
+                    codes_js = ",\n".join([f'  "{c.strip().upper()}"' for c in excluidos if c.strip()])
+                    new_block = f"// EXCLUDED_CODES_START\n{codes_js}\n  // EXCLUDED_CODES_END"
+                    api_content_updated = re.sub(
+                        r'// EXCLUDED_CODES_START.*?// EXCLUDED_CODES_END',
+                        new_block,
+                        api_content,
+                        flags=re.DOTALL
+                    )
+                    with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
+                        f_api_w.write(api_content_updated)
+
+                # 3. Actualizar lista predeterminada en prelista.html
+                if os.path.exists("prelista.html"):
+                    with open("prelista.html", "r", encoding="utf-8") as f_html:
+                        html_content = f_html.read()
+                    
+                    codes_html_js = json.dumps(list(set(c.strip().upper() for c in excluidos if c.strip())))
+                    new_html_block = f"/* DEFAULT_EXCLUDED_START */ {codes_html_js} /* DEFAULT_EXCLUDED_END */"
+                    html_content_updated = re.sub(
+                        r'/\* DEFAULT_EXCLUDED_START \*/.*?/\* DEFAULT_EXCLUDED_END \*/',
+                        new_html_block,
+                        html_content
+                    )
+                    with open("prelista.html", "w", encoding="utf-8") as f_html_w:
+                        f_html_w.write(html_content_updated)
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True, 
+                    "total_excluidos": len(excluidos),
+                    "mensaje": f"Se guardaron {len(excluidos)} productos excluidos correctamente."
+                }).encode('utf-8'))
+            except Exception as e_save:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e_save)}).encode('utf-8'))
+            return
+
         self.send_error(404, "Not found")
 
     def do_GET(self):
@@ -171,7 +237,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
                 import glob
-                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js"]
+                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_excluidos.json", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
                 for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
                     add_files.extend(glob.glob(img_pat))
                 subprocess.run(["git", "add"] + add_files, capture_output=True)
@@ -429,7 +495,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 c = ssl.create_default_context()
                 c.check_hostname = False
                 c.verify_mode = ssl.CERT_NONE
-                with urllib.request.urlopen(r, context=c, timeout=14) as resp:
+                with urllib.request.urlopen(r, context=c, timeout=25) as resp:
                     self.wfile.write(resp.read())
             except Exception as e_script:
                 self.wfile.write(json.dumps({"success": False, "error": str(e_script)}).encode('utf-8'))
@@ -1365,10 +1431,8 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span style="font-size: 8pt; font-weight: 800; color: #38BDF8;">📦 Hoja / Contenedor:</span>
-            <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 4px 8px; border-radius: 6px; outline: none;" onchange="consultarPrelistaPanel(this.value)">
-              <option value="Hoja 48">Hoja 48</option>
-              <option value="Hoja 47">Hoja 47</option>
-              <option value="Hoja 46">Hoja 46</option>
+            <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;" onchange="consultarPrelistaPanel(this.value)">
+              <option value="">(Detectando hojas en vivo...)</option>
             </select>
           </div>
           <div style="display: flex; gap: 6px;">
@@ -1823,14 +1887,22 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     async function consultarPrelistaPanel(sheetName, isForced) {{
       const tbody = document.getElementById('prelista-panel-table-body');
       const sel = document.getElementById('prelista-panel-sheet-select');
-      const activeSheet = sheetName || (sel ? sel.value : 'Hoja 48');
+      
+      // Si se pasa sheetName se usa, o si el select ya tiene valor; si no, vacío para autodetectar la más reciente
+      const targetSheet = (sheetName !== undefined && sheetName !== null) ? sheetName : (sel && sel.value ? sel.value : '');
       
       if (tbody) {{
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">Consultando datos de ${{activeSheet}} en Google Sheets...</td></tr>`;
+        const sheetMsg = targetSheet || 'la hoja más reciente';
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">Consultando datos de ${{sheetMsg}} en Google Sheets...</td></tr>`;
       }}
 
       try {{
-        const res = await fetch(`/api/prelista?sheet=${{encodeURIComponent(activeSheet)}}${{isForced ? '&force=1' : ''}}`);
+        const queryParts = [];
+        if (targetSheet) queryParts.push(`sheet=${{encodeURIComponent(targetSheet)}}`);
+        if (isForced) queryParts.push('force=1');
+        const qs = queryParts.join('&');
+
+        const res = await fetch(`/api/prelista${{qs ? '?' + qs : ''}}`);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         
@@ -1842,10 +1914,11 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             data.availableSheets.forEach(s => {{
               const opt = document.createElement('option');
               opt.value = s;
-              opt.textContent = s;
+              opt.textContent = `📦 ${{s}}`;
               if (s === data.sheet) opt.selected = true;
               sel.appendChild(opt);
             }});
+            if (data.sheet) sel.value = data.sheet;
           }}
 
           const btnLbl = document.getElementById('btn-load-prelista-label');
