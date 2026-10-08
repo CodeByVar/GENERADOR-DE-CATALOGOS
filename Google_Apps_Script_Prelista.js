@@ -117,11 +117,6 @@ function extraerDatosPrelista(targetSheetName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = null;
 
-  // 1. Seleccionar la hoja indicada o buscar la más reciente (ej: Hoja 48)
-  if (targetSheetName) {
-    sheet = ss.getSheetByName(targetSheetName);
-  }
-
   var sheets = ss.getSheets();
   var availableSheets = [];
   for (var s = 0; s < sheets.length; s++) {
@@ -140,6 +135,46 @@ function extraerDatosPrelista(targetSheetName) {
     if (numA !== numB) return numB - numA;
     return a.localeCompare(b);
   });
+
+  // Si se solicitaron múltiples hojas separadas por coma o '+'
+  if (targetSheetName && (targetSheetName.indexOf(',') !== -1 || targetSheetName.indexOf('+') !== -1)) {
+    var targetList = targetSheetName.split(/[,+]/).map(function(item) { return item.trim(); }).filter(Boolean);
+    var prodsMap = {};
+    var mergedList = [];
+    for (var i = 0; i < targetList.length; i++) {
+      var singleRes = extraerDatosPrelista(targetList[i]);
+      if (singleRes && singleRes.success && Array.isArray(singleRes.productos)) {
+        for (var p = 0; p < singleRes.productos.length; p++) {
+          var prod = singleRes.productos[p];
+          var cod = String(prod.codigo || '').toUpperCase().trim();
+          if (prodsMap[cod]) {
+            prodsMap[cod].cajasVienen = (prodsMap[cod].cajasVienen || 0) + (prod.cajasVienen || 0);
+            prodsMap[cod].stockReserva = (prodsMap[cod].stockReserva || 0) + (prod.stockReserva || 0);
+            if (!prodsMap[cod]._origenHojas) prodsMap[cod]._origenHojas = [];
+            if (prodsMap[cod]._origenHojas.indexOf(targetList[i]) === -1) {
+              prodsMap[cod]._origenHojas.push(targetList[i]);
+            }
+          } else {
+            prod._origenHojas = [targetList[i]];
+            prodsMap[cod] = prod;
+            mergedList.push(prod);
+          }
+        }
+      }
+    }
+    return {
+      success: true,
+      sheet: targetList.join(' + '),
+      availableSheets: availableSheets,
+      totalProductos: mergedList.length,
+      productos: mergedList
+    };
+  }
+
+  // 1. Seleccionar la hoja indicada o buscar la más reciente (ej: Hoja 48)
+  if (targetSheetName) {
+    sheet = ss.getSheetByName(targetSheetName);
+  }
 
   if (!sheet) {
     // Si no se especificó hoja, buscar la más reciente que tenga datos reales (>= 3 filas)

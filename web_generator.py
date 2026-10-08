@@ -18,7 +18,7 @@ import ssl
 import json
 import subprocess
 import generar_catalogo
-from datetime import date
+from datetime import date, datetime
 
 if sys.platform.startswith('win'):
     try:
@@ -109,41 +109,64 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 data = json.loads(post_body.decode('utf-8'))
                 excluidos = data.get("excluidos", [])
                 sheet = data.get("sheet", "Hoja 49")
-                
-                # 1. Guardar prelista_excluidos.json
+                productos = data.get("productos", [])
+
+                # 1. Guardar prelista_data.json con todos los productos de prelista
+                with open("prelista_data.json", "w", encoding="utf-8") as f_data:
+                    json.dump({
+                        "success": True,
+                        "sheet": sheet,
+                        "totalProductos": len(productos),
+                        "actualizadoEn": datetime.now().isoformat(),
+                        "productos": productos
+                    }, f_data, indent=2, ensure_ascii=False)
+
+                # 2. Guardar prelista_excluidos.json por compatibilidad
                 with open("prelista_excluidos.json", "w", encoding="utf-8") as f_ex:
                     json.dump({"sheet": sheet, "excluidos": excluidos}, f_ex, indent=2, ensure_ascii=False)
-                
-                # 2. Actualizar EXCLUDED_CODES en api/prelista.js para Vercel
-                if os.path.exists("api/prelista.js"):
-                    with open("api/prelista.js", "r", encoding="utf-8") as f_api:
-                        api_content = f_api.read()
-                    
-                    codes_js = ",\n".join([f'  "{c.strip().upper()}"' for c in excluidos if c.strip()])
-                    new_block = f"// EXCLUDED_CODES_START\n{codes_js}\n  // EXCLUDED_CODES_END"
-                    api_content_updated = re.sub(
-                        r'// EXCLUDED_CODES_START.*?// EXCLUDED_CODES_END',
-                        new_block,
-                        api_content,
-                        flags=re.DOTALL
-                    )
-                    with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
-                        f_api_w.write(api_content_updated)
 
-                # 3. Actualizar lista predeterminada en prelista.html
+                # 3. Grabar directamente los productos en prelista.html (Bake estático instantáneo)
                 if os.path.exists("prelista.html"):
                     with open("prelista.html", "r", encoding="utf-8") as f_html:
                         html_content = f_html.read()
-                    
-                    codes_html_js = json.dumps(list(set(c.strip().upper() for c in excluidos if c.strip())))
-                    new_html_block = f"/* DEFAULT_EXCLUDED_START */ {codes_html_js} /* DEFAULT_EXCLUDED_END */"
-                    html_content_updated = re.sub(
-                        r'/\* DEFAULT_EXCLUDED_START \*/.*?/\* DEFAULT_EXCLUDED_END \*/',
-                        new_html_block,
-                        html_content
-                    )
+
+                    baked_json = json.dumps(productos, ensure_ascii=False, indent=2)
+                    new_baked_block = f"/* BAKED_PRELISTA_DATA_START */\n    const BAKED_PRELISTA_DATA = {baked_json};\n    /* BAKED_PRELISTA_DATA_END */"
+                    if "/* BAKED_PRELISTA_DATA_START */" in html_content:
+                        html_content = re.sub(
+                            r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
+                            new_baked_block,
+                            html_content,
+                            flags=re.DOTALL
+                        )
                     with open("prelista.html", "w", encoding="utf-8") as f_html_w:
-                        f_html_w.write(html_content_updated)
+                        f_html_w.write(html_content)
+
+                # 4. Actualizar DEMO_PRELISTA en api/prelista.js para Vercel Edge Runtime
+                if os.path.exists("api/prelista.js"):
+                    with open("api/prelista.js", "r", encoding="utf-8") as f_api:
+                        api_content = f_api.read()
+
+                    sheet_list = [s.strip() for s in re.split(r'[,+]', str(sheet)) if s.strip()]
+                    demo_payload = {
+                        "success": True,
+                        "sheet": sheet,
+                        "availableSheets": sheet_list if sheet_list else [sheet],
+                        "totalProductos": len(productos),
+                        "actualizadoEn": datetime.now().isoformat(),
+                        "productos": productos
+                    }
+                    demo_json_str = json.dumps(demo_payload, ensure_ascii=False, indent=2)
+                    new_demo_block = f"// DEMO_PRELISTA_START\nconst DEMO_PRELISTA = {demo_json_str};\n// DEMO_PRELISTA_END"
+                    if "// DEMO_PRELISTA_START" in api_content:
+                        api_content = re.sub(
+                            r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
+                            new_demo_block,
+                            api_content,
+                            flags=re.DOTALL
+                        )
+                        with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
+                            f_api_w.write(api_content)
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -151,8 +174,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     "success": True, 
-                    "total_excluidos": len(excluidos),
-                    "mensaje": f"Se guardaron {len(excluidos)} productos excluidos correctamente."
+                    "total": len(productos),
+                    "sheet": sheet,
+                    "mensaje": f"Se grabaron {len(productos)} productos en prelista.html con éxito."
                 }).encode('utf-8'))
             except Exception as e_save:
                 self.send_response(500)
@@ -237,7 +261,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
                 import glob
-                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_excluidos.json", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
+                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_data.json", "prelista_excluidos.json", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
                 for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
                     add_files.extend(glob.glob(img_pat))
                 subprocess.run(["git", "add"] + add_files, capture_output=True)
@@ -489,6 +513,60 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             
             script_url = "https://script.google.com/macros/s/AKfycbwZluWpdw3riIr35gdrHhgdn7cRLcoNOuqQffxbnPIFqFbu2EgsxZffipAs0c4_gDpbKg/exec"
             query_str = parsed_url.query
+            params = urllib.parse.parse_qs(query_str) if query_str else {}
+            sheet_val = params.get('sheet', [''])[0]
+            force_val = params.get('force', [''])[0]
+
+            # Si se piden múltiples hojas separadas por coma o '+'
+            if sheet_val and (',' in sheet_val or '+' in sheet_val):
+                sheet_names = [s.strip() for s in re.split(r'[,+]', sheet_val) if s.strip()]
+                merged_prods = []
+                prods_map = {}
+                available_sheets = []
+                c = ssl.create_default_context()
+                c.check_hostname = False
+                c.verify_mode = ssl.CERT_NONE
+                
+                for s_name in sheet_names:
+                    s_qs = f"sheet={urllib.parse.quote(s_name)}"
+                    if force_val:
+                        s_qs += "&force=1"
+                    try:
+                        r = urllib.request.Request(f"{script_url}?{s_qs}", headers={'User-Agent': 'Mozilla/5.0'})
+                        with urllib.request.urlopen(r, context=c, timeout=25) as resp:
+                            s_data = json.loads(resp.read().decode('utf-8'))
+                            if s_data.get("success") and isinstance(s_data.get("productos"), list):
+                                if s_data.get("availableSheets") and len(s_data["availableSheets"]) > len(available_sheets):
+                                    available_sheets = s_data["availableSheets"]
+                                for prod in s_data["productos"]:
+                                    cod = str(prod.get("codigo", "")).strip().upper()
+                                    if not cod:
+                                        continue
+                                    if cod in prods_map:
+                                        ex = prods_map[cod]
+                                        ex["cajasVienen"] = int(ex.get("cajasVienen", 0)) + int(prod.get("cajasVienen", 0))
+                                        ex["stockReserva"] = int(ex.get("stockReserva", 0)) + int(prod.get("stockReserva", 0))
+                                        if "_origenHojas" not in ex:
+                                            ex["_origenHojas"] = []
+                                        if s_name not in ex["_origenHojas"]:
+                                            ex["_origenHojas"].append(s_name)
+                                    else:
+                                        prod["_origenHojas"] = [s_name]
+                                        prods_map[cod] = prod
+                                        merged_prods.append(prod)
+                    except Exception:
+                        pass
+                
+                resp_payload = {
+                    "success": True,
+                    "sheet": " + ".join(sheet_names),
+                    "availableSheets": available_sheets,
+                    "totalProductos": len(merged_prods),
+                    "productos": merged_prods
+                }
+                self.wfile.write(json.dumps(resp_payload, ensure_ascii=False).encode('utf-8'))
+                return
+
             target_url = f"{script_url}?{query_str}" if query_str else script_url
             try:
                 r = urllib.request.Request(target_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -1428,62 +1506,134 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       <!-- TAB 6: Prelista / Mercadería en Tránsito (Google Sheets) -->
       <div class="tab-content" id="tab-prelista">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="font-size: 8pt; font-weight: 800; color: #38BDF8;">📦 Hoja / Contenedor:</span>
-            <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;" onchange="consultarPrelistaPanel(this.value)">
-              <option value="">(Detectando hojas en vivo...)</option>
-            </select>
+        <!-- 1. Fila de Hoja / Contenedor Google Sheets -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-panel); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span style="font-size: 8pt; font-weight: 800; color: #38BDF8;">📦 Hojas Google Sheets:</span>
+              <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 5px 8px; border-radius: 6px; outline: none; cursor: pointer;">
+                <option value="">(Detectando hojas en vivo...)</option>
+              </select>
+              
+              <button type="button" class="btn-chip" onclick="cargarHojaSeleccionada(false)" title="Cargar solo esta hoja reemplazando la lista" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); font-weight: 700; font-size: 7.5pt; padding: 5px 8px; cursor: pointer;">
+                🔄 Cargar
+              </button>
+
+              <button type="button" class="btn-chip" onclick="cargarHojaSeleccionada(true)" title="Sumar / anexar los productos de esta hoja a la lista sin borrar los existentes" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-weight: 800; font-size: 7.5pt; padding: 5px 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+                ➕ Sumar Hoja
+              </button>
+
+              <button type="button" class="btn-chip" id="btn-toggle-multi-sheets" onclick="toggleMultiSheetsPanel()" title="Marcar varias hojas con casillas y agregarlas todas juntas" style="background: rgba(245, 158, 11, 0.18); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); font-weight: 700; font-size: 7.5pt; padding: 5px 9px; cursor: pointer;">
+                📑 Elegir Varias...
+              </button>
+            </div>
+            
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn-chip" onclick="consultarPrelistaPanel(null, true)" title="Refrescar datos en vivo desde Google Sheets" style="display: flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); cursor: pointer; font-size: 7.5pt;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Sincronizar</span>
+              </button>
+              <a href="/prelista.html" target="_blank" class="btn-chip" style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35); text-decoration: none; font-size: 7.5pt;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                <span>Ver Web Prelista</span>
+              </a>
+            </div>
           </div>
-          <div style="display: flex; gap: 6px;">
-            <button class="btn-chip" onclick="consultarPrelistaPanel(null, true)" title="Refrescar datos en vivo desde Google Sheets" style="display: flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); cursor: pointer;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              <span>Sincronizar</span>
-            </button>
-            <a href="/prelista.html" target="_blank" class="btn-chip" style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35); text-decoration: none;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-              <span>Abrir Web Prelista</span>
-            </a>
+
+          <!-- Panel Desplegable: Selección de Múltiples Hojas -->
+          <div id="multi-sheets-panel" style="display: none; background: rgba(9, 13, 22, 0.95); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 6px; padding: 10px; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 6px;">
+              <span style="font-size: 7.5pt; font-weight: 800; color: #38BDF8;">📑 MARCA LAS HOJAS QUE DESEAS COMBINAR:</span>
+              <div style="display: flex; gap: 4px;">
+                <button type="button" class="btn-chip" onclick="marcarRecientesHojas(2)" style="font-size: 6.8pt; padding: 2px 6px;">Últimas 2</button>
+                <button type="button" class="btn-chip" onclick="marcarRecientesHojas(3)" style="font-size: 6.8pt; padding: 2px 6px;">Últimas 3</button>
+                <button type="button" class="btn-chip" onclick="desmarcarTodasHojas()" style="font-size: 6.8pt; padding: 2px 6px;">Desmarcar</button>
+                <button type="button" onclick="toggleMultiSheetsPanel()" style="background: none; border: none; color: #94A3B8; font-size: 9pt; cursor: pointer; padding: 0 4px;" title="Cerrar panel">✕</button>
+              </div>
+            </div>
+            
+            <div id="multi-sheets-checkboxes-grid" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 110px; overflow-y: auto; padding: 4px; margin-bottom: 8px;">
+              <!-- Se generará dinámicamente -->
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 6px;">
+              <button type="button" class="btn-chip" onclick="cargarHojasSeleccionadasMultiple(false)" style="background: rgba(56, 189, 248, 0.2); color: #38BDF8; border-color: rgba(56, 189, 248, 0.4); font-size: 7.5pt; font-weight: 700; padding: 5px 10px; cursor: pointer;">
+                🔄 Cargar Marcadas (Reemplazar)
+              </button>
+              <button type="button" class="btn-chip" onclick="cargarHojasSeleccionadasMultiple(true)" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-size: 7.5pt; font-weight: 800; padding: 5px 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);">
+                ➕ Sumar Marcadas a la Lista
+              </button>
+            </div>
+          </div>
+
+          <!-- Fila Informativa de Hojas Incluidas Actualmente -->
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 7.5pt; padding-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+            <span style="color: #94A3B8; font-weight: 700;">Hojas en esta prelista:</span>
+            <div id="loaded-sheets-badges" style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <span style="background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 4px; padding: 2px 6px; font-weight: 600;">(Ninguna hoja cargada aún)</span>
+            </div>
           </div>
         </div>
 
-        <!-- Entrada Manual de Códigos para Prelista -->
+        <!-- 2. Entrada Manual de Códigos y Número de Cajas -->
         <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-panel); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
-          <div style="font-size: 7.5pt; font-weight: 800; color: var(--text-muted); margin-bottom: 4px;">
-            <span>➕ METER CÓDIGOS MANUALES AL GENERADOR / PRELISTA:</span>
+          <div style="font-size: 7.5pt; font-weight: 800; color: #38BDF8; margin-bottom: 6px;">
+            <span>➕ AGREGAR CÓDIGOS Y NÚMERO DE CAJAS A LA PRELISTA:</span>
           </div>
-          <div style="display: flex; gap: 6px;">
-            <input type="text" id="prelista-manual-code-input" placeholder="Escribe un código o varios separados por comas (ej: THWS030301, TPBX0171)..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-size: 8pt; font-family: inherit; outline: none;">
-            <button class="btn-chip" onclick="agregarCodigoManualPrelista()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 10px; font-weight: 800; font-size: 8pt; white-space: nowrap; cursor: pointer;">
+          <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+            <input type="text" id="prelista-input-code" placeholder="Código (ej: TPBX0171)" style="flex: 2; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-size: 8pt; outline: none;">
+            <input type="number" id="prelista-input-boxes" placeholder="Cajas" min="1" value="10" style="width: 75px; background: var(--bg-console); border: 1px solid var(--border-panel); color: #34D399; font-weight: bold; padding: 6px 8px; border-radius: 6px; font-size: 8pt; text-align: center; outline: none;">
+            <button class="btn-chip" onclick="agregarItemManualPrelista()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px; font-weight: 800; font-size: 8pt; white-space: nowrap; cursor: pointer;">
               ➕ Agregar
             </button>
           </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <input type="text" id="prelista-multi-input" placeholder="O pega varios (ej: DSM07-115 10, DZR110 5, DMY02-235 8)..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 5px 8px; border-radius: 6px; font-size: 7.5pt; outline: none;">
+            <button class="btn-chip" onclick="agregarMultiplesCodigosPrelista()" style="background: rgba(56, 189, 248, 0.2); color: #38BDF8; border-color: rgba(56, 189, 248, 0.4); font-size: 7.5pt; padding: 5px 8px; white-space: nowrap;">
+              📥 Cargar Varios
+            </button>
+          </div>
         </div>
 
-        <!-- Botones de Acción de Prelista -->
+        <!-- 3. BOTÓN PRINCIPAL DE GENERAR / GRABAR DIRECTO EN LA WEB -->
+        <div style="margin-bottom: 8px;">
+          <button type="button" id="btn-save-prelista-web" onclick="guardarYGrabarWebPrelista()" style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: #FFFFFF; border: 1.5px solid #38BDF8; border-radius: 8px; padding: 10px 14px; font-weight: 800; font-size: 9pt; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); transition: all 0.2s;">
+            <span style="font-size: 13pt;">🚀</span>
+            <span>GUARDAR Y GRABAR EN WEB PRELISTA (<span id="lbl-prelista-count">0</span> productos)</span>
+          </button>
+          <div style="font-size: 7pt; color: #94A3B8; text-align: center; margin-top: 4px;">
+            Graba directamente los productos en <b>prelista.html</b> para que tus clientes los vean al instante sin demoras.
+          </div>
+        </div>
+
         <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-          <button class="btn-chip" id="btn-load-prelista-codes" onclick="cargarCodigosPrelistaAlGenerador()" style="flex-grow: 1; background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.2)); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38BDF8; font-weight: 800; font-size: 8pt; padding: 7px 10px; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;" title="Cargar todos los códigos de esta hoja al generador">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-            <span id="btn-load-prelista-label">📥 Cargar Códigos de Prelista al Generador</span>
+          <button class="btn-chip" onclick="publicarVercelDesdePrelista()" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-weight: 800; font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Subir los cambios de prelista.html a Vercel en la nube">
+            <span>☁️ Publicar en Vercel Ahora</span>
+          </button>
+          <button class="btn-chip" onclick="cargarCodigosPrelistaAlGenerador()" style="flex: 1; background: rgba(255, 255, 255, 0.08); font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Copiar códigos de esta prelista al catálogo principal">
+            <span>📋 Cargar al Catálogo</span>
+          </button>
+          <button class="btn-chip danger" onclick="vaciarPrelistaCache()" style="font-size: 7.5pt; padding: 6px 8px;" title="Limpiar la lista previa">
+            <span>🗑️ Limpiar</span>
           </button>
         </div>
 
-        <!-- Tabla Previa de Mercadería en Tránsito -->
-        <div style="max-height: 160px; overflow-y: auto; background: var(--bg-console); border: 1px solid var(--border-panel); border-radius: 6px; padding: 4px;">
+        <!-- 4. Tabla Previa de Mercadería en Tránsito -->
+        <div style="max-height: 220px; overflow-y: auto; background: var(--bg-console); border: 1px solid var(--border-panel); border-radius: 6px; padding: 4px;">
           <table style="width: 100%; border-collapse: collapse; font-size: 7.5pt; text-align: left;">
             <thead>
               <tr style="color: var(--text-muted); border-bottom: 1px solid var(--border-panel);">
-                <th style="padding: 3px 6px;">CÓDIGO</th>
-                <th style="padding: 3px 6px;">DETALLE</th>
-                <th style="padding: 3px 6px;">VIENEN</th>
-                <th style="padding: 3px 6px;">LIBRES</th>
-                <th style="padding: 3px 6px;">PRECIO CAJA</th>
-                <th style="padding: 3px 6px; text-align: center;">ACCIÓN</th>
+                <th style="padding: 4px 6px;">CÓDIGO</th>
+                <th style="padding: 4px 6px;">DETALLE</th>
+                <th style="padding: 4px 6px; text-align: center;">CAJAS</th>
+                <th style="padding: 4px 6px; text-align: center;">LIBRES</th>
+                <th style="padding: 4px 6px;">PRECIO CAJA</th>
+                <th style="padding: 4px 6px; text-align: center;">ACCIÓN</th>
               </tr>
             </thead>
             <tbody id="prelista-panel-table-body">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-dim);">Abre esta pestaña o haz clic en "Sincronizar" para consultar Google Sheets...</td>
+                <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-dim);">Abre esta pestaña o haz clic en "Sincronizar Hoja" para consultar Google Sheets...</td>
               </tr>
             </tbody>
           </table>
@@ -1877,23 +2027,128 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         if (raw) parseWhatsAppOrder(raw);
       }}
       if (tabId === 'prelista') {{
-        consultarPrelistaPanel();
+        if (!prelistaProductsCache || prelistaProductsCache.length === 0) {{
+          consultarPrelistaPanel();
+        }}
       }}
     }}
 
-    // ─── 0.5. PRELISTA EN EL GENERADOR ───
+    // ─── 0.5. PRELISTA EN EL GENERADOR (MULTIPLE HOJAS) ───
     let prelistaProductsCache = [];
+    let prelistaLoadedSheets = new Set();
+    let availableSheetsCache = [];
 
-    async function consultarPrelistaPanel(sheetName, isForced) {{
+    function updateLoadedSheetsBadges() {{
+      const container = document.getElementById('loaded-sheets-badges');
+      if (!container) return;
+      if (prelistaLoadedSheets.size === 0) {{
+        container.innerHTML = `<span style="background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 4px; padding: 2px 6px; font-weight: 600;">(Ninguna hoja cargada aún)</span>`;
+        return;
+      }}
+      container.innerHTML = Array.from(prelistaLoadedSheets).map(s => {{
+        const count = prelistaProductsCache.filter(p => (p._origenHojas || []).includes(s)).length;
+        const countTxt = count > 0 ? ` (${{count}})` : '';
+        return `
+          <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.18); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; padding: 2px 6px; font-weight: 700;">
+            <span>📦 ${{s}}${{countTxt}}</span>
+            <button type="button" onclick="quitarHojaDePrelista('${{s}}')" title="Quitar productos de ${{s}}" style="background: none; border: none; color: #F87171; font-weight: bold; cursor: pointer; padding: 0 2px; font-size: 8pt; line-height: 1;">✕</button>
+          </span>
+        `;
+      }}).join('');
+    }}
+
+    function updatePrelistaBadge() {{
+      const lbl = document.getElementById('lbl-prelista-count');
+      if (lbl) lbl.textContent = prelistaProductsCache.length;
+      const btnLbl = document.getElementById('btn-load-prelista-label');
+      if (btnLbl) {{
+        btnLbl.innerText = `📋 Cargar Códigos al Catálogo (${{prelistaProductsCache.length}} items)`;
+      }}
+      updateLoadedSheetsBadges();
+    }}
+
+    function fusionarProductosPrelista(nuevosProductos, nombreHoja, modoSumar) {{
+      if (!modoSumar) {{
+        prelistaProductsCache = [];
+        prelistaLoadedSheets.clear();
+      }}
+      
+      if (nombreHoja) {{
+        prelistaLoadedSheets.add(nombreHoja);
+      }}
+
+      let agregadosNuevos = 0;
+      let cajasSumadas = 0;
+
+      nuevosProductos.forEach(np => {{
+        const cod = String(np.codigo || '').toUpperCase().trim();
+        if (!cod) return;
+        
+        const existing = prelistaProductsCache.find(p => String(p.codigo || '').toUpperCase().trim() === cod);
+        if (existing) {{
+          const addCajas = parseInt(np.cajasVienen) || 0;
+          const addReserva = parseInt(np.stockReserva) || addCajas;
+          existing.cajasVienen = (parseInt(existing.cajasVienen) || 0) + addCajas;
+          existing.stockReserva = (parseInt(existing.stockReserva) || 0) + addReserva;
+          if (!existing._origenHojas) existing._origenHojas = [];
+          if (nombreHoja && !existing._origenHojas.includes(nombreHoja)) {{
+            existing._origenHojas.push(nombreHoja);
+          }}
+          cajasSumadas++;
+        }} else {{
+          const cloned = {{ ...np }};
+          cloned._origenHojas = nombreHoja ? [nombreHoja] : ['General'];
+          prelistaProductsCache.push(cloned);
+          agregadosNuevos++;
+        }}
+      }});
+
+      return {{ agregadosNuevos, cajasSumadas }};
+    }}
+
+    function actualizarSelectYCasillasHojas(sheets, currentSelectedSheet) {{
+      const sel = document.getElementById('prelista-panel-sheet-select');
+      if (sel) {{
+        const prevVal = sel.value;
+        sel.innerHTML = '';
+        sheets.forEach(s => {{
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = `📦 ${{s}}`;
+          if (s === currentSelectedSheet || (!currentSelectedSheet && s === prevVal)) {{
+            opt.selected = true;
+          }}
+          sel.appendChild(opt);
+        }});
+        if (currentSelectedSheet) sel.value = currentSelectedSheet;
+      }}
+
+      const grid = document.getElementById('multi-sheets-checkboxes-grid');
+      if (grid) {{
+        grid.innerHTML = sheets.map(s => {{
+          const isAlreadyLoaded = prelistaLoadedSheets.has(s);
+          return `
+            <label style="display: inline-flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.85); border: 1px solid ${{isAlreadyLoaded ? '#10B981' : 'rgba(56, 189, 248, 0.3)'}}; border-radius: 5px; padding: 3px 7px; cursor: pointer; user-select: none; font-size: 7.5pt; font-weight: 700; color: #FFFFFF;">
+              <input type="checkbox" value="${{s}}" class="chk-multi-sheet" ${{isAlreadyLoaded ? 'checked' : ''}} style="accent-color: #0284C7; cursor: pointer;">
+              <span>📦 ${{s}}</span>
+            </label>
+          `;
+        }}).join('');
+      }}
+    }}
+
+    async function consultarPrelistaPanel(sheetName, isForced, appendMode = false) {{
       const tbody = document.getElementById('prelista-panel-table-body');
       const sel = document.getElementById('prelista-panel-sheet-select');
       
-      // Si se pasa sheetName se usa, o si el select ya tiene valor; si no, vacío para autodetectar la más reciente
-      const targetSheet = (sheetName !== undefined && sheetName !== null) ? sheetName : (sel && sel.value ? sel.value : '');
+      const targetSheet = (sheetName !== undefined && sheetName !== null && sheetName !== '')
+        ? sheetName 
+        : (sel && sel.value ? sel.value : '');
       
       if (tbody) {{
+        const accionMsg = appendMode ? 'Sumando datos' : 'Consultando datos';
         const sheetMsg = targetSheet || 'la hoja más reciente';
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">Consultando datos de ${{sheetMsg}} en Google Sheets...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">${{accionMsg}} de ${{sheetMsg}} en Google Sheets...</td></tr>`;
       }}
 
       try {{
@@ -1907,27 +2162,23 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         const data = await res.json();
         
         if (data && Array.isArray(data.productos)) {{
-          prelistaProductsCache = data.productos;
+          const sheetNameLoaded = data.sheet || targetSheet || 'Hoja';
           
-          if (sel && Array.isArray(data.availableSheets)) {{
-            sel.innerHTML = '';
-            data.availableSheets.forEach(s => {{
-              const opt = document.createElement('option');
-              opt.value = s;
-              opt.textContent = `📦 ${{s}}`;
-              if (s === data.sheet) opt.selected = true;
-              sel.appendChild(opt);
-            }});
-            if (data.sheet) sel.value = data.sheet;
+          if (Array.isArray(data.availableSheets) && data.availableSheets.length > 0) {{
+            availableSheetsCache = data.availableSheets;
+            actualizarSelectYCasillasHojas(data.availableSheets, sheetNameLoaded);
           }}
 
-          const btnLbl = document.getElementById('btn-load-prelista-label');
-          if (btnLbl) {{
-            btnLbl.innerText = `📥 Cargar Códigos de Prelista al Generador (${{data.productos.length}} items)`;
-          }}
+          const stats = fusionarProductosPrelista(data.productos, sheetNameLoaded, appendMode);
 
-          renderPrelistaPanelTable(data.productos);
-          log(`[PRELISTA] ¡Éxito! ${{data.productos.length}} productos en tránsito obtenidos de ${{data.sheet}}.`, 'success');
+          updatePrelistaBadge();
+          renderPrelistaPanelTable(prelistaProductsCache);
+
+          if (appendMode) {{
+            log(`[PRELISTA] ¡Hoja ${{sheetNameLoaded}} sumada! (${{stats.agregadosNuevos}} nuevos, ${{stats.cajasSumadas}} coincidencias). Total: ${{prelistaProductsCache.length}} productos.`, 'success');
+          }} else {{
+            log(`[PRELISTA] ¡Éxito! ${{data.productos.length}} productos en tránsito obtenidos de ${{sheetNameLoaded}}.`, 'success');
+          }}
         }} else {{
           throw new Error(data.error || "Formato de datos no reconocido");
         }}
@@ -1939,27 +2190,147 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }}
     }}
 
+    function cargarHojaSeleccionada(esSumar) {{
+      const sel = document.getElementById('prelista-panel-sheet-select');
+      const targetSheet = sel ? sel.value : '';
+      if (!targetSheet) {{
+        alert("Por favor selecciona una hoja de la lista.");
+        return;
+      }}
+      if (!esSumar && prelistaProductsCache.length > 0 && prelistaLoadedSheets.size > 1) {{
+        if (!confirm(`Tienes ${{prelistaProductsCache.length}} productos combinados de varias hojas.\\n\\n¿Deseas REEMPLAZAR todo y cargar únicamente "${{targetSheet}}"?\\n(Si deseas conservar los actuales y añadir esta hoja, haz clic en Cancelar y luego en "➕ Sumar Hoja")`)) {{
+          return;
+        }}
+      }}
+      consultarPrelistaPanel(targetSheet, true, esSumar);
+    }}
+
+    function toggleMultiSheetsPanel() {{
+      const panel = document.getElementById('multi-sheets-panel');
+      if (!panel) return;
+      const isHidden = panel.style.display === 'none' || panel.style.display === '';
+      panel.style.display = isHidden ? 'block' : 'none';
+      if (isHidden && availableSheetsCache.length > 0) {{
+        actualizarSelectYCasillasHojas(availableSheetsCache, null);
+      }}
+    }}
+
+    function marcarRecientesHojas(count) {{
+      const checks = document.querySelectorAll('.chk-multi-sheet');
+      checks.forEach((chk, idx) => {{
+        chk.checked = idx < count;
+      }});
+    }}
+
+    function desmarcarTodasHojas() {{
+      const checks = document.querySelectorAll('.chk-multi-sheet');
+      checks.forEach(chk => {{ chk.checked = false; }});
+    }}
+
+    async function cargarHojasSeleccionadasMultiple(esSumar) {{
+      const checks = Array.from(document.querySelectorAll('.chk-multi-sheet:checked')).map(c => c.value);
+      if (checks.length === 0) {{
+        alert("Marca al menos una casilla de hoja para cargar.");
+        return;
+      }}
+
+      if (!esSumar && prelistaProductsCache.length > 0) {{
+        if (!confirm(`¿Deseas reemplazar la prelista actual y cargar únicamente las ${{checks.length}} hojas marcadas (${{checks.join(', ')}})?`)) {{
+          return;
+        }}
+      }}
+
+      const tbody = document.getElementById('prelista-panel-table-body');
+      if (tbody) {{
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: #38BDF8;">Cargando y combinando ${{checks.length}} hojas: ${{checks.join(', ')}}...</td></tr>`;
+      }}
+
+      if (!esSumar) {{
+        prelistaProductsCache = [];
+        prelistaLoadedSheets.clear();
+      }}
+
+      let errores = [];
+      let hojasCargadas = 0;
+
+      for (const s of checks) {{
+        try {{
+          const res = await fetch(`/api/prelista?sheet=${{encodeURIComponent(s)}}&force=1`);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          if (data && Array.isArray(data.productos)) {{
+            fusionarProductosPrelista(data.productos, s, true);
+            hojasCargadas++;
+            log(`[PRELISTA] Hoja ${{s}} procesada (${{data.productos.length}} productos).`, 'info');
+          }} else {{
+            errores.push(`${{s}}: ${{data.error || 'Sin productos'}}`);
+          }}
+        }} catch(err) {{
+          errores.push(`${{s}}: ${{err.message}}`);
+        }}
+      }}
+
+      updatePrelistaBadge();
+      renderPrelistaPanelTable(prelistaProductsCache);
+
+      const panel = document.getElementById('multi-sheets-panel');
+      if (panel) panel.style.display = 'none';
+
+      if (hojasCargadas > 0) {{
+        log(`[PRELISTA ÉXITO] ¡${{hojasCargadas}} hojas combinadas! Total en prelista: ${{prelistaProductsCache.length}} productos.`, 'success');
+        alert(`🎉 ¡ÉXITO!\\n\\nSe combinaron ${{hojasCargadas}} hojas:\\n• ${{checks.join('\\n• ')}}\\n\\nTotal acumulado: ${{prelistaProductsCache.length}} productos listos en la prelista.`);
+      }}
+      if (errores.length > 0) {{
+        alert(`⚠️ Hubo advertencias al cargar algunas hojas:\\n${{errores.join('\\n')}}`);
+      }}
+    }}
+
+    function quitarHojaDePrelista(sheetName) {{
+      if (!confirm(`¿Deseas quitar los productos de "${{sheetName}}" de la prelista actual?`)) return;
+      prelistaLoadedSheets.delete(sheetName);
+      
+      prelistaProductsCache = prelistaProductsCache.filter(p => {{
+        if (!p._origenHojas || p._origenHojas.length === 0) return true;
+        if (p._origenHojas.length === 1 && p._origenHojas[0] === sheetName) {{
+          return false;
+        }}
+        p._origenHojas = p._origenHojas.filter(h => h !== sheetName);
+        return true;
+      }});
+
+      renderPrelistaPanelTable(prelistaProductsCache);
+      updatePrelistaBadge();
+      log(`[PRELISTA] Hoja ${{sheetName}} retirada de la lista. Quedan ${{prelistaProductsCache.length}} productos.`, 'info');
+    }}
+
     function renderPrelistaPanelTable(prods) {{
       const tbody = document.getElementById('prelista-panel-table-body');
       if (!tbody) return;
 
       if (!prods || prods.length === 0) {{
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No hay productos en esta hoja de prelista.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No hay productos en esta prelista. Agrega códigos arriba o sincroniza una hoja.</td></tr>`;
         return;
       }}
 
       tbody.innerHTML = prods.map(p => {{
-        const isAdded = selectedCodesSet.has(p.codigo.toUpperCase());
+        const origenBadge = (p._origenHojas && p._origenHojas.length > 0)
+          ? `<div style="font-size: 6.5pt; color: #38BDF8; font-weight: 600; margin-top: 1px;">📦 ${{p._origenHojas.join(' + ')}}</div>`
+          : '';
         return `
-          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: ${{isAdded ? 'rgba(56, 189, 248, 0.08)' : 'transparent'}};">
-            <td style="padding: 4px 6px; font-weight: 800; color: #FFFFFF;">${{p.codigo}}</td>
-            <td style="padding: 4px 6px; color: var(--text-main); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{p.detalle}}">${{p.detalle}}</td>
-            <td style="padding: 4px 6px; color: var(--text-muted);">${{p.cajasVienen}} cjs</td>
-            <td style="padding: 4px 6px; font-weight: 700; color: ${{p.stockReserva > 0 ? '#34D399' : '#F87171'}};">${{p.stockReserva}} cjs</td>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+            <td style="padding: 4px 6px; font-weight: 800; color: #FFFFFF;">
+              <div>${{p.codigo}}</div>
+              ${{origenBadge}}
+            </td>
+            <td style="padding: 4px 6px; color: var(--text-main); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{p.detalle}}">${{p.detalle}}</td>
+            <td style="padding: 4px 6px; text-align: center;">
+              <input type="number" min="1" value="${{p.cajasVienen}}" onchange="cambiarCajasPrelista('${{p.codigo}}', this.value)" style="width: 52px; background: #090D16; border: 1px solid #38BDF8; color: #34D399; font-weight: bold; border-radius: 4px; padding: 2px 4px; text-align: center; font-size: 7.5pt;">
+            </td>
+            <td style="padding: 4px 6px; text-align: center; font-weight: 700; color: ${{p.stockReserva > 0 ? '#34D399' : '#F87171'}};">${{p.stockReserva}} cjs</td>
             <td style="padding: 4px 6px; color: var(--primary); font-weight: 700;">US$ ${{Number(p.precioRefUni || 0).toFixed(2)}}</td>
             <td style="padding: 4px 6px; text-align: center;">
-              <button class="btn-chip" onclick="toggleCodigoPrelista('${{p.codigo}}')" style="font-size: 7pt; padding: 2px 6px; background: ${{isAdded ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}}; color: ${{isAdded ? '#FCA5A5' : '#34D399'}};">
-                ${{isAdded ? '✕ Quitar' : '➕ Añadir'}}
+              <button type="button" class="btn-chip danger" onclick="eliminarItemPrelista('${{p.codigo}}')" style="font-size: 7pt; padding: 2px 6px; cursor: pointer;" title="Quitar este producto de la prelista">
+                ❌ Quitar
               </button>
             </td>
           </tr>
@@ -1967,20 +2338,187 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }}).join('');
     }}
 
-    function toggleCodigoPrelista(codigo) {{
+    function eliminarItemPrelista(codigo) {{
       const u = codigo.toUpperCase().trim();
-      if (selectedCodesSet.has(u)) {{
-        selectedCodesSet.delete(u);
-      }} else {{
-        selectedCodesSet.add(u);
+      const idx = prelistaProductsCache.findIndex(p => p.codigo.toUpperCase().trim() === u);
+      if (idx !== -1) {{
+        prelistaProductsCache.splice(idx, 1);
+        renderPrelistaPanelTable(prelistaProductsCache);
+        updatePrelistaBadge();
+        log(`[PRELISTA] Producto ${{u}} quitado de la lista previa.`, 'info');
       }}
-      syncSetToTextarea();
+    }}
+
+    function cambiarCajasPrelista(codigo, val) {{
+      const u = codigo.toUpperCase().trim();
+      const item = prelistaProductsCache.find(p => p.codigo.toUpperCase().trim() === u);
+      if (item) {{
+        const n = parseInt(val) || 1;
+        item.cajasVienen = n;
+        item.stockReserva = n;
+        renderPrelistaPanelTable(prelistaProductsCache);
+      }}
+    }}
+
+    function agregarItemManualPrelista() {{
+      const codeInput = document.getElementById('prelista-input-code');
+      const boxInput = document.getElementById('prelista-input-boxes');
+      const cod = (codeInput ? codeInput.value : '').trim().toUpperCase();
+      const boxes = parseInt(boxInput ? boxInput.value : 10) || 10;
+      if (!cod) {{
+        alert("Escribe el código del producto que deseas agregar a la prelista.");
+        if (codeInput) codeInput.focus();
+        return;
+      }}
+      
+      const invProd = allInventoryProducts.find(p => (p.cod || '').toUpperCase() === cod);
+      const detalle = invProd ? `${{invProd.nombre}} ${{invProd.marca}}` : `PRODUCTO ${{cod}}`;
+      const marca = invProd ? invProd.marca : 'GENERAL';
+      const unidad = invProd ? (invProd.size || 'UNI') : 'UNI';
+      const cantCaja = invProd ? (invProd.inner || 1) : 1;
+      const precio = invProd ? (invProd.precioMayor || 0) : 0;
+
+      const existing = prelistaProductsCache.find(p => p.codigo.toUpperCase() === cod);
+      if (existing) {{
+        existing.cajasVienen = boxes;
+        existing.stockReserva = boxes;
+      }} else {{
+        prelistaProductsCache.unshift({{
+          id: "P_MANUAL_" + Date.now(),
+          codigo: cod,
+          detalle: detalle,
+          marca: marca,
+          cajasVienen: boxes,
+          cantPorCaja: cantCaja,
+          unidad: unidad,
+          precioMayor: precio,
+          precioCaja: precio,
+          precioEspecial: precio,
+          precioRefUni: precio,
+          precioCajaTotal: precio * cantCaja,
+          stockReserva: boxes,
+          agotado: false,
+          _origenHojas: ['Manual']
+        }});
+      }}
+      if (codeInput) codeInput.value = '';
       renderPrelistaPanelTable(prelistaProductsCache);
+      updatePrelistaBadge();
+      log(`[PRELISTA] Producto ${{cod}} (${{boxes}} cajas) agregado.`, 'success');
+    }}
+
+    function agregarMultiplesCodigosPrelista() {{
+      const multiInput = document.getElementById('prelista-multi-input');
+      const val = multiInput ? multiInput.value.trim() : '';
+      if (!val) {{
+        alert("Pega o escribe códigos con sus cajas (ej: DSM07-115 10, DZR110 5, DMY02-235 8).");
+        return;
+      }}
+      const tokens = val.split(/[\\r\\n,]+/);
+      let count = 0;
+      tokens.forEach(tok => {{
+        const parts = tok.trim().split(/\\s+/);
+        if (parts.length > 0 && parts[0]) {{
+          const cod = parts[0].toUpperCase().trim();
+          const boxes = parts.length > 1 ? (parseInt(parts[1]) || 10) : 10;
+          if (cod.length >= 2) {{
+            const invProd = allInventoryProducts.find(p => (p.cod || '').toUpperCase() === cod);
+            const detalle = invProd ? `${{invProd.nombre}} ${{invProd.marca}}` : `PRODUCTO ${{cod}}`;
+            const marca = invProd ? invProd.marca : 'GENERAL';
+            const cantCaja = invProd ? (invProd.inner || 1) : 1;
+            const precio = invProd ? (invProd.precioMayor || 0) : 0;
+
+            const existing = prelistaProductsCache.find(p => p.codigo.toUpperCase() === cod);
+            if (existing) {{
+              existing.cajasVienen = boxes;
+              existing.stockReserva = boxes;
+            }} else {{
+              prelistaProductsCache.push({{
+                id: "P_MANUAL_" + Math.random().toString(36).substr(2, 9),
+                codigo: cod,
+                detalle: detalle,
+                marca: marca,
+                cajasVienen: boxes,
+                cantPorCaja: cantCaja,
+                unidad: invProd ? (invProd.size || 'UNI') : 'UNI',
+                precioMayor: precio,
+                precioCaja: precio,
+                precioEspecial: precio,
+                precioRefUni: precio,
+                precioCajaTotal: precio * cantCaja,
+                stockReserva: boxes,
+                agotado: false,
+                _origenHojas: ['Manual']
+              }});
+            }}
+            count++;
+          }}
+        }}
+      }});
+      if (multiInput) multiInput.value = '';
+      renderPrelistaPanelTable(prelistaProductsCache);
+      updatePrelistaBadge();
+      log(`[PRELISTA] Se cargaron ${{count}} productos a la prelista.`, 'success');
+      alert(`🎉 ¡Listo! Se cargaron ${{count}} producto(s) a la prelista.`);
+    }}
+
+    function vaciarPrelistaCache() {{
+      if (confirm("¿Estás seguro de vaciar la lista de prelista?")) {{
+        prelistaProductsCache = [];
+        prelistaLoadedSheets.clear();
+        renderPrelistaPanelTable(prelistaProductsCache);
+        updatePrelistaBadge();
+      }}
+    }}
+
+    function guardarYGrabarWebPrelista() {{
+      if (!prelistaProductsCache || prelistaProductsCache.length === 0) {{
+        alert("Primero sincroniza una o más hojas o agrega códigos para guardar.");
+        return;
+      }}
+      const sel = document.getElementById('prelista-panel-sheet-select');
+      const sheetNames = Array.from(prelistaLoadedSheets);
+      const sheet = sheetNames.length > 0 
+        ? sheetNames.join(' + ') 
+        : (sel && sel.value ? sel.value : 'Prelista General');
+      
+      log(`[PRELISTA] Guardando y grabando ${{prelistaProductsCache.length}} productos (${{sheet}}) directamente en prelista.html...`, 'info');
+      
+      fetch('/api/prelista/guardar', {{
+        method: 'POST',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{
+          sheet: sheet,
+          productos: prelistaProductsCache,
+          excluidos: []
+        }})
+      }})
+      .then(r => r.json())
+      .then(res => {{
+        if (res.success) {{
+          log(`[PRELISTA ÉXITO] ${{res.mensaje || 'Grabado con éxito.'}}`, 'success');
+          alert(`🎉 ¡WEB PRELISTA GRABADA CON ÉXITO!\\n\\n` +
+                `• Hojas combinadas: ${{sheet}}\\n` +
+                `• Se grabaron ${{prelistaProductsCache.length}} productos en 'prelista.html'.\\n` +
+                `• Ya no requiere conexión lenta ni selección de hoja para tus clientes.\\n\\n` +
+                `🚀 SIGUIENTE PASO:\\n` +
+                `Haz clic en '☁️ Publicar en Vercel Ahora' para subirla en vivo.`);
+        }} else {{
+          alert("Error al grabar: " + (res.error || "Desconocido"));
+        }}
+      }})
+      .catch(err => {{
+        alert("Error de conexión al guardar: " + err.message);
+      }});
+    }}
+
+    function publicarVercelDesdePrelista() {{
+      publicarEnVercel();
     }}
 
     function cargarCodigosPrelistaAlGenerador() {{
       if (prelistaProductsCache.length === 0) {{
-        alert("Primero sincroniza la prelista para cargar sus códigos.");
+        alert("Primero sincroniza o agrega productos a la prelista.");
         return;
       }}
       let agregados = 0;
@@ -1992,32 +2530,8 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         }}
       }});
       syncSetToTextarea();
-      renderPrelistaPanelTable(prelistaProductsCache);
-      log(`[PRELISTA] Se cargaron ${{agregados}} códigos de la prelista a la selección activa.`, 'success');
-      alert(`🎉 ¡Listo! Se cargaron ${{agregados}} códigos de la prelista al Generador de Catálogos.\\nTotal actual listos: ${{selectedCodesSet.size}} códigos.`);
-    }}
-
-    function agregarCodigoManualPrelista() {{
-      const input = document.getElementById('prelista-manual-code-input');
-      const val = input ? input.value.trim() : '';
-      if (!val) {{
-        alert("Escribe uno o varios códigos separados por coma o espacio.");
-        return;
-      }}
-      const tokens = val.split(/[\\s,;]+/);
-      let count = 0;
-      tokens.forEach(t => {{
-        const u = t.toUpperCase().trim();
-        if (u && u.length >= 2) {{
-          selectedCodesSet.add(u);
-          count++;
-        }}
-      }});
-      syncSetToTextarea();
-      input.value = '';
-      renderPrelistaPanelTable(prelistaProductsCache);
-      log(`[MANUAL] Se agregaron ${{count}} código(s) manuales a la lista activa.`, 'success');
-      alert(`¡Listo! Se agregaron ${{count}} código(s) manuales.`);
+      log(`[PRELISTA] Se copiaron ${{agregados}} códigos de prelista a la selección activa.`, 'success');
+      alert(`🎉 ¡Listo! Se copiaron ${{agregados}} códigos de la prelista al Catálogo Principal.\\nTotal códigos listos: ${{selectedCodesSet.size}}`);
     }}
 
     // ─── 1. BÚSQUEDA PREDICTIVA ───

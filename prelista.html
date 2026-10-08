@@ -957,176 +957,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ──── BARRA DE MODO ADMINISTRADOR ──── */
-    .admin-bar {
-      background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
-      border-bottom: 2px solid #F59E0B;
-      padding: 10px 18px;
-      color: #FFFFFF;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    }
-
-    .admin-bar-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .admin-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .admin-badge {
-      background: rgba(245, 158, 11, 0.2);
-      border: 1px solid #F59E0B;
-      color: #FBBF24;
-      font-size: 8pt;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .admin-sheet-picker {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 8pt;
-      color: #94A3B8;
-      font-weight: 700;
-    }
-
-    .admin-sheet-select {
-      background: #090D16;
-      border: 1.5px solid #38BDF8;
-      color: #38BDF8;
-      font-weight: 800;
-      font-size: 8.5pt;
-      padding: 4px 10px;
-      border-radius: 6px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .admin-stats-pill {
-      font-size: 8pt;
-      color: #CBD5E1;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-
-    .admin-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-admin-save {
-      background: linear-gradient(135deg, #16A34A, #15803D);
-      border: none;
-      color: #FFFFFF;
-      font-weight: 800;
-      font-size: 8.5pt;
-      padding: 7px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
-      transition: all 0.2s;
-    }
-
-    .btn-admin-save:hover {
-      background: linear-gradient(135deg, #22C55E, #16A34A);
-      transform: translateY(-1px);
-    }
-
-    .btn-admin-preview {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: #E2E8F0;
-      font-weight: 700;
-      font-size: 8pt;
-      padding: 7px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-admin-preview:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #FFFFFF;
-    }
-
-    .btn-exclude-prod {
-      background: #FEE2E2;
-      border: 1px solid #FCA5A5;
-      color: #DC2626;
-      font-weight: 800;
-      font-size: 7.5pt;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.15s;
-    }
-
-    .btn-exclude-prod:hover {
-      background: #DC2626;
-      color: #FFFFFF;
-      border-color: #DC2626;
-    }
-
-    .btn-restore-prod {
-      background: #DCFCE7;
-      border: 1px solid #86EFAC;
-      color: #15803D;
-      font-weight: 800;
-      font-size: 7.5pt;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.15s;
-    }
-
-    .btn-restore-prod:hover {
-      background: #16A34A;
-      color: #FFFFFF;
-      border-color: #16A34A;
-    }
-
-    .product-card.is-excluded {
-      border: 2px dashed #F87171 !important;
-      background: #FFF5F5 !important;
-      opacity: 0.8;
-    }
-
-    .badge-excluded {
-      background: #DC2626;
-      color: #FFFFFF;
-      font-size: 7pt;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
     /* ──── RESPONSIVE ──── */
     @media (max-width: 768px) {
       .header-content {
@@ -1196,11 +1026,6 @@
       </div>
 
       <div class="header-actions">
-        <button class="btn-refresh" id="btn-admin-mode" onclick="toggleAdminMode()" title="Entrar a Modo Administrador para ocultar productos no vendibles">
-          <span id="btn-admin-icon">⚙️</span>
-          <span id="btn-admin-text">Modo Admin</span>
-        </button>
-
         <button class="btn-refresh" id="btn-refresh" onclick="fetchLiveStock(true)" title="Actualizar datos en tiempo real">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"></polyline>
@@ -1212,32 +1037,6 @@
       </div>
     </div>
   </header>
-
-  <!-- BARRA DE MODO ADMINISTRADOR (SOLO VISIBLE CUANDO EL USUARIO ACTIVA EL MODO ADMIN) -->
-  <div id="admin-bar" class="admin-bar" style="display: none;">
-    <div class="admin-bar-content">
-      <div class="admin-bar-left">
-        <span class="admin-badge">🛠️ MODO ADMINISTRADOR</span>
-        <div class="admin-sheet-picker">
-          <label>Hoja Google Sheets:</label>
-          <select id="admin-sheet-select" class="admin-sheet-select" onchange="switchSheet(this.value)">
-            <option value="">Cargando hojas...</option>
-          </select>
-        </div>
-        <span class="admin-stats-pill" id="admin-stats-text">
-          0 productos activos
-        </span>
-      </div>
-      <div class="admin-bar-right">
-        <button type="button" class="btn-admin-save" onclick="guardarPrelistaAdmin()" title="Guardar lista para que los clientes solo vean los productos aprobados">
-          💾 Guardar y Publicar Prelista
-        </button>
-        <button type="button" class="btn-admin-preview" onclick="toggleAdminMode()" title="Ver la web tal como la verá el cliente">
-          👁️ Vista Cliente
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- CONTROLES, FILTROS Y BÚSQUEDA (VISTA LIMPIA PARA EL CLIENTE) -->
   <section class="controls-wrapper">
@@ -1264,7 +1063,7 @@
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Buscar por código (ej: TPBX0171) o descripción..." oninput="handleSearch(this.value)">
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar por código o descripción..." oninput="handleSearch(this.value)">
         <button id="btn-clear-search" class="btn-clear-search" onclick="clearSearch()" title="Limpiar búsqueda">✕</button>
       </div>
 
@@ -1339,19 +1138,19 @@
             <label style="font-size: 8pt; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px;">
               Nombre Completo o Empresa <span style="color: var(--danger);">*</span>
             </label>
-            <input type="text" id="welcome-input-name" class="form-input" placeholder="Ej: Celso Rivero Colque" required autofocus>
+            <input type="text" id="welcome-input-name" class="form-input" placeholder="" required autofocus>
           </div>
           <div>
             <label style="font-size: 8pt; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px;">
               Celular o WhatsApp <span style="color: var(--danger);">*</span>
             </label>
-            <input type="tel" id="welcome-input-phone" class="form-input" placeholder="Ej: 71234567" required>
+            <input type="tel" id="welcome-input-phone" class="form-input" placeholder="" required>
           </div>
           <div>
             <label style="font-size: 8pt; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
               Ciudad / Destino (opcional)
             </label>
-            <input type="text" id="welcome-input-city" class="form-input" placeholder="Ej: Cochabamba, La Paz, Santa Cruz...">
+            <input type="text" id="welcome-input-city" class="form-input" placeholder="">
           </div>
         </div>
       </div>
@@ -1400,17 +1199,17 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div>
             <label style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Nombre o Empresa *</label>
-            <input type="text" id="cust-name" class="form-input" placeholder="Nombre completo *" required>
+            <input type="text" id="cust-name" class="form-input" placeholder="" required>
           </div>
           <div>
             <label style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Celular / WhatsApp *</label>
-            <input type="tel" id="cust-phone" class="form-input" placeholder="Celular *" required>
+            <input type="tel" id="cust-phone" class="form-input" placeholder="" required>
           </div>
         </div>
 
         <div>
           <label style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Ciudad / Destino</label>
-          <input type="text" id="cust-city" class="form-input" placeholder="Ciudad o Zona de entrega">
+          <input type="text" id="cust-city" class="form-input" placeholder="">
         </div>
       </div>
 
@@ -1431,69 +1230,5123 @@
 
   <!-- JAVASCRIPT DE LA APLICACIÓN -->
   <script>
-    // Estado global de la aplicación
-    let allProducts = [];
-    let cart = {}; // { [codigo]: cajas }
-    let currentSheet = ""; // Detecta automáticamente la hoja más reciente
-    let availableSheetsList = [];
-    let businessPhone = ""; // Si se deja vacío, usa selector normal de WhatsApp
-    let isAdminMode = false;
+    // ──── DATOS Y ESTADO DE LA APLICACIÓN ────
+    /* BAKED_PRELISTA_DATA_START */
+    const BAKED_PRELISTA_DATA = [
+  {
+    "id": "P_0",
+    "codigo": "AGA003",
+    "detalle": "ME - ALARGADOR 3 SALIDAS PS-30B",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 288,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_1",
+    "codigo": "AGM006",
+    "detalle": "ME - ALARGADOR MULTIUSO 6 SALIDA",
+    "marca": "TOTAL",
+    "cajasVienen": 56,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 56,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_2",
+    "codigo": "AGP006",
+    "detalle": "ME - ALARGADOR PLASTICO 6S ZJ-29",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_3",
+    "codigo": "AGP206",
+    "detalle": "ME - ALARGADOR PLASTICO 6 TOMAS NEGRO UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_4",
+    "codigo": "AGP306",
+    "detalle": "ME - ALARGADOR PLASTICO 6 TOMAS GRIS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_5",
+    "codigo": "AL3SD15",
+    "detalle": "ALICATE SET 3PCS No.D15 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 24,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_6",
+    "codigo": "ALL208",
+    "detalle": "ALICATE PICOLORO DELUXE 8",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_7",
+    "codigo": "ALL210",
+    "detalle": "ALICATE PICOLORO DELUXE 10",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_8",
+    "codigo": "ALM205",
+    "detalle": "ALICATE CAIMAN 5'' UYUSTOOLS",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 12,
+    "cantPorCaja": 96,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_9",
+    "codigo": "ALM207",
+    "detalle": "ALICATE CAIMAN 7'' UYUSTOOLS",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 12,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_10",
+    "codigo": "ALM210",
+    "detalle": "ALICATE CAIMAN 10'' UYUSTOOLS",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 80,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_11",
+    "codigo": "ALM4SU",
+    "detalle": "ALICATE CAIMAN 4PCS/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 16,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_12",
+    "codigo": "ALP6D15",
+    "detalle": "ALICATE DE PUNTA 6'' No.D15 UYUALP6D15",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 72,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_13",
+    "codigo": "ALS401",
+    "detalle": "ALICATE 4PCS (SNAP RING) 7'' GRANDE",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 20,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_14",
+    "codigo": "ALS911U",
+    "detalle": "ALICATE PRESIÓN P/SOLDAR 11'' UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 36,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_15",
+    "codigo": "ALU6D15",
+    "detalle": "ALICATE UNIVERSAL 6'' No.D15 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 72,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_16",
+    "codigo": "ALU8D15",
+    "detalle": "ALICATE UNIVERSAL 8'' No.D15 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 48,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_17",
+    "codigo": "AMR102",
+    "detalle": "AMARRA PLASTICA 2.5X100MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 500,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_18",
+    "codigo": "AMR103",
+    "detalle": "AMARRA PLASTICA 2.5X160MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 240,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_19",
+    "codigo": "AMR104",
+    "detalle": "AMARRA PLASTICA 4.8X200MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 60,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_20",
+    "codigo": "AMR105",
+    "detalle": "AMARRA PLASTICA 4.8X300MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 60,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_21",
+    "codigo": "AMR106",
+    "detalle": "AMARRA PLASTICA 4.8X400MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 40,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_22",
+    "codigo": "AMR107",
+    "detalle": "AMARRA PLASTICA 7.5X500MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 20,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_23",
+    "codigo": "AMR135-100",
+    "detalle": "AMARRA PLASTICA 3.5X200MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 160,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_24",
+    "codigo": "AMR145",
+    "detalle": "AMARRA PLASTICA 4.8X250MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 60,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_25",
+    "codigo": "AMR165",
+    "detalle": "AMARRA PLASTICA7.5X400MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 20,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_26",
+    "codigo": "AMR173",
+    "detalle": "AMARRA PLASTICA7.5X300MM NEGRA 100UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 20,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_27",
+    "codigo": "AMR1MC",
+    "detalle": "AMARRA PLASTICA KIT COLOR 1000PCS/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 20,
+    "unidad": "BOLSA",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_28",
+    "codigo": "CBE903U",
+    "detalle": "ME - CABLE EXTENCION C/3TOMAS-3M UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 30,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_29",
+    "codigo": "CBE905U",
+    "detalle": "ME - CABLE EXTENCION C/3TOMAS-5M UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 24,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_30",
+    "codigo": "CBE907U",
+    "detalle": "ME - CABLE EXTENCION C/3TOMAS-7M UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 24,
+    "cantPorCaja": 24,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 24,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_31",
+    "codigo": "CBE910U",
+    "detalle": "ME - CABLE EXTENCION C/3TOMAS-10M UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_32",
+    "codigo": "CBE915U",
+    "detalle": "ME - CABLE EXTENCION C/3TOMAS-15M UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_33",
+    "codigo": "CBE920U",
+    "detalle": "ME - CABLE EXTENCION C/3TOMAS-20M UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 8,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_34",
+    "codigo": "CJH14M",
+    "detalle": "CAJA HERRAMIENTAS PLAST/METALICA 14'' FERTON",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 8,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_35",
+    "codigo": "CJH14P",
+    "detalle": "CAJA HERRAMIENTAS PLASTICA 14'' FERTON",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_36",
+    "codigo": "CJH17M",
+    "detalle": "CAJA HERRAMIENTAS PLAST/METALICA 17'' FERTON",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_37",
+    "codigo": "CJH17P",
+    "detalle": "CAJA HERRAMIENTAS PLASTICA 17'' FERTON",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 9,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_38",
+    "codigo": "CJH19M",
+    "detalle": "CAJA HERRAMIENTAS PLAST/METALICA 19'' FERTON",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_39",
+    "codigo": "CJH19P",
+    "detalle": "CAJA HERRAMIENTAS PLASTICA 19'' FERTON",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_40",
+    "codigo": "CJH22P",
+    "detalle": "CAJA HERRAMIENTAS PLASTICA 22'' FWYY",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_41",
+    "codigo": "CLA006",
+    "detalle": "CALIBRADOR PROF. 6\" 0.02 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_42",
+    "codigo": "CLA106",
+    "detalle": "CALIBRADOR PROF. 6'' 0.05 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_43",
+    "codigo": "CLP06U",
+    "detalle": "CALIBRADOR PLASTICA 6'' UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 240,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_44",
+    "codigo": "CQA18U",
+    "detalle": "HOJA PARA CUCHILLO CARTONERO 18mmx100mm 10UN/SET UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 288,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_45",
+    "codigo": "CRB075",
+    "detalle": "CARGADOR DE BATERIA 12V/9.6A Y 24V/7.5A UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_46",
+    "codigo": "CTA040",
+    "detalle": "CAUTIN 40W",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_47",
+    "codigo": "CTA100",
+    "detalle": "CAUTIN M/M 100W",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_48",
+    "codigo": "CTA150",
+    "detalle": "CAUTIN M/M 150W",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_49",
+    "codigo": "CTA200",
+    "detalle": "CAUTIN M/M 200W",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_50",
+    "codigo": "CTA300",
+    "detalle": "CAUTIN M/M 300W",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 40,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_51",
+    "codigo": "CTP060",
+    "detalle": "CAUTIN M/M PUNTA 60W",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_52",
+    "codigo": "CTU040",
+    "detalle": "CAUTIN M/PLASTICO 40W UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_53",
+    "codigo": "CTU100",
+    "detalle": "CAUTIN M/PLASTICO 100W UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 30,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_54",
+    "codigo": "CTU200",
+    "detalle": "CAUTIN M/PLASTICO 200W UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_55",
+    "codigo": "CTU300",
+    "detalle": "CAUTIN M/PLASTICO 300W UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_56",
+    "codigo": "DCM304",
+    "detalle": "DISCO DESBASTE METAL 115 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 120,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_57",
+    "codigo": "DCM307",
+    "detalle": "DISCO DESBASTE METAL 180 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_58",
+    "codigo": "DCM504",
+    "detalle": "DISCO CORTA METAL 115MMx1.2x22.2 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 400,
+    "cantPorCaja": 400,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 400,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_59",
+    "codigo": "DCM506",
+    "detalle": "DISCO CORTA METAL 150MMx1.6x22.2 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 300,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_60",
+    "codigo": "DCM507",
+    "detalle": "DISCO CORTA METAL 180MMx1.6x22.2 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 200,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_61",
+    "codigo": "DCM509",
+    "detalle": "DISCO CORTA METAL 230MMx1.6x22.2 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_62",
+    "codigo": "DCP610P",
+    "detalle": "DISCO CORTAPASTO PERFORADO 25.4MM X 60T X 255MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 40,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_63",
+    "codigo": "DDP115D",
+    "detalle": "DISCO DIAMOND DE PULIR 115MM DOBLE FILO UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 24,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_64",
+    "codigo": "DDP180D",
+    "detalle": "DISCO DIAMOND DE PULIR 180MM DOBLE FILO UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_65",
+    "codigo": "DDT115",
+    "detalle": "DISCO DIAMANTE ULTRA FINO 115MM UYUS",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 20,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_66",
+    "codigo": "DDU115",
+    "detalle": "DISCO DIAMOND UYUSTOOLS 115 SECO",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 40,
+    "cantPorCaja": 160,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_67",
+    "codigo": "DDU115H",
+    "detalle": "DISCO DIAMOND UYUSTOOLS 115 LISO-HUMEDO",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 20,
+    "cantPorCaja": 160,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_68",
+    "codigo": "DEC901",
+    "detalle": "DESTORN. COMPUTACION CORTA 9PCS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 60,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_69",
+    "codigo": "DEC902",
+    "detalle": "DESTORN. COMPUTACION MEDIANA 9PCS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 48,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_70",
+    "codigo": "DEC903",
+    "detalle": "DESTORN. COMPUTACION LARGA 9PCS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 48,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_71",
+    "codigo": "DEG110",
+    "detalle": "DESTORNILLADORA GOLPE AMARILLA 10\" PLANA UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 96,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_72",
+    "codigo": "DEG12SU",
+    "detalle": "DESTORNILLADOR GOLPE 12PCS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 200,
+    "cantPorCaja": 12,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 200,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_73",
+    "codigo": "DEG210",
+    "detalle": "DESTORNILLADORA GOLPE AMARILLA 10'' CRUZ UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 96,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_74",
+    "codigo": "DEG604",
+    "detalle": "DESTORN. GOLPE UYUSTOOLS 6PCS TIPO 604",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 120,
+    "cantPorCaja": 48,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_75",
+    "codigo": "DEI002",
+    "detalle": "DESTORN. IMPACTO UYUSTOOLS GT101",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 20,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_76",
+    "codigo": "DEM058",
+    "detalle": "DESTORN. MULTIUSO 58PCS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 24,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_77",
+    "codigo": "DEM1X6",
+    "detalle": "DESTORNILLADOR INTERCAMBIABLE 1''-#6(-)PH2 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 288,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_78",
+    "codigo": "DEM2X3",
+    "detalle": "DESTORNILLADOR INTERCAMBIABLE 2''-#3(-)PH0 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 288,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_79",
+    "codigo": "DEM3X5",
+    "detalle": "DESTORNILLADOR INTERCAMBIABLE 3''-#5(-)PH1 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 144,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_80",
+    "codigo": "DEM4X6",
+    "detalle": "DESTORNILLADOR INTERCAMBIABLE 4''-#6(-)PH2 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 400,
+    "cantPorCaja": 144,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 400,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_81",
+    "codigo": "DET21U",
+    "detalle": "DESTORNILLADOR \"T\" 21PCS UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 72,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_82",
+    "codigo": "DLF440M",
+    "detalle": "DISCO LIJA FLAP P/MADERA 115MM #40 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_83",
+    "codigo": "DLF440T",
+    "detalle": "DISCO LIJA FLAP P/METAL 115MM #40 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_84",
+    "codigo": "DLF460M",
+    "detalle": "DISCO LIJA FLAP P/MADERA 115MM #60 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_85",
+    "codigo": "DLF460T",
+    "detalle": "DISCO LIJA FLAP P/METAL 115MM #60 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_86",
+    "codigo": "DLF480M",
+    "detalle": "DISCO LIJA FLAP P/MADERA 115MM #80 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_87",
+    "codigo": "DLF480T",
+    "detalle": "DISCO LIJA FLAP P/METAL 115MM #80 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_88",
+    "codigo": "DLF780M",
+    "detalle": "DISCO LIJA FLAP P/MADERA 180MM #80 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_89",
+    "codigo": "DLF780T",
+    "detalle": "DISCO LIJA FLAP P/METAL 180MM #80 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_90",
+    "codigo": "DMA110L",
+    "detalle": "DISCO CORTA ALUMINIO 250 X 100T UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_91",
+    "codigo": "DMD724",
+    "detalle": "DISCO MADERA 180 X 24T UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_92",
+    "codigo": "DMD740",
+    "detalle": "DISCO MADERA 180 X 40T UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_93",
+    "codigo": "DP115L",
+    "detalle": "DISCO PULIR 115MM LANA BELCRO",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_94",
+    "codigo": "DP180L",
+    "detalle": "DISCO PULIR 180MM LANA CON CUERDA",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_95",
+    "codigo": "DRP115E",
+    "detalle": "DISCO REMOVEDOR DE PINTURA P/ESMERIL 115MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_96",
+    "codigo": "EMA05U",
+    "detalle": "ESMERIL BANCO 5'' 180W/240W UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_97",
+    "codigo": "ENG417",
+    "detalle": "ENGRASADORA 500CC No.E17 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_98",
+    "codigo": "ESE506",
+    "detalle": "ESCOFINA ROTATIVAS 5 PIEZAS PARA METAL 6MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 72,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_99",
+    "codigo": "ETR022",
+    "detalle": "EXTRACTOR DE ROTULA 22MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_100",
+    "codigo": "ETV001",
+    "detalle": "EXTRACTOR PARA RESORTE DE VALVULA UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 36,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_101",
+    "codigo": "EVD001",
+    "detalle": "ENGRAVADORA CON PILA UYU-TW",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 30,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_102",
+    "codigo": "EXT12SU",
+    "detalle": "EXTRACTOR DE RODAMIENTO 12PCS(2\"/3\"/4\") UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 3,
+    "unidad": "SET",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_103",
+    "codigo": "FLG9010",
+    "detalle": "FLEXO GOMA CON 3 FRENOS 10M×25MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 36,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_104",
+    "codigo": "FLG9075",
+    "detalle": "FLEXO GOMA CON 3 FRENOS 7.5M×25MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 72,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_105",
+    "codigo": "FLG9316",
+    "detalle": "FLEXO GOMA CON 3 FRENOS 3M×16MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 120,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_106",
+    "codigo": "FLG9519",
+    "detalle": "FLEXO GOMA CON 3 FRENOS 5M×19MM UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 120,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_107",
+    "codigo": "FLT5X19",
+    "detalle": "FLEXOMETRO TRANSPARANTE 5M*19 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 10,
+    "unidad": "DOC",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_108",
+    "codigo": "FLT7X25",
+    "detalle": "FLEXOMETRO TRANSPARANTE 7.5M*25 UYU",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 6,
+    "unidad": "DOC",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_109",
+    "codigo": "REA006",
+    "detalle": "REMACHADORA 10'' NO.20 UYUSTOOLS",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 120,
+    "cantPorCaja": 24,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_110",
+    "codigo": "REA105",
+    "detalle": "REMACHADORA 105 10\" UYUSTOOLS",
+    "marca": "UYUSTOOLS",
+    "cajasVienen": 20,
+    "cantPorCaja": 24,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 51"
+    ]
+  },
+  {
+    "id": "P_0",
+    "codigo": "MK-GS06",
+    "detalle": "GATA SOPORTE 6T MAKAWA",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_1",
+    "codigo": "MK-GS03",
+    "detalle": "GATA SOPORTE 3T MAKAWA",
+    "marca": "TOTAL",
+    "cajasVienen": 100,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_2",
+    "codigo": "MK-GL05TDP",
+    "detalle": "GATA CAIMAN 5T MAKAWA",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_3",
+    "codigo": "MK-GL03TDP",
+    "detalle": "GATA CAIMAN 3T MAKAWA",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_4",
+    "codigo": "MK-GL02TP",
+    "detalle": "GATA CAIMAN 2T MAKAWA",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_5",
+    "codigo": "MAX-50",
+    "detalle": "CARGADOR DE BATERIA . MASTERMAQ",
+    "marca": "TOTAL",
+    "cajasVienen": 18,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 18,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_6",
+    "codigo": "LT20CX-170F",
+    "detalle": "MOTOBOMBA GASOLINA LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 100,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_7",
+    "codigo": "LT5000IW",
+    "detalle": "GENERADOR DE LUZ . LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_8",
+    "codigo": "LT188F",
+    "detalle": "MOTOR ESTACIONARIO 4TIEMPOS LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_9",
+    "codigo": "14M20-2.2S2",
+    "detalle": "HIDROLAVADORA ALTA PRECION LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_10",
+    "codigo": "LT10000EN-6",
+    "detalle": "GENERADOR DE LUZ 8.5KW LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_11",
+    "codigo": "LT9000EB-8",
+    "detalle": "GENERADOR DE LUZ 7.5KW LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_12",
+    "codigo": "LT8000EB-8",
+    "detalle": "GENERADOR DE LUZ 6.5KW LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_13",
+    "codigo": "LT3600EN-6",
+    "detalle": "GENERADOR DE LUZ 2.8KW LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_14",
+    "codigo": "LT3600EB-8",
+    "detalle": "GENERADOR DE LUZ 2.5 A 2.8KW LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_15",
+    "codigo": "LT170F-",
+    "detalle": "MOTOR ESTACIONARIO 4TIEMPOS VERDE",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_16",
+    "codigo": "LT170F",
+    "detalle": "MOTOR ESTACIONARIO 4TIEMPOS ROJO",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_17",
+    "codigo": "TK-A25MM",
+    "detalle": "CABLE P/MAQUINA SOLDAR TOYAKI",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_19",
+    "codigo": "MAX-30",
+    "detalle": "CARGADOR DE BATERIA . MASTERMAQ",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_20",
+    "codigo": "NV-WP25",
+    "detalle": "MOTOBOMBA A GASOLINA 1\" NEVA",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_21",
+    "codigo": "LT30CX-170F-",
+    "detalle": "MOTOBOMBA A GASOLINA 3\" LUTIAN VERDE",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_22",
+    "codigo": "LT30CX-170F-L",
+    "detalle": "MOTOBOMBA A GASOLINA VERDE. LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 14,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 14,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_23",
+    "codigo": "LT30CX-170F",
+    "detalle": "MOTOBOMBA A GASOLINA . LUTIAN",
+    "marca": "TOTAL",
+    "cajasVienen": 70,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 70,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_24",
+    "codigo": "PMST02Z",
+    "detalle": "PILAR STAND 2200X440",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_25",
+    "codigo": "PMST02D",
+    "detalle": "ZOCALO D/SOPORTE 905",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_26",
+    "codigo": "PMST02C",
+    "detalle": "TABLERO TRASERO SOPO",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_27",
+    "codigo": "PMST02A",
+    "detalle": "CARTEL PUBLICITARIO",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_28",
+    "codigo": "TPMFTB01",
+    "detalle": "BALON D/FUTBOL DIAME",
+    "marca": "TOTAL",
+    "cajasVienen": 2,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 2,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_29",
+    "codigo": "PMTS10.M",
+    "detalle": "CAMISETAS T-M . TOTA",
+    "marca": "TOTAL",
+    "cajasVienen": 2,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 2,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_30",
+    "codigo": "PMTS10.L",
+    "detalle": "CAMISETAS T-L . TOTA",
+    "marca": "TOTAL",
+    "cajasVienen": 2,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 2,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_31",
+    "codigo": "TPBXS101",
+    "detalle": "CJA.HERRAM.APILABLE",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_32",
+    "codigo": "TPBXS103",
+    "detalle": "CJA.HERRAM.APILABLE",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_33",
+    "codigo": "TPBXS102",
+    "detalle": "CJA.HERRAM.APILABLE",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_34",
+    "codigo": "TOSLI260698",
+    "detalle": "KIT HERRAM.COMBINADO",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_35",
+    "codigo": "THT10804",
+    "detalle": "GATA DE PISO HIDRAUL",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_36",
+    "codigo": "TOS230914",
+    "detalle": "JGO/BOLSAS D/HERRAM.",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_38",
+    "codigo": "THT121486",
+    "detalle": "JUEGO LLAVE D/VASO 1",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_39",
+    "codigo": "THTC12008",
+    "detalle": "KIT D/CORTACERAMICA",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_40",
+    "codigo": "WTB2103",
+    "detalle": "JGO/CAJA HERRAMIENTA",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_41",
+    "codigo": "WAG15761",
+    "detalle": "AMOLADORA ANGULAR 71",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_42",
+    "codigo": "WWH3502",
+    "detalle": "CASCO SOLDADURA S5 O",
+    "marca": "TOTAL",
+    "cajasVienen": 8,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 8,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_44",
+    "codigo": "WDT4B119",
+    "detalle": "JGO/HERRAM.MANUAL 20",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_45",
+    "codigo": "TG10711556",
+    "detalle": "AMOLADORA ANGULAR 75",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_46",
+    "codigo": "TH1153216",
+    "detalle": "ROTOMARTILLO 1500W .",
+    "marca": "TOTAL",
+    "cajasVienen": 4,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 4,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_47",
+    "codigo": "TH1153236",
+    "detalle": "ROTOMARTILLO 1500W T",
+    "marca": "TOTAL",
+    "cajasVienen": 4,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 4,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_48",
+    "codigo": "TH118366",
+    "detalle": "ROTOMARTILLO 1800W T",
+    "marca": "TOTAL",
+    "cajasVienen": 4,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 4,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_49",
+    "codigo": "THKISD12206L",
+    "detalle": "JGO. DADOS D.IMPACTO",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_50",
+    "codigo": "THKISD12158L",
+    "detalle": "JGO.DADOS D.IMPACTO",
+    "marca": "TOTAL",
+    "cajasVienen": 64,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 64,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_51",
+    "codigo": "THT1576133",
+    "detalle": "JGO.TIJERAS JARDINER",
+    "marca": "TOTAL",
+    "cajasVienen": 48,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 48,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_52",
+    "codigo": "THT1518001",
+    "detalle": "TIJERAS CORTA SETOS",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_53",
+    "codigo": "THKISD12126L",
+    "detalle": "JGO.DADOS IMPACTO 1/",
+    "marca": "TOTAL",
+    "cajasVienen": 62,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 62,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_54",
+    "codigo": "THKTHP62287",
+    "detalle": "JGO.HERRAM. MANUALES",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_55",
+    "codigo": "TCKLI20358",
+    "detalle": "KIT HERRAM.COMBINADO",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_56",
+    "codigo": "TCKLI20286",
+    "detalle": "KIT HERRAM.COMBINADO",
+    "marca": "TOTAL",
+    "cajasVienen": 64,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 64,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_57",
+    "codigo": "THISEB12031",
+    "detalle": "JGO.BARRAS EXTENSION",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_58",
+    "codigo": "TET01606",
+    "detalle": "SOLDADOR ELECTRICO 7",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_59",
+    "codigo": "TGC5002",
+    "detalle": "MOTOCULTOR GASOLINA",
+    "marca": "TOTAL",
+    "cajasVienen": 24,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 24,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_60",
+    "codigo": "TAC2303558",
+    "detalle": "DISCO ABRASIVO P/COR",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 25,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_61",
+    "codigo": "TIDLI20668",
+    "detalle": "TALADRO PERCUTOR COM",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_62",
+    "codigo": "TW225069",
+    "detalle": "MAQ.SOLAR C.INVERSOR",
+    "marca": "TOTAL",
+    "cajasVienen": 22,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 22,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_63",
+    "codigo": "TS223558",
+    "detalle": "TRONZADORA 2200W TOT",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_64",
+    "codigo": "TIWLI2085",
+    "detalle": "LLAVE DE IMPACTO 20V",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_65",
+    "codigo": "TPBXK0032",
+    "detalle": "JUEGO CAJAS D/HERRAM",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_66",
+    "codigo": "THT106128L",
+    "detalle": "LLAVE TRINQUETE EXTE",
+    "marca": "TOTAL",
+    "cajasVienen": 16,
+    "cantPorCaja": 16,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 16,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_67",
+    "codigo": "TPBX1151",
+    "detalle": "ORGANIZADOR D/PLASTI",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_68",
+    "codigo": "TPBX1121",
+    "detalle": "ORGANIZADOR PLASTICO",
+    "marca": "TOTAL",
+    "cajasVienen": 40,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 40,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_69",
+    "codigo": "TAC2161801",
+    "detalle": "DISCO ABRASIVO P.COR",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 100,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_70",
+    "codigo": "THTS1516306",
+    "detalle": "TIJERAS TELESCOPICAS",
+    "marca": "TOTAL",
+    "cajasVienen": 32,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 32,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_71",
+    "codigo": "TSP9403",
+    "detalle": "GAFAS SOLDADURA OSCU",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 40,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_72",
+    "codigo": "TAC310031",
+    "detalle": "JGO.CEPILLOS ALAMBRE",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 72,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_73",
+    "codigo": "THT32108S",
+    "detalle": "REMACHADORA MANUAL 1",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 24,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_74",
+    "codigo": "TMT311501",
+    "detalle": "PIE DE METRO 6\" . TO",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 50,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_75",
+    "codigo": "TPBX0171",
+    "detalle": "CJA.HERAM.PLASTICO 1",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 8,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_76",
+    "codigo": "THTRS4101",
+    "detalle": "ESLINGA C.TRINQUETE",
+    "marca": "TOTAL",
+    "cajasVienen": 36,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 36,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_77",
+    "codigo": "TSP9306",
+    "detalle": "CASCO SOLDADURA OSC.",
+    "marca": "TOTAL",
+    "cajasVienen": 32,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 32,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_78",
+    "codigo": "THT111113",
+    "detalle": "ALICATES BLOQUEO C.A",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_79",
+    "codigo": "TMT126052",
+    "detalle": "HUINCHA DE MEDIR 5MX",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 60,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_80",
+    "codigo": "TBC1601",
+    "detalle": "CARGADOR DE BATERIA",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_81",
+    "codigo": "TPBXK0031",
+    "detalle": "JUEGO CAJA D/HERRAM.",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_82",
+    "codigo": "TPBX0141",
+    "detalle": "CJA.HERRAM.PLASTICO",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 8,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_83",
+    "codigo": "THWS030301",
+    "detalle": "JGO.CONECTORES RAPID",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 48,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_84",
+    "codigo": "THTRS5101",
+    "detalle": "ESLINGA C.TRINQUETE",
+    "marca": "TOTAL",
+    "cajasVienen": 30,
+    "cantPorCaja": 8,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 30,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_85",
+    "codigo": "THT1K0511",
+    "detalle": "JGO.MINI ALICATES .",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 30,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_86",
+    "codigo": "THT120606P",
+    "detalle": "ALICATES PUNTA LARGA",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 36,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_87",
+    "codigo": "THT10834",
+    "detalle": "GATA D/PISO HIDRAULI",
+    "marca": "TOTAL",
+    "cajasVienen": 120,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_88",
+    "codigo": "THT1061826",
+    "detalle": "LLAVE HEXADECIMAL DE",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 96,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_89",
+    "codigo": "THSPS12216",
+    "detalle": "LLAVE PARA BUJIAS 1/",
+    "marca": "TOTAL",
+    "cajasVienen": 12,
+    "cantPorCaja": 80,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 12,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_90",
+    "codigo": "THHCS05122",
+    "detalle": "JGO.BOQUILLAS GIRATO",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 48,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_91",
+    "codigo": "TH308268-2",
+    "detalle": "ROTOMARTILLO 800W TO",
+    "marca": "TOTAL",
+    "cajasVienen": 26,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 26,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_92",
+    "codigo": "TAC918401",
+    "detalle": "CLAVO BRAD 40MM . TO",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_93",
+    "codigo": "THJS0601",
+    "detalle": "SOPORTE DE GATA 6TON",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_94",
+    "codigo": "THT1K0301",
+    "detalle": "JGO.ALICATES COMBINA",
+    "marca": "TOTAL",
+    "cajasVienen": 18,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 18,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_95",
+    "codigo": "TLL260567",
+    "detalle": "KIT HERRAM.COMBINADO",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_96",
+    "codigo": "THKTHP61757",
+    "detalle": "JGO.HERRAM.MANUAL .",
+    "marca": "TOTAL",
+    "cajasVienen": 2,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 2,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_97",
+    "codigo": "TBC4003",
+    "detalle": "CARGADOR 50HZ 12/24V",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_99",
+    "codigo": "TIDLI206681",
+    "detalle": "TALAD.PERCUTOR COMPA",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_100",
+    "codigo": "TIDLI205581",
+    "detalle": "TALAD.PERCUTOR COMPA",
+    "marca": "TOTAL",
+    "cajasVienen": 2,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 2,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_101",
+    "codigo": "TB8036",
+    "detalle": "SOPLADOR ASPIRADOR 8",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_102",
+    "codigo": "THT10822",
+    "detalle": "GATA D/PISO 2TON HID",
+    "marca": "TOTAL",
+    "cajasVienen": 4,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 4,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_103",
+    "codigo": "TOSLI260285",
+    "detalle": "KIT HERRAMIENTAS 20V",
+    "marca": "TOTAL",
+    "cajasVienen": 44,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 44,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_104",
+    "codigo": "TCKLI2026225",
+    "detalle": "KIT HERRAMIENTAS 20V",
+    "marca": "TOTAL",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_105",
+    "codigo": "TSP9103",
+    "detalle": "CASCO SEGUR.OSCURECI",
+    "marca": "TOTAL",
+    "cajasVienen": 20,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_106",
+    "codigo": "TP523006",
+    "detalle": "GENERADOR 2.0KW A/GA",
+    "marca": "TOTAL",
+    "cajasVienen": 10,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_107",
+    "codigo": "TIWLI20175",
+    "detalle": "LLAVE D/IMPACTO 20V-",
+    "marca": "TOTAL",
+    "cajasVienen": 4,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 4,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_109",
+    "codigo": "THSPP42002",
+    "detalle": "FUMIGADOR DE MOCHILA",
+    "marca": "TOTAL",
+    "cajasVienen": 80,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 80,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_110",
+    "codigo": "TLL3012165",
+    "detalle": "NIVEL LASER 3D 20V/0",
+    "marca": "TOTAL",
+    "cajasVienen": 6,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_111",
+    "codigo": "TABLI20781",
+    "detalle": "SOPLADOR 20V TOTAL",
+    "marca": "TOTAL",
+    "cajasVienen": 14,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 14,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 50"
+    ]
+  },
+  {
+    "id": "P_0",
+    "codigo": "DSM07-115",
+    "detalle": "AMOLADORA ANGULAR 115MM 1020W REGULABLE ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_1",
+    "codigo": "DZR110",
+    "detalle": "CANALEADOR DE PARED 110MM/1600W ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_2",
+    "codigo": "DMY02-235",
+    "detalle": "SIERRA CIRCULAR 2000W/235MM ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_3",
+    "codigo": "DC-PH3040F",
+    "detalle": "CINCEL PH65 HEX 30X400mm FLAT DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_4",
+    "codigo": "DC-PH3040P",
+    "detalle": "CINCEL PH65 HEX 30X400mm POINT DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_5",
+    "codigo": "DMQ65K",
+    "detalle": "CALADORA 600W 65MM CAMBIO RAPIDO ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_6",
+    "codigo": "DZE02-110",
+    "detalle": "CORTAPISO 1200W 115MM DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_7",
+    "codigo": "DSP06-180",
+    "detalle": "PULIDORA 1400W/180MM DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_8",
+    "codigo": "DJZ04-16",
+    "detalle": "TALADRO ALUMINIO TIPO AVION 16MM/1650W DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_9",
+    "codigo": "DMR02-12",
+    "detalle": "TUPI 1850W/12.7MM ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_10",
+    "codigo": "DSJ06-25",
+    "detalle": "RECTIFICADORA 750W 6MM/25MM ''DONGCHENG\"",
+    "marca": "DONG CHENG",
+    "cajasVienen": 6,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_11",
+    "codigo": "DPB30",
+    "detalle": "LLAVE IMPACTO ELECT. DR 1'' 1050W/900N.m M30mm ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 6,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_12",
+    "codigo": "DSM05-230S",
+    "detalle": "AMOLADORA ANGULAR 230MM/2800W ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 100,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_13",
+    "codigo": "DSM150A",
+    "detalle": "AMOLADORA ANGULAR 150MM/1200W ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_14",
+    "codigo": "DJG09-355",
+    "detalle": "TRONZADORA 2600W/355MM ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 100,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_15",
+    "codigo": "DZG06-15",
+    "detalle": "DEMOLEDOR 1600W 48J HEX-30MM DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_16",
+    "codigo": "DZC06-28B",
+    "detalle": "ROTOMARTILLO 28MM/1200W 4.7J SDS-PLUS DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_17",
+    "codigo": "DJX09-255",
+    "detalle": "SIERRA INGLETEADORA CON ENGRANAGE 1800W 5300r/min DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_18",
+    "codigo": "DQF32",
+    "detalle": "SOPLADOR AJUSTABLE 680W 3.2m³/min ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_19",
+    "codigo": "DSM180A",
+    "detalle": "AMOLADORA ANGULAR 180MM/2020W ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 200,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 200,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_20",
+    "codigo": "DQE1200/30L",
+    "detalle": "COMPRESOR OIL-FREE 30L/1200W DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 150,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 150,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_21",
+    "codigo": "DSM07-115H",
+    "detalle": "AMOLADORA ANGULAR 115MM/1020W M/LARGO ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 140,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 140,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_22",
+    "codigo": "DQE1200X2/50L",
+    "detalle": "COMPRESOR OIL-FREE 50L/2400W DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 120,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_23",
+    "codigo": "DSM21-115",
+    "detalle": "AMOLADORA ANGULAR 115MM/900W DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 100,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_24",
+    "codigo": "DCKIT52.01E1F1K",
+    "detalle": "KIT INALAMBRICO 5PCS 20V/(4.0AhX1+5.0Ahx1) DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 100,
+    "cantPorCaja": 1,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_25",
+    "codigo": "DCKIT80.01BK",
+    "detalle": "KIT INALAMBRICO 3PCS (DCSM03-115Z+ DCJZ2060iZ+DCMY02-185Z) 20V/4.0AhX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_26",
+    "codigo": "DQW5.5/7PLUS",
+    "detalle": "HIROLAVADORA 1200W 70Bar 5.5L/min M/HECHADA DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_27",
+    "codigo": "DCKIT26EK",
+    "detalle": "KIT 2PCS (DCPL208+ DCJZ2060i) 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_28",
+    "codigo": "DCKIT42.01BK",
+    "detalle": "KIT INALAMBRICO 3PCS (DCSM03-115Z+ DCJZ2060iZ+DCPB488Z) 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_29",
+    "codigo": "DCKIT51.01BK",
+    "detalle": "KIT INALAMBRICO 3PCS (DCSM03-115Z+ DCJZ2060iZ+DCZC04-24Z) 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 2,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_30",
+    "codigo": "DCKIT77EK",
+    "detalle": "KIT INALAMBRICO 2PCS (DCPB488Z + DCJZ2060iZ) 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_31",
+    "codigo": "DCKIT34.04EK",
+    "detalle": "KIT INALAMBRICO 2PCS (DCSM03-115Z+ DCJZ2060iZ) 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_32",
+    "codigo": "FFBL2040",
+    "detalle": "BATERIA LITIO 20V/4.0Ah DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 4,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 4,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_33",
+    "codigo": "DZJ16",
+    "detalle": "TALADRO IMPACTO 13MM 710W ''DONGCHENG''",
+    "marca": "DONG CHENG",
+    "cajasVienen": 120,
+    "cantPorCaja": 8,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 120,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_34",
+    "codigo": "DCPL208EM",
+    "detalle": "DESTORNILLADOR INA. MOTOR BL 6.35MM 208N.m 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_35",
+    "codigo": "DCJZ2060iEM",
+    "detalle": "TALADRO IMPACTO INA. MOTOR BL 13MM 60N.m 20V/4.0AhX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 60,
+    "cantPorCaja": 6,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 60,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_36",
+    "codigo": "DCPB968FK",
+    "detalle": "LLAVE IMPACTO INA. BRUSHLESS 1/2\" 900W 968N.m 20V/5.0AhX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 46,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 46,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_37",
+    "codigo": "DCSM03-115EM",
+    "detalle": "AMOLADORA INA. MOTOR/BL 115MM/630W 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_38",
+    "codigo": "DCSM03-115Z",
+    "detalle": "AMOLADORA INA. MOTOR/BL 115MM/630W SOLO DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 10,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_39",
+    "codigo": "DCSM04-115Z",
+    "detalle": "AMOLADORA INA. MOTOR/BL 115MM/1000W (3 VELOCIDADES) SOLO DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_40",
+    "codigo": "DCSM04-115EM",
+    "detalle": "AMOLADORA INA. MOTOR/BL 115MM/1000W (3 VELOCIDADES) 20V/4.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_41",
+    "codigo": "DCPB698FK",
+    "detalle": "LLAVE IMPACTO INA. BRUSHLESS 1/2\" M24 750W/698N.m 20V/5.0AhX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_42",
+    "codigo": "DCPB1288FK",
+    "detalle": "LLAVE IMPACTO INA. BRUSHLESS 3/4\" 1288N.m 20V/5.0AhX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_43",
+    "codigo": "DCCS20101BM",
+    "detalle": "MOTOSIERRA INA. BL 10\" 900W 20V/4.0AhX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 4,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_44",
+    "codigo": "DCZC02-28H2K",
+    "detalle": "ROTOMARTILLO INA. MOTOR/BL 28MM/1000W/3.5J 20V/5.0Ahx2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 20,
+    "cantPorCaja": 3,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 20,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_45",
+    "codigo": "DCPB698Z",
+    "detalle": "LLAVE IMPACTO INA. BRUSHLESS 1/2\" M24 750W/698N.m SOLO DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_46",
+    "codigo": "DCJZ03-13Z",
+    "detalle": "TALADRO INA. IMPACTO MOTOR BL 13MM 120N.m SOLO DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 12,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_47",
+    "codigo": "DCJZ2060iZ",
+    "detalle": "TALADRO IMPACTO INA. MOTOR BL 13MM 60N.m SOLO DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 10,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 10,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_48",
+    "codigo": "DCJZ03-13EM",
+    "detalle": "TALADRO INA. IMPACTO MOTOR BL 13MM/850W 120N.m 20V/4.0AX2 DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 100,
+    "cantPorCaja": 5,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 100,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  },
+  {
+    "id": "P_49",
+    "codigo": "FFBL2050",
+    "detalle": "BATERIA LITIO 20V/5.0Ah DONGCHENG",
+    "marca": "DONG CHENG",
+    "cajasVienen": 6,
+    "cantPorCaja": 20,
+    "unidad": "UNI",
+    "precioMayor": 0,
+    "precioCaja": 0,
+    "precioEspecial": 0,
+    "precioRefUni": 0,
+    "precioCajaTotal": 0,
+    "stockReserva": 6,
+    "agotado": false,
+    "_origenHojas": [
+      "Hoja 49"
+    ]
+  }
+];
+    /* BAKED_PRELISTA_DATA_END */
 
-    // Lista de códigos excluidos (que el admin decide ocultar para los clientes)
-    const DEFAULT_EXCLUDED = /* DEFAULT_EXCLUDED_START */ ["SUM022", "DC-LLAVERO"] /* DEFAULT_EXCLUDED_END */;
-    let excludedCodesSet = new Set(DEFAULT_EXCLUDED.map(c => String(c).toUpperCase().trim()));
+    let allProducts = (Array.isArray(BAKED_PRELISTA_DATA) && BAKED_PRELISTA_DATA.length > 0) ? BAKED_PRELISTA_DATA : [];
+    let cart = {}; // { [codigo]: cajas }
+    let businessPhone = "";
 
     // 1. INICIALIZACIÓN
     document.addEventListener("DOMContentLoaded", () => {
-      // Cargar parámetros de URL (?cliente=..., ?c=..., ?sheet=..., ?hoja=..., ?admin=1)
       const urlParams = new URLSearchParams(window.location.search);
       const urlClient = urlParams.get('cliente') || urlParams.get('c');
-      const urlSheet = urlParams.get('sheet') || urlParams.get('hoja');
       const savedClient = localStorage.getItem('prelista_client_name');
       const savedPhone = localStorage.getItem('prelista_client_phone');
-
-      if (urlSheet) {
-        currentSheet = urlSheet.trim();
-      }
 
       if (urlClient) {
         setClientName(urlClient, true);
       } else if (savedClient) {
         setClientName(savedClient, false);
       } else {
-        // Pedir nombre automáticamente al ingresar
         openWelcomeModal(false);
       }
 
-      // Cargar exclusiones guardadas en localStorage
-      try {
-        const savedExcluded = localStorage.getItem('prelista_excluded_codes');
-        if (savedExcluded) {
-          const arr = JSON.parse(savedExcluded);
-          if (Array.isArray(arr)) {
-            arr.forEach(c => excludedCodesSet.add(String(c).toUpperCase().trim()));
-          }
-        }
-      } catch(e) {}
-
-      // Intentar cargar prelista_excluidos.json si el servidor local o estático lo tiene
-      fetch('/prelista_excluidos.json')
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
-          if (d && Array.isArray(d.excluidos)) {
-            d.excluidos.forEach(c => excludedCodesSet.add(String(c).toUpperCase().trim()));
-            renderProducts();
-            updateAdminStats();
-          }
-        })
-        .catch(() => {});
-
-      // Activar modo admin si se pide por URL (?admin=1) o sesión guardada
-      if (urlParams.get('admin') === '1' || sessionStorage.getItem('prelista_admin_active') === '1') {
-        setAdminMode(true);
-      }
-
-      // Cargar datos previos de destino/teléfono
       try {
         const savedCity = localStorage.getItem('prelista_client_city');
         if (savedCity) {
@@ -1506,125 +6359,29 @@
         }
       } catch(e) {}
 
-      // Cargar productos en vivo
+      // Si tenemos productos grabados, mostrarlos de inmediato (0ms de espera)
+      if (allProducts.length > 0) {
+        populateBrandFilter();
+        renderProducts();
+        updateBottomBar();
+      }
+
+      // Cargar prelista_data.json para asegurar datos completos sincronizados
+      fetch('/prelista_data.json')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d && Array.isArray(d.productos) && d.productos.length > 0) {
+            allProducts = d.productos;
+            populateBrandFilter();
+            renderProducts();
+            updateBottomBar();
+          }
+        })
+        .catch(() => {});
+
+      // Sincronización en segundo plano con el servidor
       fetchLiveStock();
     });
-
-    // 1.1. GESTIÓN DE MODO ADMINISTRADOR (OCULTAR / MOSTRAR PRODUCTOS)
-    function toggleAdminMode() {
-      setAdminMode(!isAdminMode);
-    }
-
-    function setAdminMode(active) {
-      isAdminMode = active;
-      sessionStorage.setItem('prelista_admin_active', active ? '1' : '0');
-
-      const adminBar = document.getElementById('admin-bar');
-      const btnAdmin = document.getElementById('btn-admin-mode');
-      const btnText = document.getElementById('btn-admin-text');
-
-      if (adminBar) adminBar.style.display = active ? 'block' : 'none';
-      if (btnAdmin) {
-        if (active) {
-          btnAdmin.style.background = '#F59E0B';
-          btnAdmin.style.color = '#0F172A';
-          btnAdmin.style.borderColor = '#F59E0B';
-          if (btnText) btnText.textContent = "Admin Activo ✓";
-        } else {
-          btnAdmin.style.background = '';
-          btnAdmin.style.color = '';
-          btnAdmin.style.borderColor = '';
-          if (btnText) btnText.textContent = "Modo Admin";
-        }
-      }
-
-      renderProducts();
-      updateAdminStats();
-
-      if (active) {
-        showToast("🛠️ Modo Administrador activado: puedes ocultar productos.");
-      } else {
-        showToast("👁️ Vista previa de Cliente activada.");
-      }
-    }
-
-    function toggleExcludeProduct(codigo) {
-      const u = String(codigo).toUpperCase().trim();
-      if (excludedCodesSet.has(u)) {
-        excludedCodesSet.delete(u);
-        showToast(`↩️ Producto ${codigo} restaurado (será visible para clientes).`);
-      } else {
-        excludedCodesSet.add(u);
-        // Si el usuario tenía cajas seleccionadas de ese producto, quitarlas
-        if (cart[codigo]) {
-          delete cart[codigo];
-          updateBottomBar();
-        }
-        showToast(`🗑️ Producto ${codigo} ocultado (no se venderá a clientes).`);
-      }
-
-      // Guardar de inmediato en localStorage del navegador
-      try {
-        localStorage.setItem('prelista_excluded_codes', JSON.stringify(Array.from(excludedCodesSet)));
-      } catch(e) {}
-
-      renderProducts();
-      updateAdminStats();
-    }
-
-    function updateAdminStats() {
-      const statsPill = document.getElementById('admin-stats-text');
-      if (!statsPill) return;
-      const totalProds = allProducts.length;
-      let countExcluidos = 0;
-      allProducts.forEach(p => {
-        if (excludedCodesSet.has(String(p.codigo).toUpperCase().trim())) {
-          countExcluidos++;
-        }
-      });
-      const visibles = totalProds - countExcluidos;
-      statsPill.textContent = `${visibles} productos visibles | 🚫 ${countExcluidos} excluidos`;
-    }
-
-    async function guardarPrelistaAdmin() {
-      const excluidosArr = Array.from(excludedCodesSet);
-      try {
-        localStorage.setItem('prelista_excluded_codes', JSON.stringify(excluidosArr));
-      } catch(e) {}
-
-      showToast("💾 Guardando cambios de la prelista...");
-
-      try {
-        const res = await fetch('/api/prelista/guardar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sheet: currentSheet,
-            excluidos: excluidosArr
-          })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          alert(`🎉 ¡LISTA GUARDADA CON ÉXITO!\n\n` +
-                `• Total de productos ocultados: ${excluidosArr.length}\n` +
-                `• Los clientes NO podrán ver ni comprar los productos ocultados.\n\n` +
-                `🚀 PARA PUBLICAR EN VERCEL:\n` +
-                `Haz doble clic en el archivo 'Publicar_en_Vercel.bat' en tu carpeta.\n` +
-                `En 15 segundos estará en vivo para todos los clientes.`);
-        } else {
-          alert(`✅ Guardado en tu navegador.\n` +
-                `Productos ocultados: ${excluidosArr.length}.\n\n` +
-                `Asegúrate de tener abierta la aplicación web_generator.py para que guarde los archivos automáticamente.`);
-        }
-      } catch(err) {
-        alert(`✅ Guardado en tu navegador.\n` +
-              `Productos ocultados: ${excluidosArr.length}.\n\n` +
-              `Para aplicar a todos los clientes en la web, ejecuta Publicar_en_Vercel.bat.`);
-      }
-
-      updateAdminStats();
-    }
 
     // 2. MODAL DE BIENVENIDA / REGISTRO OBLIGATORIO
     function openWelcomeModal(canClose = true) {
@@ -1699,7 +6456,6 @@
 
       try {
         const queryParams = new URLSearchParams();
-        if (currentSheet) queryParams.set('sheet', currentSheet);
         if (isManual) queryParams.set('force', '1');
 
         const fetchUrl = `/api/prelista${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
@@ -1707,62 +6463,34 @@
         if (!res.ok) throw new Error("Error en la conexión");
 
         const data = await res.json();
-        if (data && Array.isArray(data.productos)) {
-          allProducts = data.productos;
-          if (data.sheet) {
-            currentSheet = data.sheet;
+        if (data && Array.isArray(data.productos) && data.productos.length > 0) {
+          if (data.productos.length >= allProducts.length || allProducts.length === 0) {
+            allProducts = data.productos;
+          } else {
+            // Si la respuesta en vivo contiene menos productos (ej: una sola hoja),
+            // actualizar stock de reserva de los coincidentes sin perder los de otras hojas
+            const freshMap = new Map(data.productos.map(p => [String(p.codigo || '').toUpperCase().trim(), p]));
+            allProducts.forEach(p => {
+              const fresh = freshMap.get(String(p.codigo || '').toUpperCase().trim());
+              if (fresh) {
+                p.stockReserva = fresh.stockReserva;
+                p.cajasVienen = fresh.cajasVienen;
+                p.agotado = fresh.stockReserva <= 0;
+              }
+            });
           }
-
-          if (Array.isArray(data.availableSheets)) {
-            availableSheetsList = data.availableSheets;
-            populateSheetFilter(data.availableSheets, currentSheet);
-          }
-
           populateBrandFilter();
           renderProducts();
-          updateAdminStats();
-
           if (isManual) {
-            showToast(`✅ Prelista sincronizada.`);
+            showToast(`✅ Prelista sincronizada (${allProducts.length} productos).`);
           }
         }
       } catch (err) {
-        console.warn("Aviso de conexión:", err);
+        console.warn("Aviso de sincronización:", err);
       } finally {
         if (btnRefresh) btnRefresh.classList.remove('spinning');
         if (btnText) btnText.textContent = "Sincronizar";
       }
-    }
-
-    // 3.1. POBLAR SELECTOR DE HOJAS EN MODO ADMINISTRADOR
-    function populateSheetFilter(sheets, selectedSheet) {
-      const select = document.getElementById('admin-sheet-select');
-      if (!select) return;
-
-      select.innerHTML = '';
-      sheets.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = `📦 ${s}`;
-        if (s === selectedSheet) opt.selected = true;
-        select.appendChild(opt);
-      });
-
-      if (selectedSheet) {
-        select.value = selectedSheet;
-      }
-    }
-
-    function switchSheet(sheetName) {
-      if (!sheetName || sheetName === currentSheet) return;
-      currentSheet = sheetName;
-
-      // Actualizar URL sin recargar para compartir enlace directo si se desea
-      const url = new URL(window.location);
-      url.searchParams.set('sheet', sheetName);
-      window.history.replaceState({}, '', url);
-
-      fetchLiveStock(true);
     }
 
     // 4. POBLAR FILTRO DE MARCAS
@@ -1787,7 +6515,7 @@
       }
     }
 
-    // 5. RENDERIZAR PRODUCTOS
+    // 5. RENDERIZAR PRODUCTOS (VISTA DIRECTA PARA CLIENTES)
     function renderProducts() {
       const container = document.getElementById('products-list');
       const searchTerm = (document.getElementById('search-input').value || '').trim().toUpperCase();
@@ -1796,11 +6524,6 @@
       const onlyReserved = document.getElementById('check-only-reserved').checked;
 
       let filtered = allProducts.filter(p => {
-        const isExcluded = excludedCodesSet.has(String(p.codigo).toUpperCase().trim());
-        // En Modo Cliente (NO admin), los productos excluidos se ocultan al 100%
-        if (!isAdminMode && isExcluded) {
-          return false;
-        }
         if (onlyReserved && (!cart[p.codigo] || cart[p.codigo] <= 0)) {
           return false;
         }
@@ -1812,7 +6535,7 @@
         }
         if (searchTerm) {
           const inCode = p.codigo.toUpperCase().includes(searchTerm);
-          const inDetail = p.detalle.toUpperCase().includes(searchTerm);
+          const inDetail = (p.detalle || '').toUpperCase().includes(searchTerm);
           if (!inCode && !inDetail) return false;
         }
         return true;
@@ -1820,8 +6543,6 @@
 
       document.getElementById('stats-count').textContent = filtered.length;
       let totalAvailableBoxes = filtered.reduce((sum, p) => {
-        const isExcluded = excludedCodesSet.has(String(p.codigo).toUpperCase().trim());
-        if (isExcluded) return sum;
         return sum + (p.stockReserva > 0 ? p.stockReserva : 0);
       }, 0);
       document.getElementById('stats-total-boxes').textContent = totalAvailableBoxes;
@@ -1838,21 +6559,15 @@
       }
 
       container.innerHTML = filtered.map(p => {
-        const isExcluded = excludedCodesSet.has(String(p.codigo).toUpperCase().trim());
         const qty = cart[p.codigo] || 0;
         const isSelected = qty > 0;
         const isSoldOut = p.stockReserva <= 0;
-        const maxAllowed = p.stockReserva > 0 ? p.stockReserva : 0;
-
-        // Limpiar posible valor negativo o erróneo en cajas que vienen
         const cajasLlegan = (p.cajasVienen && p.cajasVienen > 0) ? p.cajasVienen : 0;
-
-        // Rutas potenciales de imágenes de producto
         const imgWebp = `/temp_imgs/prod_${p.codigo}.webp`;
         const imgPng = `/temp_imgs/prod_${p.codigo}.png`;
 
         return `
-          <div class="product-card ${isSelected ? 'has-selection' : ''} ${isSoldOut ? 'is-sold-out' : ''} ${isExcluded ? 'is-excluded' : ''}" id="card-${p.codigo}">
+          <div class="product-card ${isSelected ? 'has-selection' : ''} ${isSoldOut ? 'is-sold-out' : ''}" id="card-${p.codigo}">
             
             <!-- Foto del Producto -->
             <div class="product-img-wrapper">
@@ -1860,7 +6575,7 @@
                    onerror="this.onerror=null; this.src='${imgPng}'; this.onerror=() => { this.style.display='none'; this.nextElementSibling.style.display='flex'; }">
               <div class="product-img-placeholder" style="display: none;">
                 <span style="font-size: 14pt; margin-bottom: 2px;">📦</span>
-                <span>${escapeHtml(p.marca)}</span>
+                <span>${escapeHtml(p.marca || '')}</span>
               </div>
             </div>
 
@@ -1868,35 +6583,14 @@
             <div class="product-info-col">
               <div class="product-meta-row">
                 <span class="code-pill">${p.codigo}</span>
-                <span class="brand-tag">${p.marca}</span>
-                
-                ${isExcluded ? `
-                  <span class="badge-excluded">⛔ EXCLUIDO PARA CLIENTES</span>
-                ` : `
-                  <span class="stock-chip ${isSoldOut ? 'sold-out' : 'available'}">
-                    ${isSoldOut ? '🔴 Agotado en Preventa' : `🟢 Cupo libre: ${p.stockReserva} cajas`}
-                  </span>
-                `}
-
+                <span class="brand-tag">${p.marca || ''}</span>
+                <span class="stock-chip ${isSoldOut ? 'sold-out' : 'available'}">
+                  ${isSoldOut ? '🔴 Agotado en Preventa' : `🟢 Cupo libre: ${p.stockReserva} cajas`}
+                </span>
                 ${cajasLlegan > 0 && cajasLlegan !== p.stockReserva ? `
                   <span style="font-size: 7.5pt; color: var(--text-muted);">
                     (Llegan ${cajasLlegan} cajas)
                   </span>
-                ` : ''}
-
-                <!-- Botón de Administrador para Excluir o Restaurar -->
-                ${isAdminMode ? `
-                  <div style="margin-left: auto;">
-                    ${isExcluded ? `
-                      <button type="button" class="btn-restore-prod" onclick="toggleExcludeProduct('${p.codigo}')" title="Volver a permitir este producto para que los clientes lo vean">
-                        ↩️ Restaurar (Volver a Vender)
-                      </button>
-                    ` : `
-                      <button type="button" class="btn-exclude-prod" onclick="toggleExcludeProduct('${p.codigo}')" title="Ocultar este producto para que ningún cliente lo vea">
-                        🗑️ Ocultar (No Vender)
-                      </button>
-                    `}
-                  </div>
                 ` : ''}
               </div>
 
@@ -1904,16 +6598,16 @@
 
               <div class="product-specs-row">
                 <span class="spec-item">
-                  📦 Empaque: <strong>${p.cantPorCaja} ${p.unidad} por caja</strong>
+                  📦 Empaque: <strong>${p.cantPorCaja || 1} ${p.unidad || 'UNI'} por caja</strong>
                 </span>
                 <span class="spec-item">
-                  🏷️ Unidad: <strong>${p.unidad}</strong>
+                  🏷️ Unidad: <strong>${p.unidad || 'UNI'}</strong>
                 </span>
               </div>
             </div>
 
-            <!-- Selector de Cantidad de Cajas (Solo si no está excluido) -->
-            <div class="controls-col" style="${isExcluded ? 'opacity: 0.3; pointer-events: none;' : ''}">
+            <!-- Selector de Cantidad de Cajas -->
+            <div class="controls-col">
               <div style="font-size: 7.5pt; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
                 Cajas a apartar:
               </div>
