@@ -10,12 +10,17 @@ env/
 *.xlsx
 *.xls
 505AC000
+9FD49F00
+[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]
 
 # Carpeta temporal de imágenes descargadas / generadas
 temp_imgs/
 
 # Archivos PDF generados (para no sobrecargar el repositorio)
 *.pdf
+
+# Archivos temporales o de prueba
+update_prelista_baked.py
 
 # Archivos del sistema
 Thumbs.db

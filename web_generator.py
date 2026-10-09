@@ -371,32 +371,7 @@ def sincronizar_imagenes_prelista_existente():
                 with open("prelista.html", "w", encoding="utf-8") as f_hw:
                     f_hw.write(html_content)
 
-            # También sincronizar api/prelista.js para Vercel
-            if os.path.exists("api/prelista.js"):
-                try:
-                    with open("api/prelista.js", "r", encoding="utf-8") as f_api:
-                        api_content = f_api.read()
-                    demo_payload = {
-                        "success": True,
-                        "sheet": data.get("sheet", "Prelista"),
-                        "availableSheets": data.get("availableSheets", ["Prelista"]),
-                        "totalProductos": len(productos),
-                        "actualizadoEn": datetime.now().isoformat(),
-                        "productos": productos
-                    }
-                    demo_json_str = json.dumps(demo_payload, ensure_ascii=False, indent=2)
-                    new_demo_block = f"// DEMO_PRELISTA_START\nconst DEMO_PRELISTA = {demo_json_str};\n// DEMO_PRELISTA_END"
-                    if "// DEMO_PRELISTA_START" in api_content:
-                        api_content = re.sub(
-                            r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
-                            lambda m: new_demo_block,
-                            api_content,
-                            flags=re.DOTALL
-                        )
-                        with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
-                            f_api_w.write(api_content)
-                except Exception as e_api_err:
-                    print(f"[INICIO PRELISTA AVISO] No se pudo actualizar api/prelista.js: {e_api_err}")
+            # Nota: No inyectar catálogo/fotos en api/prelista.js para no superar el límite de 1MB de Vercel Edge Runtime
 
             print(f"[INICIO PRELISTA OK] ¡Fotos de prelista horneadas exitosamente!")
     except Exception as e_sync:
@@ -478,31 +453,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     with open("prelista.html", "w", encoding="utf-8") as f_html_w:
                         f_html_w.write(html_content)
 
-                # 4. Actualizar DEMO_PRELISTA en api/prelista.js para Vercel Edge Runtime
-                if os.path.exists("api/prelista.js"):
-                    with open("api/prelista.js", "r", encoding="utf-8") as f_api:
-                        api_content = f_api.read()
-
-                    sheet_list = [s.strip() for s in re.split(r'[,+]', str(sheet)) if s.strip()]
-                    demo_payload = {
-                        "success": True,
-                        "sheet": sheet,
-                        "availableSheets": sheet_list if sheet_list else [sheet],
-                        "totalProductos": len(productos),
-                        "actualizadoEn": datetime.now().isoformat(),
-                        "productos": productos
-                    }
-                    demo_json_str = json.dumps(demo_payload, ensure_ascii=False, indent=2)
-                    new_demo_block = f"// DEMO_PRELISTA_START\nconst DEMO_PRELISTA = {demo_json_str};\n// DEMO_PRELISTA_END"
-                    if "// DEMO_PRELISTA_START" in api_content:
-                        api_content = re.sub(
-                            r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
-                            lambda m: new_demo_block,
-                            api_content,
-                            flags=re.DOTALL
-                        )
-                        with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
-                            f_api_w.write(api_content)
+                # Nota: No inyectar catálogo/fotos en api/prelista.js para no superar el límite de 1MB de Vercel Edge Runtime
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -597,7 +548,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
                 import glob
-                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_data.json", "prelista_excluidos.json", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
+                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_data.json", "prelista_excluidos.json", "vercel.json", "package.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
                 for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
                     add_files.extend(glob.glob(img_pat))
                 subprocess.run(["git", "add"] + add_files, capture_output=True)
@@ -946,32 +897,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     with open("prelista.html", "w", encoding="utf-8") as f_hw:
                         f_hw.write(html_c)
 
-                # También actualizar api/prelista.js para Vercel
-                if os.path.exists("api/prelista.js"):
-                    try:
-                        with open("api/prelista.js", "r", encoding="utf-8") as f_api:
-                            api_c = f_api.read()
-                        demo_payload = {
-                            "success": True,
-                            "sheet": data.get("sheet", "Prelista"),
-                            "availableSheets": data.get("availableSheets", ["Prelista"]),
-                            "totalProductos": len(prods),
-                            "actualizadoEn": data.get("actualizadoEn", datetime.now().isoformat()),
-                            "productos": prods
-                        }
-                        demo_str = json.dumps(demo_payload, ensure_ascii=False, indent=2)
-                        new_demo = f"// DEMO_PRELISTA_START\nconst DEMO_PRELISTA = {demo_str};\n// DEMO_PRELISTA_END"
-                        if "// DEMO_PRELISTA_START" in api_c:
-                            api_c = re.sub(
-                                r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
-                                lambda m: new_demo,
-                                api_c,
-                                flags=re.DOTALL
-                            )
-                            with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
-                                f_api_w.write(api_c)
-                    except Exception:
-                        pass
+                # Nota: No inyectar catálogo/fotos en api/prelista.js para no superar el límite de 1MB de Vercel Edge Runtime
                 con_foto = sum(1 for p in prods if p.get("imagen") and str(p["imagen"]).startswith("data:image/"))
                 resp = {"success": True, "total": len(prods), "conFoto": con_foto, "mensaje": f"Se sincronizaron {con_foto} fotos desde catalogos.xlsx y caché."}
             except Exception as e_s:
