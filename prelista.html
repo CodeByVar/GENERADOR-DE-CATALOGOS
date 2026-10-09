@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-body: #F8FAFC;
+      --bg-body: #EEF2F6;
       --bg-card: #FFFFFF;
       --border-card: #E2E8F0;
       --text-main: #0F172A;
@@ -335,35 +335,33 @@
       align-items: center;
       gap: 6px;
       background: #FFFFFF;
-      border: 1px solid var(--border-card);
-      border-radius: 10px;
-      padding: 7px 12px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 20px;
+      padding: 7px 14px;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
       font-size: 8.5pt;
       font-weight: 700;
-      color: var(--text-muted);
+      color: #334155;
       transition: all 0.2s;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
 
     .toggle-reserved-only:hover {
-      border-color: #CBD5E1;
-      color: var(--text-main);
+      border-color: #0284C7;
+      color: #0284C7;
     }
 
     .toggle-reserved-only:has(input:checked) {
-      background: #ECFDF5;
-      border-color: #A7F3D0;
-      color: #047857;
+      background: #10B981 !important;
+      border-color: #10B981 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3) !important;
     }
 
     .toggle-reserved-only input {
-      accent-color: var(--success);
-      cursor: pointer;
-      width: 15px;
-      height: 15px;
+      display: none;
     }
 
     .stats-bar {
@@ -399,54 +397,31 @@
 
     .product-card {
       background: #FFFFFF;
-      border: 1px solid var(--border-card);
-      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      border-radius: 18px;
       padding: 14px 16px;
       display: grid;
       grid-template-columns: 88px 1fr auto;
       gap: 14px;
       align-items: center;
       transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
       position: relative;
-      overflow: hidden;
-    }
-
-    .product-card::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--brand-accent, #0284C7);
-      border-radius: 4px 0 0 4px;
-      opacity: 0.85;
-      transition: width 0.2s ease, opacity 0.2s ease;
     }
 
     .product-card:hover {
       border-color: #CBD5E1;
-      box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
       transform: translateY(-2px);
     }
 
-    .product-card:hover::before {
-      width: 5px;
-      opacity: 1;
-    }
-
     .product-card.has-selection {
-      border-color: #86EFAC !important;
-      background: #F0FDF4 !important;
-      box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.16) !important;
+      border-color: #10B981 !important;
+      background: #F7FDF9 !important;
+      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.18) !important;
     }
 
-    .product-card.has-selection::before {
-      background: #16A34A !important;
-      width: 5px !important;
-      opacity: 1 !important;
-    }
+    /* Sin barra lateral de alerta */
 
     .product-card.is-sold-out {
       opacity: 0.58;
@@ -1342,24 +1317,7 @@
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     }
 
-    body.dark-mode .product-card::before {
-      background: var(--brand-accent, #38BDF8);
-    }
-
-    body.dark-mode .product-card:hover {
-      border-color: #374151;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    }
-
-    body.dark-mode .product-card.has-selection {
-      border-color: #22C55E !important;
-      background: linear-gradient(115deg, rgba(34, 197, 94, 0.14) 0%, #111827 75%) !important;
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.25) !important;
-    }
-
-    body.dark-mode .product-card.has-selection::before {
-      background: #22C55E !important;
-    }
+    /* Sin barra lateral en modo oscuro */
 
     body.dark-mode .product-card.is-sold-out {
       background: #0B0F19;
@@ -7402,9 +7360,9 @@
         bgDark: "rgba(234, 179, 8, 0.14)",
         border: "#EAB308",
         glow: "rgba(234, 179, 8, 0.25)",
-        badgeBg: "#0F172A",
-        badgeText: "#FACC15",
-        badgeBorder: "#FACC15",
+        badgeBg: "#FEF9C3",
+        badgeText: "#854D0E",
+        badgeBorder: "#FDE047",
         logoSrc: BRAND_LOGOS["UYUSTOOLS"] || "",
         chipBg: "#FDC800",
         chipBorder: "#EAB308",
@@ -7419,9 +7377,9 @@
         bgDark: "rgba(24, 110, 111, 0.16)",
         border: "#186E6F",
         glow: "rgba(24, 110, 111, 0.25)",
-        badgeBg: "#186E6F",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#186E6F",
+        badgeBg: "#CCFBF1",
+        badgeText: "#0F766E",
+        badgeBorder: "#99F6E4",
         logoSrc: BRAND_LOGOS["TOTAL"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#186E6F",
@@ -7436,9 +7394,9 @@
         bgDark: "rgba(0, 91, 172, 0.16)",
         border: "#005BAC",
         glow: "rgba(0, 91, 172, 0.25)",
-        badgeBg: "#005BAC",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#005BAC",
+        badgeBg: "#DBEAFE",
+        badgeText: "#1D4ED8",
+        badgeBorder: "#BFDBFE",
         logoSrc: BRAND_LOGOS["DONG_CHENG"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#005BAC",
@@ -7453,9 +7411,9 @@
         bgDark: "rgba(101, 163, 13, 0.16)",
         border: "#84CC16",
         glow: "rgba(132, 204, 22, 0.25)",
-        badgeBg: "#4D7C0F",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#84CC16",
+        badgeBg: "#ECFCCB",
+        badgeText: "#3F6212",
+        badgeBorder: "#D9F99D",
         logoSrc: BRAND_LOGOS["LUTIAN"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#84CC16",
@@ -7470,9 +7428,9 @@
         bgDark: "rgba(234, 88, 12, 0.16)",
         border: "#EA580C",
         glow: "rgba(234, 88, 12, 0.25)",
-        badgeBg: "#C2410C",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#EA580C",
+        badgeBg: "#FFEDD5",
+        badgeText: "#C2410C",
+        badgeBorder: "#FED7AA",
         logoSrc: BRAND_LOGOS["MAKAWA"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#EAB308",
@@ -7487,9 +7445,9 @@
         bgDark: "rgba(249, 115, 22, 0.16)",
         border: "#F97316",
         glow: "rgba(249, 115, 22, 0.25)",
-        badgeBg: "#EA580C",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#EA580C",
+        badgeBg: "#FFEDD5",
+        badgeText: "#C2410C",
+        badgeBorder: "#FED7AA",
         logoSrc: BRAND_LOGOS["FERRAWYY"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#EA580C",
@@ -7504,9 +7462,9 @@
         bgDark: "rgba(217, 119, 6, 0.16)",
         border: "#FBBF24",
         glow: "rgba(251, 191, 36, 0.28)",
-        badgeBg: "#1F2937",
-        badgeText: "#FBBF24",
-        badgeBorder: "#FBBF24",
+        badgeBg: "#FEF3C7",
+        badgeText: "#92400E",
+        badgeBorder: "#FDE68A",
         logoSrc: BRAND_LOGOS["FERTON"] || "",
         chipBg: "#000000",
         chipBorder: "#FBBF24",
@@ -7521,9 +7479,9 @@
         bgDark: "rgba(10, 78, 157, 0.16)",
         border: "#0A4E9D",
         glow: "rgba(10, 78, 157, 0.25)",
-        badgeBg: "#0A4E9D",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#0A4E9D",
+        badgeBg: "#DBEAFE",
+        badgeText: "#1E40AF",
+        badgeBorder: "#BFDBFE",
         logoSrc: BRAND_LOGOS["WADFOW"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#0A4E9D",
@@ -7538,9 +7496,9 @@
         bgDark: "rgba(124, 58, 237, 0.16)",
         border: "#7C3AED",
         glow: "rgba(124, 58, 237, 0.25)",
-        badgeBg: "#6D28D9",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#8B5CF6",
+        badgeBg: "#EDE9FE",
+        badgeText: "#6D28D9",
+        badgeBorder: "#DDD6FE",
         logoSrc: BRAND_LOGOS["MASTERMAQ"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#7C3AED",
@@ -7555,9 +7513,9 @@
         bgDark: "rgba(220, 38, 38, 0.16)",
         border: "#DC2626",
         glow: "rgba(220, 38, 38, 0.25)",
-        badgeBg: "#B91C1C",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#DC2626",
+        badgeBg: "#FEE2E2",
+        badgeText: "#B91C1C",
+        badgeBorder: "#FECACA",
         logoSrc: BRAND_LOGOS["TOYAKI"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#DC2626",
@@ -7572,9 +7530,9 @@
         bgDark: "rgba(202, 10, 16, 0.16)",
         border: "#CA0A10",
         glow: "rgba(202, 10, 16, 0.25)",
-        badgeBg: "#CA0A10",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#CA0A10",
+        badgeBg: "#FEE2E2",
+        badgeText: "#B91C1C",
+        badgeBorder: "#FECACA",
         logoSrc: BRAND_LOGOS["CROWN"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#CA0A10",
@@ -7589,9 +7547,9 @@
         bgDark: "rgba(250, 204, 21, 0.14)",
         border: "#000000",
         glow: "rgba(0, 0, 0, 0.28)",
-        badgeBg: "#000000",
-        badgeText: "#FFE600",
-        badgeBorder: "#FFE600",
+        badgeBg: "#FEF9C3",
+        badgeText: "#854D0E",
+        badgeBorder: "#FDE047",
         logoSrc: BRAND_LOGOS["KAMASA"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#FFE600",
@@ -7606,9 +7564,9 @@
         bgDark: "rgba(229, 25, 33, 0.16)",
         border: "#E51921",
         glow: "rgba(229, 25, 33, 0.25)",
-        badgeBg: "#E51921",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#E51921",
+        badgeBg: "#FEE2E2",
+        badgeText: "#B91C1C",
+        badgeBorder: "#FECACA",
         logoSrc: BRAND_LOGOS["KAILI"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#E51921",
@@ -7623,9 +7581,9 @@
         bgDark: "rgba(234, 88, 12, 0.16)",
         border: "#EA580C",
         glow: "rgba(234, 88, 12, 0.25)",
-        badgeBg: "#EA580C",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#EA580C",
+        badgeBg: "#FFEDD5",
+        badgeText: "#C2410C",
+        badgeBorder: "#FED7AA",
         logoSrc: BRAND_LOGOS["ASAKI"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#EA580C",
@@ -7640,9 +7598,9 @@
         bgDark: "rgba(250, 204, 21, 0.14)",
         border: "#FACC15",
         glow: "rgba(250, 204, 21, 0.28)",
-        badgeBg: "#000000",
-        badgeText: "#FACC15",
-        badgeBorder: "#FACC15",
+        badgeBg: "#FEF9C3",
+        badgeText: "#854D0E",
+        badgeBorder: "#FDE047",
         logoSrc: BRAND_LOGOS["NEVA"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#FACC15",
@@ -7657,9 +7615,9 @@
         bgDark: "rgba(37, 99, 235, 0.16)",
         border: "#2563EB",
         glow: "rgba(37, 99, 235, 0.25)",
-        badgeBg: "#1E40AF",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#1E40AF",
+        badgeBg: "#DBEAFE",
+        badgeText: "#1D4ED8",
+        badgeBorder: "#BFDBFE",
         logoSrc: BRAND_LOGOS["RIO"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#9B2226",
@@ -7674,9 +7632,9 @@
         bgDark: "rgba(2, 132, 199, 0.16)",
         border: "#0284C7",
         glow: "rgba(2, 132, 199, 0.25)",
-        badgeBg: "#080C14",
-        badgeText: "#38BDF8",
-        badgeBorder: "#38BDF8",
+        badgeBg: "#E0F2FE",
+        badgeText: "#0369A1",
+        badgeBorder: "#BAE6FD",
       },
       "AQUASTRONG": {
         name: "AQUASTRONG",
@@ -7685,9 +7643,9 @@
         bgDark: "rgba(2, 132, 199, 0.16)",
         border: "#0284C7",
         glow: "rgba(2, 132, 199, 0.25)",
-        badgeBg: "#0284C7",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#0284C7",
+        badgeBg: "#E0F2FE",
+        badgeText: "#0369A1",
+        badgeBorder: "#BAE6FD",
       },
       "PEGASUS": {
         name: "PEGASUS",
@@ -7696,9 +7654,9 @@
         bgDark: "rgba(51, 65, 85, 0.2)",
         border: "#334155",
         glow: "rgba(51, 65, 85, 0.25)",
-        badgeBg: "#334155",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#334155",
+        badgeBg: "#F1F5F9",
+        badgeText: "#334155",
+        badgeBorder: "#CBD5E1",
       },
       "DWT": {
         name: "DWT",
@@ -7707,9 +7665,9 @@
         bgDark: "rgba(225, 29, 36, 0.16)",
         border: "#E11D24",
         glow: "rgba(225, 29, 36, 0.25)",
-        badgeBg: "#E11D24",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#E11D24",
+        badgeBg: "#FEE2E2",
+        badgeText: "#B91C1C",
+        badgeBorder: "#FECACA",
       }
     };
 
