@@ -9,9 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-body: #EEF2F6;
+      --bg-body: #E8EDF5;
       --bg-card: #FFFFFF;
-      --border-card: #E2E8F0;
+      --border-card: #CBD5E1;
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-light: #94A3B8;
@@ -227,7 +227,7 @@
     /* ──── FILTROS Y BÚSQUEDA (VISTA MODERNA Y MINIMALISTA) ──── */
     .controls-wrapper {
       max-width: 1200px;
-      margin: 12px auto 0 auto;
+      margin: 14px auto 0 auto;
       padding: 0 16px;
       width: 100%;
     }
@@ -253,7 +253,7 @@
     .search-input {
       width: 100%;
       background: #FFFFFF;
-      border: 1px solid var(--border-card);
+      border: 1.5px solid var(--border-card);
       border-radius: 12px;
       padding: 10px 38px 10px 42px;
       color: var(--text-main);
@@ -262,7 +262,7 @@
       font-weight: 600;
       outline: none;
       transition: all 0.2s;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
     }
 
     .search-input:focus {
@@ -312,7 +312,7 @@
     .filter-select {
       width: 100%;
       background: #FFFFFF;
-      border: 1px solid var(--border-card);
+      border: 1.5px solid var(--border-card);
       border-radius: 10px;
       padding: 8px 12px;
       color: var(--text-main);
@@ -322,7 +322,7 @@
       outline: none;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
     }
 
     .filter-select:focus {
@@ -384,7 +384,7 @@
     .catalog-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 16px;
+      padding: 2px 16px 24px 16px;
       width: 100%;
       flex: 1;
     }
@@ -392,53 +392,106 @@
     .products-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 13px;
+      margin-top: 6px;
     }
 
     .product-card {
-      background: linear-gradient(135deg, var(--brand-tint, rgba(2, 132, 199, 0.14)) 0%, rgba(255, 255, 255, 0.92) 48%, #FFFFFF 100%);
+      background: var(--brand-card-bg, linear-gradient(135deg, #FEFCE8 0%, #FFFDF5 100%));
       border: 1.5px solid var(--brand-border-soft, #CBD5E1);
-      border-radius: 18px;
-      padding: 14px 16px;
+      border-left: 5px solid var(--brand-accent, #0284C7);
+      border-radius: 16px;
+      padding: 13px 15px;
       display: grid;
       grid-template-columns: 88px 1fr auto;
       gap: 14px;
       align-items: center;
       transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 18px -2px var(--brand-glow, rgba(15, 23, 42, 0.06)), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
+      box-shadow: 0 4px 14px -2px var(--brand-glow, rgba(15, 23, 42, 0.08)), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
       position: relative;
+      overflow: hidden;
+    }
+
+    .product-card .product-title {
+      color: var(--brand-title-color, var(--text-main));
+    }
+
+    .product-card .spec-item {
+      color: var(--brand-muted-color, var(--text-muted));
+    }
+
+    .product-card .spec-item strong {
+      color: var(--brand-title-color, var(--text-main));
+    }
+
+    .product-card .qty-label-text {
+      color: var(--brand-muted-color, var(--text-muted));
+    }
+
+    .product-card .code-pill {
+      background: var(--brand-code-bg, #FFFFFF);
+      color: var(--brand-code-color, #0F172A);
+      border: 1px solid var(--brand-code-border, var(--brand-border-soft, #CBD5E1));
+      font-weight: 800;
+      font-size: 8pt;
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.4px;
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .product-card .qty-selector-container {
+      display: inline-flex;
+      align-items: center;
+      background: var(--brand-stepper-bg, #FFFFFF);
+      border: 1.5px solid var(--brand-stepper-border, var(--brand-border-soft, #CBD5E1));
+      border-radius: 12px;
+      padding: 2px 4px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    .product-card .btn-step {
+      background: var(--brand-step-btn-bg, #FFFFFF);
+      border: 1px solid var(--brand-step-btn-border, #CBD5E1);
+      color: var(--brand-step-btn-color, var(--text-main));
+    }
+
+    .product-card .qty-input {
+      color: var(--brand-step-btn-color, var(--text-main));
     }
 
     .product-card:hover {
       border-color: var(--brand-accent, #0284C7);
-      box-shadow: 0 10px 26px -4px var(--brand-glow, rgba(15, 23, 42, 0.14)), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+      border-left-width: 6px;
+      box-shadow: 0 8px 24px -2px var(--brand-glow, rgba(15, 23, 42, 0.16)), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
       transform: translateY(-2px);
     }
 
     .product-card.has-selection {
       border-color: #10B981 !important;
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(240, 253, 244, 0.94) 50%, #FFFFFF 100%) !important;
-      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.22) !important;
+      border-left: 6px solid #059669 !important;
+      background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 50%, #ECFDF5 100%) !important;
+      box-shadow: 0 8px 24px -3px rgba(16, 185, 129, 0.28) !important;
+      --brand-title-color: #0F172A !important;
+      --brand-muted-color: #065F46 !important;
+      --brand-code-bg: #FFFFFF !important;
+      --brand-code-color: #0F172A !important;
+      --brand-code-border: #6EE7B7 !important;
+      --brand-stepper-bg: #FFFFFF !important;
+      --brand-stepper-border: #6EE7B7 !important;
+      --brand-step-btn-bg: #FFFFFF !important;
+      --brand-step-btn-border: #A7F3D0 !important;
+      --brand-step-btn-color: #0F172A !important;
     }
-
-    .product-card:hover {
-      border-color: #CBD5E1;
-      box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
-      transform: translateY(-2px);
-    }
-
-    .product-card.has-selection {
-      border-color: #10B981 !important;
-      background: #F7FDF9 !important;
-      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.18) !important;
-    }
-
-    /* Sin barra lateral de alerta */
 
     .product-card.is-sold-out {
-      opacity: 0.58;
-      background: #F8FAFC;
-      filter: grayscale(0.2);
+      opacity: 0.65;
+      background: #F1F5F9;
+      filter: grayscale(0.25);
+      border-left-color: #94A3B8 !important;
     }
 
     /* Foto del producto con marco limpio y zoom */
@@ -447,7 +500,7 @@
       height: 88px;
       border-radius: 14px;
       background: #FFFFFF;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1.5px solid var(--brand-border-soft, rgba(0, 0, 0, 0.10));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -536,9 +589,9 @@
     }
 
     .code-pill {
-      background: #F1F5F9;
+      background: #FFFFFF;
       color: #0F172A;
-      border: 1px solid #CBD5E1;
+      border: 1px solid var(--brand-border-soft, #CBD5E1);
       font-weight: 800;
       font-size: 8pt;
       padding: 2px 8px;
@@ -546,7 +599,7 @@
       letter-spacing: 0.4px;
       display: inline-flex;
       align-items: center;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
     .brand-badge-pill {
@@ -815,12 +868,12 @@
     .qty-selector-container {
       display: inline-flex;
       align-items: center;
-      background: #F1F5F9;
-      border: 1px solid #E2E8F0;
+      background: #FFFFFF;
+      border: 1.5px solid var(--brand-border-soft, #CBD5E1);
       border-radius: 12px;
       padding: 2px 4px;
       transition: all 0.2s ease;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
 
     .qty-selector-container:focus-within {
@@ -1262,14 +1315,24 @@
         width: 100%;
         justify-content: space-between;
       }
+      .controls-wrapper {
+        padding: 0 14px;
+        margin-top: 12px;
+      }
+      .catalog-container {
+        padding: 0 14px 20px 14px;
+      }
       .product-card {
-        grid-template-columns: 74px 1fr;
+        grid-template-columns: 78px 1fr;
         gap: 12px;
-        padding: 12px 14px;
+        padding: 12px 13px;
+        border-radius: 15px;
+        border-left-width: 4.5px;
       }
       .product-img-wrapper {
-        width: 74px;
-        height: 74px;
+        width: 78px;
+        height: 78px;
+        border-radius: 12px;
       }
       .controls-col {
         grid-column: 1 / -1;
@@ -1324,9 +1387,15 @@
     }
 
     body.dark-mode .product-card {
-      background: linear-gradient(135deg, var(--brand-bg-dark, rgba(255, 255, 255, 0.08)) 0%, #111827 65%);
+      background: linear-gradient(135deg, var(--brand-bg-dark, rgba(255, 255, 255, 0.12)) 0%, #111827 65%);
       border-color: var(--brand-border-soft, #1F2937);
+      border-left: 5px solid var(--brand-accent, #0284C7);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+    body.dark-mode .product-card.has-selection {
+      border-color: #22C55E !important;
+      border-left-color: #10B981 !important;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, #111827 70%) !important;
     }
 
     /* Sin barra lateral en modo oscuro */
@@ -7367,60 +7436,61 @@
     const BRAND_CONFIG = {
       "UYUSTOOLS": {
         name: "UYUSTOOLS",
-        tint: "rgba(202, 138, 4, 0.18)",
-        borderSoft: "rgba(202, 138, 4, 0.38)",
-        glow: "rgba(202, 138, 4, 0.22)",
-        bgDark: "rgba(234, 179, 8, 0.20)",
-        color: "#CA8A04",
-        bgLight: "#FEFCE8",
-        bgDark: "rgba(234, 179, 8, 0.14)",
+        color: "#EAB308",
+        cardBg: "linear-gradient(135deg, #FEFCE8 0%, #FFFBEB 50%, #FEF9C3 100%)",
+        borderSoft: "#FDE047",
+        glow: "rgba(234, 179, 8, 0.22)",
+        bgDark: "rgba(234, 179, 8, 0.16)",
         border: "#EAB308",
-        glow: "rgba(234, 179, 8, 0.25)",
-        badgeBg: "#FEF9C3",
+        badgeBg: "#FEF08A",
         badgeText: "#854D0E",
-        badgeBorder: "#FDE047",
+        badgeBorder: "#FACC15",
         logoSrc: BRAND_LOGOS["UYUSTOOLS"] || "",
-        chipBg: "#FDC800",
+        chipBg: "#FEF08A",
         chipBorder: "#EAB308",
-        chipGlow: "0 3px 12px rgba(253, 200, 0, 0.35)",
-        chipCountBg: "rgba(0, 0, 0, 0.15)",
-        chipCountText: "#000000",
+        chipGlow: "0 3px 12px rgba(234, 179, 8, 0.35)",
+        chipCountBg: "rgba(133, 77, 14, 0.15)",
+        chipCountText: "#854D0E",
       },
-      "TOTAL": {
-        name: "TOTAL",
-        tint: "rgba(24, 110, 111, 0.16)",
-        borderSoft: "rgba(24, 110, 111, 0.35)",
-        glow: "rgba(24, 110, 111, 0.20)",
-        bgDark: "rgba(24, 110, 111, 0.20)",
-        color: "#186E6F",
-        bgLight: "#F0FDFA",
-        bgDark: "rgba(24, 110, 111, 0.16)",
-        border: "#186E6F",
-        glow: "rgba(24, 110, 111, 0.25)",
-        badgeBg: "#CCFBF1",
-        badgeText: "#0F766E",
-        badgeBorder: "#99F6E4",
-        logoSrc: BRAND_LOGOS["TOTAL"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#186E6F",
-        chipGlow: "0 3px 12px rgba(24, 110, 111, 0.25)",
-        chipCountBg: "rgba(24, 110, 111, 0.12)",
-        chipCountText: "#186E6F",
+      "FERTON": {
+        name: "FERTON",
+        color: "#F59E0B",
+        cardBg: "linear-gradient(135deg, #18181B 0%, #27272A 50%, #18181B 100%)",
+        borderSoft: "#3F3F46",
+        glow: "rgba(0, 0, 0, 0.40)",
+        bgDark: "rgba(0, 0, 0, 0.55)",
+        border: "#F59E0B",
+        badgeBg: "#000000",
+        badgeText: "#FBBF24",
+        badgeBorder: "#F59E0B",
+        titleColor: "#FFFFFF",
+        mutedColor: "#A1A1AA",
+        codeBg: "#27272A",
+        codeColor: "#F4F4F5",
+        codeBorder: "#3F3F46",
+        stepperBg: "#27272A",
+        stepperBorder: "#3F3F46",
+        stepperBtnBg: "#18181B",
+        stepperBtnBorder: "#3F3F46",
+        stepperBtnColor: "#FFFFFF",
+        logoSrc: BRAND_LOGOS["FERTON"] || "",
+        chipBg: "#000000",
+        chipBorder: "#F59E0B",
+        chipGlow: "0 3px 12px rgba(0, 0, 0, 0.6)",
+        chipCountBg: "rgba(245, 158, 11, 0.25)",
+        chipCountText: "#FBBF24",
       },
       "DONG CHENG": {
         name: "DONG CHENG",
-        tint: "rgba(0, 91, 172, 0.15)",
-        borderSoft: "rgba(0, 91, 172, 0.34)",
-        glow: "rgba(0, 91, 172, 0.20)",
-        bgDark: "rgba(0, 91, 172, 0.20)",
         color: "#005BAC",
-        bgLight: "#EFF6FF",
+        cardBg: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #EFF6FF 100%)",
+        borderSoft: "#BFDBFE",
+        glow: "rgba(0, 91, 172, 0.20)",
         bgDark: "rgba(0, 91, 172, 0.16)",
         border: "#005BAC",
-        glow: "rgba(0, 91, 172, 0.25)",
         badgeBg: "#DBEAFE",
         badgeText: "#1D4ED8",
-        badgeBorder: "#BFDBFE",
+        badgeBorder: "#93C5FD",
         logoSrc: BRAND_LOGOS["DONG_CHENG"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#005BAC",
@@ -7428,122 +7498,104 @@
         chipCountBg: "rgba(0, 91, 172, 0.12)",
         chipCountText: "#005BAC",
       },
+      "TOTAL": {
+        name: "TOTAL",
+        color: "#0D9488",
+        cardBg: "linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 50%, #F0FDFA 100%)",
+        borderSoft: "#99F6E4",
+        glow: "rgba(13, 148, 136, 0.20)",
+        bgDark: "rgba(13, 148, 136, 0.16)",
+        border: "#0D9488",
+        badgeBg: "#CCFBF1",
+        badgeText: "#0F766E",
+        badgeBorder: "#5EEAD4",
+        logoSrc: BRAND_LOGOS["TOTAL"] || "",
+        chipBg: "#FFFFFF",
+        chipBorder: "#0D9488",
+        chipGlow: "0 3px 12px rgba(13, 148, 136, 0.25)",
+        chipCountBg: "rgba(13, 148, 136, 0.12)",
+        chipCountText: "#0F766E",
+      },
+      "WADFOW": {
+        name: "WADFOW",
+        color: "#1D4ED8",
+        cardBg: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 50%, #EEF2FF 100%)",
+        borderSoft: "#C7D2FE",
+        glow: "rgba(29, 78, 216, 0.20)",
+        bgDark: "rgba(29, 78, 216, 0.16)",
+        border: "#1D4ED8",
+        badgeBg: "#E0E7FF",
+        badgeText: "#3730A3",
+        badgeBorder: "#A5B4FC",
+        logoSrc: BRAND_LOGOS["WADFOW"] || "",
+        chipBg: "#FFFFFF",
+        chipBorder: "#1D4ED8",
+        chipGlow: "0 3px 12px rgba(29, 78, 216, 0.25)",
+        chipCountBg: "rgba(29, 78, 216, 0.12)",
+        chipCountText: "#1D4ED8",
+      },
       "LUTIAN": {
         name: "LUTIAN",
-        tint: "rgba(101, 163, 13, 0.16)",
-        borderSoft: "rgba(101, 163, 13, 0.34)",
-        glow: "rgba(101, 163, 13, 0.20)",
-        bgDark: "rgba(101, 163, 13, 0.20)",
         color: "#65A30D",
-        bgLight: "#F7FEE7",
+        cardBg: "linear-gradient(135deg, #F7FEE7 0%, #ECFCCB 50%, #F7FEE7 100%)",
+        borderSoft: "#D9F99D",
+        glow: "rgba(101, 163, 13, 0.20)",
         bgDark: "rgba(101, 163, 13, 0.16)",
         border: "#84CC16",
-        glow: "rgba(132, 204, 22, 0.25)",
         badgeBg: "#ECFCCB",
-        badgeText: "#3F6212",
-        badgeBorder: "#D9F99D",
+        badgeText: "#365314",
+        badgeBorder: "#BEF264",
         logoSrc: BRAND_LOGOS["LUTIAN"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#84CC16",
         chipGlow: "0 3px 12px rgba(132, 204, 22, 0.25)",
         chipCountBg: "rgba(132, 204, 22, 0.15)",
-        chipCountText: "#3F6212",
+        chipCountText: "#365314",
       },
       "MAKAWA": {
         name: "MAKAWA",
-        tint: "rgba(234, 88, 12, 0.16)",
-        borderSoft: "rgba(234, 88, 12, 0.34)",
-        glow: "rgba(234, 88, 12, 0.20)",
-        bgDark: "rgba(234, 88, 12, 0.20)",
-        color: "#EA580C",
-        bgLight: "#FFF7ED",
-        bgDark: "rgba(234, 88, 12, 0.16)",
-        border: "#EA580C",
-        glow: "rgba(234, 88, 12, 0.25)",
-        badgeBg: "#FFEDD5",
-        badgeText: "#C2410C",
-        badgeBorder: "#FED7AA",
+        color: "#C2410C",
+        cardBg: "linear-gradient(135deg, #FFEDD5 0%, #FED7AA 50%, #FDBA74 100%)",
+        borderSoft: "#FB923C",
+        glow: "rgba(194, 65, 12, 0.25)",
+        bgDark: "rgba(194, 65, 12, 0.18)",
+        border: "#C2410C",
+        badgeBg: "#C2410C",
+        badgeText: "#FFFFFF",
+        badgeBorder: "#9A3412",
         logoSrc: BRAND_LOGOS["MAKAWA"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#EAB308",
-        chipGlow: "0 3px 12px rgba(234, 179, 8, 0.25)",
-        chipCountBg: "rgba(0, 0, 0, 0.08)",
-        chipCountText: "#000000",
+        chipBg: "#FFF7ED",
+        chipBorder: "#C2410C",
+        chipGlow: "0 3px 12px rgba(194, 65, 12, 0.3)",
+        chipCountBg: "rgba(194, 65, 12, 0.20)",
+        chipCountText: "#9A3412",
       },
       "FERRAWYY": {
         name: "FERRAWYY",
-        tint: "rgba(249, 115, 22, 0.16)",
-        borderSoft: "rgba(249, 115, 22, 0.34)",
-        glow: "rgba(249, 115, 22, 0.20)",
-        bgDark: "rgba(249, 115, 22, 0.20)",
-        color: "#F97316",
-        bgLight: "#FFF7ED",
-        bgDark: "rgba(249, 115, 22, 0.16)",
-        border: "#F97316",
-        glow: "rgba(249, 115, 22, 0.25)",
+        color: "#FB923C",
+        cardBg: "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 50%, #FED7AA 100%)",
+        borderSoft: "#FDBA74",
+        glow: "rgba(251, 146, 60, 0.20)",
+        bgDark: "rgba(251, 146, 60, 0.16)",
+        border: "#FB923C",
         badgeBg: "#FFEDD5",
         badgeText: "#C2410C",
-        badgeBorder: "#FED7AA",
+        badgeBorder: "#FDBA74",
         logoSrc: BRAND_LOGOS["FERRAWYY"] || "",
         chipBg: "#FFFFFF",
-        chipBorder: "#EA580C",
-        chipGlow: "0 3px 12px rgba(234, 88, 12, 0.25)",
-        chipCountBg: "rgba(234, 88, 12, 0.12)",
+        chipBorder: "#FB923C",
+        chipGlow: "0 3px 12px rgba(251, 146, 60, 0.25)",
+        chipCountBg: "rgba(251, 146, 60, 0.15)",
         chipCountText: "#C2410C",
-      },
-      "FERTON": {
-        name: "FERTON",
-        tint: "rgba(217, 119, 6, 0.16)",
-        borderSoft: "rgba(217, 119, 6, 0.34)",
-        glow: "rgba(217, 119, 6, 0.20)",
-        bgDark: "rgba(217, 119, 6, 0.20)",
-        color: "#D97706",
-        bgLight: "#FFFBEB",
-        bgDark: "rgba(217, 119, 6, 0.16)",
-        border: "#FBBF24",
-        glow: "rgba(251, 191, 36, 0.28)",
-        badgeBg: "#FEF3C7",
-        badgeText: "#92400E",
-        badgeBorder: "#FDE68A",
-        logoSrc: BRAND_LOGOS["FERTON"] || "",
-        chipBg: "#000000",
-        chipBorder: "#FBBF24",
-        chipGlow: "0 3px 12px rgba(0, 0, 0, 0.6)",
-        chipCountBg: "rgba(251, 191, 36, 0.25)",
-        chipCountText: "#FBBF24",
-      },
-      "WADFOW": {
-        name: "WADFOW",
-        tint: "rgba(10, 78, 157, 0.16)",
-        borderSoft: "rgba(10, 78, 157, 0.34)",
-        glow: "rgba(10, 78, 157, 0.20)",
-        bgDark: "rgba(10, 78, 157, 0.20)",
-        color: "#0A4E9D",
-        bgLight: "#EFF6FF",
-        bgDark: "rgba(10, 78, 157, 0.16)",
-        border: "#0A4E9D",
-        glow: "rgba(10, 78, 157, 0.25)",
-        badgeBg: "#DBEAFE",
-        badgeText: "#1E40AF",
-        badgeBorder: "#BFDBFE",
-        logoSrc: BRAND_LOGOS["WADFOW"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#0A4E9D",
-        chipGlow: "0 3px 12px rgba(10, 78, 157, 0.25)",
-        chipCountBg: "rgba(10, 78, 157, 0.12)",
-        chipCountText: "#0A4E9D",
       },
       "MASTERMAQ": {
         name: "MASTERMAQ",
-        tint: "rgba(124, 58, 237, 0.15)",
-        borderSoft: "rgba(124, 58, 237, 0.32)",
-        glow: "rgba(124, 58, 237, 0.20)",
-        bgDark: "rgba(124, 58, 237, 0.20)",
         color: "#7C3AED",
-        bgLight: "#F5F3FF",
+        cardBg: "linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 50%, #FAF5FF 100%)",
+        borderSoft: "#E9D5FF",
+        glow: "rgba(124, 58, 237, 0.20)",
         bgDark: "rgba(124, 58, 237, 0.16)",
         border: "#7C3AED",
-        glow: "rgba(124, 58, 237, 0.25)",
         badgeBg: "#EDE9FE",
         badgeText: "#6D28D9",
         badgeBorder: "#DDD6FE",
@@ -7556,18 +7608,15 @@
       },
       "TOYAKI": {
         name: "TOYAKI",
-        tint: "rgba(220, 38, 38, 0.15)",
-        borderSoft: "rgba(220, 38, 38, 0.32)",
-        glow: "rgba(220, 38, 38, 0.20)",
-        bgDark: "rgba(220, 38, 38, 0.20)",
         color: "#DC2626",
-        bgLight: "#FEF2F2",
+        cardBg: "linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 50%, #FEF2F2 100%)",
+        borderSoft: "#FECACA",
+        glow: "rgba(220, 38, 38, 0.20)",
         bgDark: "rgba(220, 38, 38, 0.16)",
         border: "#DC2626",
-        glow: "rgba(220, 38, 38, 0.25)",
         badgeBg: "#FEE2E2",
         badgeText: "#B91C1C",
-        badgeBorder: "#FECACA",
+        badgeBorder: "#FCA5A5",
         logoSrc: BRAND_LOGOS["TOYAKI"] || "",
         chipBg: "#FFFFFF",
         chipBorder: "#DC2626",
@@ -7575,191 +7624,161 @@
         chipCountBg: "rgba(220, 38, 38, 0.12)",
         chipCountText: "#DC2626",
       },
-      "CROWN": {
-        name: "CROWN",
-        tint: "rgba(202, 10, 16, 0.15)",
-        borderSoft: "rgba(202, 10, 16, 0.32)",
-        glow: "rgba(202, 10, 16, 0.20)",
-        bgDark: "rgba(202, 10, 16, 0.20)",
-        color: "#CA0A10",
-        bgLight: "#FEF2F2",
-        bgDark: "rgba(202, 10, 16, 0.16)",
-        border: "#CA0A10",
-        glow: "rgba(202, 10, 16, 0.25)",
-        badgeBg: "#FEE2E2",
-        badgeText: "#B91C1C",
-        badgeBorder: "#FECACA",
-        logoSrc: BRAND_LOGOS["CROWN"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#CA0A10",
-        chipGlow: "0 3px 12px rgba(202, 10, 16, 0.2)",
-        chipCountBg: "rgba(202, 10, 16, 0.12)",
-        chipCountText: "#CA0A10",
-      },
-      "KAMASA": {
-        name: "KAMASA",
-        tint: "rgba(202, 138, 4, 0.18)",
-        borderSoft: "rgba(202, 138, 4, 0.38)",
-        glow: "rgba(202, 138, 4, 0.22)",
-        bgDark: "rgba(234, 179, 8, 0.20)",
-        color: "#18181B",
-        bgLight: "#FEFCE8",
-        bgDark: "rgba(250, 204, 21, 0.14)",
-        border: "#000000",
-        glow: "rgba(0, 0, 0, 0.28)",
-        badgeBg: "#FEF9C3",
-        badgeText: "#854D0E",
-        badgeBorder: "#FDE047",
-        logoSrc: BRAND_LOGOS["KAMASA"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#FFE600",
-        chipGlow: "0 3px 12px rgba(0, 0, 0, 0.25)",
-        chipCountBg: "rgba(0, 0, 0, 0.08)",
-        chipCountText: "#000000",
-      },
-      "KAILI": {
-        name: "KAILI",
-        tint: "rgba(229, 25, 33, 0.15)",
-        borderSoft: "rgba(229, 25, 33, 0.32)",
-        glow: "rgba(229, 25, 33, 0.20)",
-        bgDark: "rgba(229, 25, 33, 0.20)",
-        color: "#E51921",
-        bgLight: "#FEF2F2",
-        bgDark: "rgba(229, 25, 33, 0.16)",
-        border: "#E51921",
-        glow: "rgba(229, 25, 33, 0.25)",
-        badgeBg: "#FEE2E2",
-        badgeText: "#B91C1C",
-        badgeBorder: "#FECACA",
-        logoSrc: BRAND_LOGOS["KAILI"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#E51921",
-        chipGlow: "0 3px 12px rgba(229, 25, 33, 0.25)",
-        chipCountBg: "rgba(229, 25, 33, 0.12)",
-        chipCountText: "#E51921",
-      },
-      "ASAKI": {
-        name: "ASAKI",
-        tint: "rgba(234, 88, 12, 0.16)",
-        borderSoft: "rgba(234, 88, 12, 0.34)",
-        glow: "rgba(234, 88, 12, 0.20)",
-        bgDark: "rgba(234, 88, 12, 0.20)",
-        color: "#EA580C",
-        bgLight: "#FFF7ED",
-        bgDark: "rgba(234, 88, 12, 0.16)",
-        border: "#EA580C",
-        glow: "rgba(234, 88, 12, 0.25)",
-        badgeBg: "#FFEDD5",
-        badgeText: "#C2410C",
-        badgeBorder: "#FED7AA",
-        logoSrc: BRAND_LOGOS["ASAKI"] || "",
-        chipBg: "#FFFFFF",
-        chipBorder: "#EA580C",
-        chipGlow: "0 3px 12px rgba(234, 88, 12, 0.25)",
-        chipCountBg: "rgba(234, 88, 12, 0.12)",
-        chipCountText: "#EA580C",
-      },
       "NEVA": {
         name: "NEVA",
-        tint: "rgba(202, 138, 4, 0.18)",
-        borderSoft: "rgba(202, 138, 4, 0.38)",
-        glow: "rgba(202, 138, 4, 0.22)",
-        bgDark: "rgba(234, 179, 8, 0.20)",
-        color: "#1E293B",
-        bgLight: "#FEFCE8",
-        bgDark: "rgba(250, 204, 21, 0.14)",
-        border: "#FACC15",
-        glow: "rgba(250, 204, 21, 0.28)",
-        badgeBg: "#FEF9C3",
-        badgeText: "#854D0E",
-        badgeBorder: "#FDE047",
+        color: "#0891B2",
+        cardBg: "linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 50%, #ECFEFF 100%)",
+        borderSoft: "#A5F3FC",
+        glow: "rgba(8, 145, 178, 0.20)",
+        bgDark: "rgba(8, 145, 178, 0.16)",
+        border: "#0891B2",
+        badgeBg: "#CFFAFE",
+        badgeText: "#155E75",
+        badgeBorder: "#67E8F9",
         logoSrc: BRAND_LOGOS["NEVA"] || "",
         chipBg: "#FFFFFF",
-        chipBorder: "#FACC15",
-        chipGlow: "0 3px 12px rgba(250, 204, 21, 0.25)",
-        chipCountBg: "rgba(0, 0, 0, 0.08)",
-        chipCountText: "#000000",
+        chipBorder: "#0891B2",
+        chipGlow: "0 3px 12px rgba(8, 145, 178, 0.25)",
+        chipCountBg: "rgba(8, 145, 178, 0.12)",
+        chipCountText: "#155E75",
       },
       "RIO": {
         name: "RIO",
-        tint: "rgba(37, 99, 235, 0.15)",
-        borderSoft: "rgba(37, 99, 235, 0.34)",
-        glow: "rgba(37, 99, 235, 0.20)",
-        bgDark: "rgba(37, 99, 235, 0.20)",
         color: "#2563EB",
-        bgLight: "#EFF6FF",
+        cardBg: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #EFF6FF 100%)",
+        borderSoft: "#BFDBFE",
+        glow: "rgba(37, 99, 235, 0.20)",
         bgDark: "rgba(37, 99, 235, 0.16)",
         border: "#2563EB",
-        glow: "rgba(37, 99, 235, 0.25)",
         badgeBg: "#DBEAFE",
-        badgeText: "#1D4ED8",
-        badgeBorder: "#BFDBFE",
+        badgeText: "#1E40AF",
+        badgeBorder: "#93C5FD",
         logoSrc: BRAND_LOGOS["RIO"] || "",
         chipBg: "#FFFFFF",
-        chipBorder: "#9B2226",
-        chipGlow: "0 3px 12px rgba(155, 34, 38, 0.25)",
-        chipCountBg: "rgba(155, 34, 38, 0.12)",
-        chipCountText: "#9B2226",
+        chipBorder: "#2563EB",
+        chipGlow: "0 3px 12px rgba(37, 99, 235, 0.25)",
+        chipCountBg: "rgba(37, 99, 235, 0.12)",
+        chipCountText: "#1E40AF",
+      },
+      "CROWN": {
+        name: "CROWN",
+        color: "#991B1B",
+        cardBg: "linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FFF1F2 100%)",
+        borderSoft: "#FECDD3",
+        glow: "rgba(153, 27, 27, 0.20)",
+        bgDark: "rgba(153, 27, 27, 0.16)",
+        border: "#991B1B",
+        badgeBg: "#FFE4E6",
+        badgeText: "#881337",
+        badgeBorder: "#FDA4AF",
+        logoSrc: BRAND_LOGOS["CROWN"] || "",
+        chipBg: "#FFFFFF",
+        chipBorder: "#991B1B",
+        chipGlow: "0 3px 12px rgba(153, 27, 27, 0.2)",
+        chipCountBg: "rgba(153, 27, 27, 0.12)",
+        chipCountText: "#991B1B",
+      },
+      "KAMASA": {
+        name: "KAMASA",
+        color: "#059669",
+        cardBg: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 50%, #ECFDF5 100%)",
+        borderSoft: "#A7F3D0",
+        glow: "rgba(5, 150, 105, 0.20)",
+        bgDark: "rgba(5, 150, 105, 0.16)",
+        border: "#059669",
+        badgeBg: "#D1FAE5",
+        badgeText: "#065F46",
+        badgeBorder: "#6EE7B7",
+        logoSrc: BRAND_LOGOS["KAMASA"] || "",
+        chipBg: "#FFFFFF",
+        chipBorder: "#059669",
+        chipGlow: "0 3px 12px rgba(5, 150, 105, 0.25)",
+        chipCountBg: "rgba(5, 150, 105, 0.12)",
+        chipCountText: "#065F46",
+      },
+      "KAILI": {
+        name: "KAILI",
+        color: "#BE123C",
+        cardBg: "linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FFF1F2 100%)",
+        borderSoft: "#FECDD3",
+        glow: "rgba(190, 18, 60, 0.20)",
+        bgDark: "rgba(190, 18, 60, 0.16)",
+        border: "#BE123C",
+        badgeBg: "#FFE4E6",
+        badgeText: "#881337",
+        badgeBorder: "#FDA4AF",
+        logoSrc: BRAND_LOGOS["KAILI"] || "",
+        chipBg: "#FFFFFF",
+        chipBorder: "#BE123C",
+        chipGlow: "0 3px 12px rgba(190, 18, 60, 0.25)",
+        chipCountBg: "rgba(190, 18, 60, 0.12)",
+        chipCountText: "#BE123C",
+      },
+      "ASAKI": {
+        name: "ASAKI",
+        color: "#B45309",
+        cardBg: "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FEF3C7 100%)",
+        borderSoft: "#FCD34D",
+        glow: "rgba(180, 83, 9, 0.20)",
+        bgDark: "rgba(180, 83, 9, 0.16)",
+        border: "#B45309",
+        badgeBg: "#FDE68A",
+        badgeText: "#78350F",
+        badgeBorder: "#F59E0B",
+        logoSrc: BRAND_LOGOS["ASAKI"] || "",
+        chipBg: "#FFFFFF",
+        chipBorder: "#B45309",
+        chipGlow: "0 3px 12px rgba(180, 83, 9, 0.25)",
+        chipCountBg: "rgba(180, 83, 9, 0.12)",
+        chipCountText: "#78350F",
       },
       "OMEGA": {
         name: "OMEGA",
-        tint: "rgba(2, 132, 199, 0.15)",
-        borderSoft: "rgba(2, 132, 199, 0.32)",
-        glow: "rgba(2, 132, 199, 0.20)",
-        bgDark: "rgba(2, 132, 199, 0.20)",
         color: "#0284C7",
-        bgLight: "#F0F9FF",
+        cardBg: "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #F0F9FF 100%)",
+        borderSoft: "#BAE6FD",
+        glow: "rgba(2, 132, 199, 0.20)",
         bgDark: "rgba(2, 132, 199, 0.16)",
         border: "#0284C7",
-        glow: "rgba(2, 132, 199, 0.25)",
         badgeBg: "#E0F2FE",
         badgeText: "#0369A1",
-        badgeBorder: "#BAE6FD",
+        badgeBorder: "#7DD3FC",
       },
       "AQUASTRONG": {
         name: "AQUASTRONG",
-        tint: "rgba(2, 132, 199, 0.15)",
-        borderSoft: "rgba(2, 132, 199, 0.32)",
-        glow: "rgba(2, 132, 199, 0.20)",
-        bgDark: "rgba(2, 132, 199, 0.20)",
         color: "#0284C7",
-        bgLight: "#F0F9FF",
+        cardBg: "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #F0F9FF 100%)",
+        borderSoft: "#BAE6FD",
+        glow: "rgba(2, 132, 199, 0.20)",
         bgDark: "rgba(2, 132, 199, 0.16)",
         border: "#0284C7",
-        glow: "rgba(2, 132, 199, 0.25)",
         badgeBg: "#E0F2FE",
         badgeText: "#0369A1",
-        badgeBorder: "#BAE6FD",
+        badgeBorder: "#7DD3FC",
       },
       "PEGASUS": {
         name: "PEGASUS",
-        tint: "rgba(51, 65, 85, 0.12)",
-        borderSoft: "rgba(51, 65, 85, 0.28)",
-        glow: "rgba(51, 65, 85, 0.16)",
-        bgDark: "rgba(51, 65, 85, 0.20)",
-        color: "#334155",
-        bgLight: "#F8FAFC",
-        bgDark: "rgba(51, 65, 85, 0.2)",
-        border: "#334155",
-        glow: "rgba(51, 65, 85, 0.25)",
+        color: "#475569",
+        cardBg: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%)",
+        borderSoft: "#E2E8F0",
+        glow: "rgba(71, 85, 105, 0.18)",
+        bgDark: "rgba(71, 85, 105, 0.18)",
+        border: "#475569",
         badgeBg: "#F1F5F9",
         badgeText: "#334155",
         badgeBorder: "#CBD5E1",
       },
       "DWT": {
         name: "DWT",
-        tint: "rgba(225, 29, 36, 0.15)",
-        borderSoft: "rgba(225, 29, 36, 0.32)",
-        glow: "rgba(225, 29, 36, 0.20)",
-        bgDark: "rgba(225, 29, 36, 0.20)",
-        color: "#E11D24",
-        bgLight: "#FEF2F2",
-        bgDark: "rgba(225, 29, 36, 0.16)",
-        border: "#E11D24",
-        glow: "rgba(225, 29, 36, 0.25)",
-        badgeBg: "#FEE2E2",
-        badgeText: "#B91C1C",
-        badgeBorder: "#FECACA",
+        color: "#BE185D",
+        cardBg: "linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 50%, #FDF2F8 100%)",
+        borderSoft: "#FBCFE8",
+        glow: "rgba(190, 24, 93, 0.20)",
+        bgDark: "rgba(190, 24, 93, 0.16)",
+        border: "#BE185D",
+        badgeBg: "#FCE7F3",
+        badgeText: "#9D174D",
+        badgeBorder: "#F472B6",
       }
     };
 
@@ -7770,21 +7789,31 @@
           const cfg = BRAND_CONFIG[k];
           return {
             ...cfg,
-            tint: cfg.tint || "rgba(2, 132, 199, 0.14)",
-            borderSoft: cfg.borderSoft || "rgba(2, 132, 199, 0.32)",
-            glow: cfg.glow || "rgba(2, 132, 199, 0.18)"
+            cardBg: cfg.cardBg || "linear-gradient(135deg, #FEFCE8 0%, #FFFDF5 100%)",
+            borderSoft: cfg.borderSoft || "rgba(2, 132, 199, 0.38)",
+            glow: cfg.glow || "rgba(2, 132, 199, 0.20)",
+            titleColor: cfg.titleColor || "",
+            mutedColor: cfg.mutedColor || "",
+            codeBg: cfg.codeBg || "",
+            codeColor: cfg.codeColor || "",
+            codeBorder: cfg.codeBorder || "",
+            stepperBg: cfg.stepperBg || "",
+            stepperBorder: cfg.stepperBorder || "",
+            stepperBtnBg: cfg.stepperBtnBg || "",
+            stepperBtnBorder: cfg.stepperBtnBorder || "",
+            stepperBtnColor: cfg.stepperBtnColor || ""
           };
         }
       }
       return {
         name: marca || "GENERAL",
         color: "#0284C7",
-        tint: "rgba(2, 132, 199, 0.14)",
-        borderSoft: "rgba(2, 132, 199, 0.32)",
+        cardBg: "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #F0F9FF 100%)",
+        borderSoft: "#BAE6FD",
+        glow: "rgba(2, 132, 199, 0.20)",
         bgLight: "#F0F9FF",
-        bgDark: "rgba(2, 132, 199, 0.20)",
+        bgDark: "rgba(2, 132, 199, 0.18)",
         border: "#0284C7",
-        glow: "rgba(2, 132, 199, 0.18)",
         badgeBg: "#E0F2FE",
         badgeText: "#0369A1",
         badgeBorder: "#BAE6FD",
@@ -7797,7 +7826,6 @@
       };
     }
 
-    // 4. POBLAR FILTRO DE MARCAS Y CHIPS RÁPIDOS (CON LOGOS OFICIALES Y ALINEACIÓN DE UN MISMO VUELO)
     function populateBrandFilter() {
       const select = document.getElementById('filter-brand');
       const chipsContainer = document.getElementById('brand-chips-container');
@@ -7925,7 +7953,7 @@
         return `
           <div class="product-card ${isSelected ? 'has-selection' : ''} ${isSoldOut ? 'is-sold-out' : ''}" 
                id="card-${p.codigo}"
-               style="--brand-accent: ${brand.color}; --brand-border-soft: ${brand.borderSoft || '#CBD5E1'}; --brand-glow: ${brand.glow}; --brand-tint: ${brand.tint || 'rgba(2, 132, 199, 0.14)'}; --brand-bg-dark: ${brand.bgDark || 'rgba(255, 255, 255, 0.08)'};">
+               style="--brand-accent: ${brand.color}; --brand-border-soft: ${brand.borderSoft || '#CBD5E1'}; --brand-glow: ${brand.glow || 'rgba(15, 23, 42, 0.08)'}; --brand-card-bg: ${brand.cardBg || '#FFFFFF'}; ${brand.titleColor ? `--brand-title-color: ${brand.titleColor};` : ''} ${brand.mutedColor ? `--brand-muted-color: ${brand.mutedColor};` : ''} ${brand.codeBg ? `--brand-code-bg: ${brand.codeBg};` : ''} ${brand.codeColor ? `--brand-code-color: ${brand.codeColor};` : ''} ${brand.codeBorder ? `--brand-code-border: ${brand.codeBorder};` : ''} ${brand.stepperBg ? `--brand-stepper-bg: ${brand.stepperBg};` : ''} ${brand.stepperBorder ? `--brand-stepper-border: ${brand.stepperBorder};` : ''} ${brand.stepperBtnBg ? `--brand-step-btn-bg: ${brand.stepperBtnBg};` : ''} ${brand.stepperBtnBorder ? `--brand-step-btn-border: ${brand.stepperBtnBorder};` : ''} ${brand.stepperBtnColor ? `--brand-step-btn-color: ${brand.stepperBtnColor};` : ''} --brand-bg-dark: ${brand.bgDark || 'rgba(255, 255, 255, 0.08)'};">
             
             <!-- Foto del Producto con Zoom al tocar imagen o lupa -->
             <div class="product-img-wrapper" 
