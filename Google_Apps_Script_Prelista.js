@@ -216,6 +216,7 @@ function extraerDatosPrelista(targetSheetName) {
 
   var colDetalle = -1;
   var colCodigo = -1;
+  var colMarca = -1;
   var colQCajas = -1;
   var colQPorCaja = -1;
   var colUnMed = -1;
@@ -238,6 +239,8 @@ function extraerDatosPrelista(targetSheetName) {
       } else if (cellVal === "CODIGO" || cellVal === "COD" || cellVal === "COD.") {
         colCodigo = c;
         headerRowIdx = r;
+      } else if (cellVal === "MARCA" || cellVal === "MARCAS" || cellVal === "LINEA" || cellVal === "TIPO" || cellVal === "PROVEEDOR" || cellVal === "FABRICANTE") {
+        colMarca = c;
       } else if (((cellVal.indexOf("CAJA") >= 0 && (cellVal.indexOf("Q") >= 0 || cellVal.indexOf("CANT") >= 0 || cellVal.indexOf("TOT") >= 0)) || cellVal === "CAJAS" || cellVal === "CJS" || cellVal === "Q. CAJAS" || cellVal === "Q. DE CAJAS") && cellVal.indexOf("POR") === -1 && cellVal.indexOf("X") === -1 && cellVal.indexOf("PRECIO") === -1) {
         colQCajas = c;
       } else if (cellVal.indexOf("POR CAJA") >= 0 || cellVal.indexOf("X CAJA") >= 0 || cellVal === "PACKING" || cellVal === "EMPAQUE" || cellVal === "UNID/CAJA" || (cellVal.indexOf("Q.") >= 0 && cellVal.indexOf("POR") >= 0)) {
@@ -328,18 +331,61 @@ function extraerDatosPrelista(targetSheetName) {
 
     var stockReservas = (colStockReservas !== -1 && rData[colStockReservas] !== "") ? parseNumero(rData[colStockReservas], 0) : qCajas;
 
-    // Detectar marca
-    var marca = "TOTAL";
-    if (detalle.indexOf("TOTAL") >= 0 || codigo.indexOf("TH") === 0 || codigo.indexOf("TS") === 0 || codigo.indexOf("TP") === 0) {
-      marca = "TOTAL";
-    } else if (detalle.indexOf("DONG CHENG") >= 0 || detalle.indexOf("DONGCHENG") >= 0 || detalle.indexOf("DC") >= 0) {
-      marca = "DONG CHENG";
-    } else if (detalle.indexOf("UYUSTOOLS") >= 0 || detalle.indexOf("UYUS") >= 0) {
-      marca = "UYUSTOOLS";
-    } else if (detalle.indexOf("CROWN") >= 0) {
-      marca = "CROWN";
-    } else if (detalle.indexOf("AQUASTRONG") >= 0) {
-      marca = "AQUASTRONG";
+    // Detectar marca (columna directa o inferencia inteligente)
+    var marca = "";
+    if (colMarca !== -1 && rData[colMarca]) {
+      marca = normalizarTexto(rData[colMarca]);
+    }
+
+    if (!marca || marca === "VARIOS" || marca === "TOTAL" || marca === "GENERAL") {
+      var dUpper = detalle.toUpperCase();
+      var cUpper = codigo.toUpperCase();
+      
+      if (dUpper.indexOf("UYUSTOOLS") >= 0 || dUpper.indexOf("UYUS") >= 0 || dUpper.indexOf(" UYU") >= 0 || dUpper.indexOf("-UYU") >= 0 || dUpper.indexOf("UYU ") >= 0 || dUpper.endsWith("UYU") || cUpper.indexOf("UYU") >= 0) {
+        marca = "UYUSTOOLS";
+      } else if (dUpper.indexOf("MAKAWA") >= 0 || cUpper.indexOf("MK-") === 0 || cUpper.indexOf("MK") === 0) {
+        marca = "MAKAWA";
+      } else if (dUpper.indexOf("LUTIAN") >= 0 || cUpper.indexOf("LT") === 0 || (dUpper.indexOf("HIDROLAVADORA") >= 0 && dUpper.indexOf("LUTIAN") >= 0)) {
+        marca = "LUTIAN";
+      } else if (dUpper.indexOf("MASTERMAQ") >= 0 || dUpper.indexOf("MASTER") >= 0 || cUpper.indexOf("MAX-") === 0) {
+        marca = "MASTERMAQ";
+      } else if (dUpper.indexOf("POWERMAQ") >= 0) {
+        marca = "POWERMAQ";
+      } else if (dUpper.indexOf("TOYAKI") >= 0 || cUpper.indexOf("TK-") === 0) {
+        marca = "TOYAKI";
+      } else if (dUpper.indexOf("DONG CHENG") >= 0 || dUpper.indexOf("DONGCHENG") >= 0 || dUpper.indexOf("DCA") >= 0 || cUpper.indexOf("DC") === 0) {
+        marca = "DONG CHENG";
+      } else if (dUpper.indexOf("CROWN") >= 0 || (cUpper.indexOf("CT") === 0 && cUpper.length >= 5 && !isNaN(parseInt(cUpper.charAt(2), 10)))) {
+        marca = "CROWN";
+      } else if (dUpper.indexOf("AQUASTRONG") >= 0 || dUpper.indexOf("AQUAS") >= 0) {
+        marca = "AQUASTRONG";
+      } else if (dUpper.indexOf("WADFOW") >= 0 || cUpper.indexOf("WDF") === 0 || cUpper.indexOf("WSS") === 0 || (cUpper.indexOf("W") === 0 && cUpper.length >= 4 && (cUpper.indexOf("WTB") === 0 || cUpper.indexOf("WAG") === 0 || cUpper.indexOf("WWH") === 0 || cUpper.indexOf("WDT") === 0 || cUpper.indexOf("WPL") === 0 || cUpper.indexOf("WCS") === 0))) {
+        marca = "WADFOW";
+      } else if (dUpper.indexOf("FERTON") >= 0 || cUpper.indexOf("FT") === 0) {
+        marca = "FERTON";
+      } else if (dUpper.indexOf("FERRAWYY") >= 0 || dUpper.indexOf("FERRA") >= 0) {
+        marca = "FERRAWYY";
+      } else if (dUpper.indexOf("KAILI") >= 0 || cUpper.indexOf("KL") === 0) {
+        marca = "KAILI";
+      } else if (dUpper.indexOf("KAMASA") >= 0 || cUpper.indexOf("KM") === 0) {
+        marca = "KAMASA";
+      } else if (dUpper.indexOf("ASAKI") >= 0 || cUpper.indexOf("AK") === 0) {
+        marca = "ASAKI";
+      } else if (dUpper.indexOf("DWT") >= 0) {
+        marca = "DWT";
+      } else if (dUpper.indexOf("NEVA") >= 0) {
+        marca = "NEVA";
+      } else if (dUpper.indexOf("OMEGA") >= 0) {
+        marca = "OMEGA";
+      } else if (dUpper.indexOf("RIO") >= 0) {
+        marca = "RIO";
+      } else if (dUpper.indexOf("PEGASUS") >= 0) {
+        marca = "PEGASUS";
+      } else if (dUpper.indexOf("TOTAL") >= 0 || dUpper.indexOf("TOTA") >= 0 || cUpper.indexOf("TH") === 0 || cUpper.indexOf("TS") === 0 || cUpper.indexOf("TP") === 0 || cUpper.indexOf("TG") === 0 || cUpper.indexOf("TAC") === 0 || cUpper.indexOf("TL") === 0 || cUpper.indexOf("THT") === 0 || cUpper.indexOf("TV") === 0 || cUpper.indexOf("TOS") === 0 || cUpper.indexOf("TIDLI") === 0 || cUpper.indexOf("TIWLI") === 0 || cUpper.indexOf("TMT") === 0 || cUpper.indexOf("TBC") === 0 || cUpper.indexOf("TW") === 0 || cUpper.indexOf("TB") === 0 || cUpper.indexOf("TCKLI") === 0 || cUpper.indexOf("PMST") === 0 || cUpper.indexOf("PMTS") === 0) {
+        marca = "TOTAL";
+      } else {
+        marca = "VARIOS";
+      }
     }
 
     // Calcular precio de caja completa

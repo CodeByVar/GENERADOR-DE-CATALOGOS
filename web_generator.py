@@ -69,6 +69,339 @@ class RedirectStdout:
         sys.stdout = self.old_stdout
         sys.stderr = self.old_stderr
 
+def normalizar_marca_nombre(b):
+    if not b: return ''
+    b_u = str(b).upper().strip()
+    if 'UYUS' in b_u or 'UYU' in b_u: return 'UYUSTOOLS'
+    if 'TOTAL' in b_u: return 'TOTAL'
+    if 'DONG' in b_u or 'DONGCHENG' in b_u: return 'DONG CHENG'
+    if 'CROWN' in b_u: return 'CROWN'
+    if 'AQUA' in b_u: return 'AQUASTRONG'
+    if 'WADFOW' in b_u: return 'WADFOW'
+    if 'LUTIAN' in b_u: return 'LUTIAN'
+    if 'MAKAWA' in b_u: return 'MAKAWA'
+    if 'MASTER' in b_u: return 'MASTERMAQ'
+    if 'POWER' in b_u: return 'POWERMAQ'
+    if 'TOYAKI' in b_u: return 'TOYAKI'
+    if 'FERTON' in b_u: return 'FERTON'
+    if 'FERR' in b_u: return 'FERRAWYY'
+    if 'KAILI' in b_u: return 'KAILI'
+    if 'KAMASA' in b_u: return 'KAMASA'
+    if 'ASAKI' in b_u: return 'ASAKI'
+    if 'DWT' in b_u: return 'DWT'
+    if 'NEVA' in b_u: return 'NEVA'
+    if 'OMEGA' in b_u: return 'OMEGA'
+    if 'RIO' in b_u: return 'RIO'
+    if 'PEGASUS' in b_u: return 'PEGASUS'
+    return b
+
+def cargar_db_marcas_excel(excel_path="catalogos.xlsx"):
+    from generar_catalogo import load_workbook
+    code_to_brand = {}
+    if not os.path.exists(excel_path):
+        return code_to_brand
+    try:
+        wb = load_workbook(excel_path, read_only=True, data_only=True)
+        for sheet in wb.sheetnames:
+            ws = wb[sheet]
+            for row in ws.iter_rows(values_only=True):
+                row_str = [str(c).strip() if c is not None else '' for c in row]
+                if sheet == 'FORMATO INVENTARIO' and len(row_str) > 4:
+                    c = row_str[2].upper().strip()
+                    b = row_str[4].upper().strip()
+                    if c and b: code_to_brand[c] = b
+                elif 'INVENTARIO' in sheet.upper() and len(row_str) > 3:
+                    c = row_str[1].upper().strip()
+                    b = row_str[2].upper().strip() if len(row_str) > 2 else ''
+                    if c and b and len(c) > 2: code_to_brand[c] = b
+        wb.close()
+    except Exception as e:
+        print(f"[AVISO] Error cargando marcas de Excel: {e}")
+    return code_to_brand
+
+def resolver_marca_prelista(c_raw, d_raw, code_to_brand=None):
+    c = str(c_raw or '').upper().strip()
+    d = str(d_raw or '').upper().strip()
+    if code_to_brand and c in code_to_brand:
+        nb = normalizar_marca_nombre(code_to_brand[c])
+        if nb: return nb
+    if any(k in d for k in ['UYUSTOOLS', 'UYUS', ' UYU', '-UYU', 'UYU ']) or d.endswith('UYU') or 'UYU' in c:
+        return 'UYUSTOOLS'
+    if 'MAKAWA' in d or c.startswith('MK-') or c.startswith('MK'):
+        return 'MAKAWA'
+    if 'LUTIAN' in d or c.startswith('LT') or ('HIDROLAVADORA' in d and 'LUTIAN' in d):
+        return 'LUTIAN'
+    if 'MASTERMAQ' in d or 'MASTER' in d or c.startswith('MAX-'):
+        return 'MASTERMAQ'
+    if 'POWERMAQ' in d:
+        return 'POWERMAQ'
+    if 'TOYAKI' in d or c.startswith('TK-'):
+        return 'TOYAKI'
+    if 'DONG CHENG' in d or 'DONGCHENG' in d or 'DCA' in d or c.startswith('DC'):
+        return 'DONG CHENG'
+    if 'CROWN' in d or (c.startswith('CT') and len(c) >= 5 and c[2].isdigit()):
+        return 'CROWN'
+    if 'AQUASTRONG' in d or 'AQUAS' in d:
+        return 'AQUASTRONG'
+    if 'WADFOW' in d or c.startswith('WDF') or c.startswith('WSS') or (c.startswith('W') and len(c) >= 4 and any(c.startswith(p) for p in ['WTB','WAG','WWH','WDT','WPL','WCS','WFS','WCD','WES'])):
+        return 'WADFOW'
+    if 'FERTON' in d or c.startswith('FT'):
+        return 'FERTON'
+    if 'FERRAWYY' in d or 'FERRA' in d:
+        return 'FERRAWYY'
+    if 'KAILI' in d or c.startswith('KL'):
+        return 'KAILI'
+    if 'KAMASA' in d or c.startswith('KM'):
+        return 'KAMASA'
+    if 'ASAKI' in d or c.startswith('AK'):
+        return 'ASAKI'
+    if 'DWT' in d:
+        return 'DWT'
+    if 'NEVA' in d:
+        return 'NEVA'
+    if 'OMEGA' in d:
+        return 'OMEGA'
+    if 'RIO' in d:
+        return 'RIO'
+    if 'PEGASUS' in d:
+        return 'PEGASUS'
+    if 'TOTAL' in d or 'TOTA' in d or any(c.startswith(p) for p in ['TH', 'TS', 'TP', 'TG', 'TAC', 'TL', 'THT', 'TV', 'TOS', 'TIDLI', 'TIWLI', 'TMT', 'TBC', 'TW', 'TB', 'TCKLI', 'PMST', 'PMTS']):
+        return 'TOTAL'
+    return 'VARIOS'
+
+def sincronizar_imagenes_para_prelista(productos, excel_path="catalogos.xlsx"):
+    """
+    Sincroniza y extrae las fotos de cada producto de la prelista directamente
+    desde 'catalogos.xlsx' y la caché local en 'temp_imgs/'.
+    Convierte cada foto a un Data URI en Base64 (data:image/webp;base64,...)
+    para que se sirva al 100% en Vercel sin depender de rutas locales ni dar 404.
+    Además verifica y asigna la marca exacta de cada producto basándose en 'catalogos.xlsx'.
+    """
+    import io, base64
+    from PIL import Image as PILImage
+    from generar_catalogo import (
+        load_workbook, detectar_hojas_inventario, detectar_columnas,
+        extraer_bytes_de_imagen, autocrop_image, normalizar_codigo
+    )
+
+    if not os.path.exists("temp_imgs"):
+        os.makedirs("temp_imgs")
+
+    # Resolver marcas reales de cada producto
+    code_to_brand = cargar_db_marcas_excel(excel_path)
+    for p in productos:
+        m_curr = p.get("marca")
+        m_res = resolver_marca_prelista(p.get("codigo"), p.get("detalle"), code_to_brand)
+        if m_res and m_res != "VARIOS":
+            p["marca"] = m_res
+        elif not m_curr or m_curr == "TOTAL":
+            p["marca"] = m_res
+
+    # 1. Identificar productos que ya tienen imagen en disco vs los que necesitan extraerse de Excel
+    codigos_pendientes = {} # { norm_code: [producto_dicts] }
+    
+    for p in productos:
+        cod = str(p.get("codigo", "")).strip()
+        if not cod:
+            continue
+        clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", cod)
+        norm_cod = normalizar_codigo(cod).upper()
+        
+        # Si ya tiene una imagen Base64 válida, mantenerla
+        if p.get("imagen") and str(p["imagen"]).startswith("data:image/"):
+            continue
+
+        # Verificar si ya existe en disco
+        img_disk = os.path.join("temp_imgs", f"prod_{clean_cod}.webp")
+        if not os.path.exists(img_disk):
+            img_disk_png = os.path.join("temp_imgs", f"prod_{clean_cod}.png")
+            if os.path.exists(img_disk_png):
+                img_disk = img_disk_png
+                
+        if os.path.exists(img_disk) and os.path.getsize(img_disk) > 400:
+            try:
+                with open(img_disk, "rb") as f_i:
+                    raw_b = f_i.read()
+                mime = "image/webp" if img_disk.endswith(".webp") else "image/png"
+                p["imagen"] = f"data:{mime};base64,{base64.b64encode(raw_b).decode('utf-8')}"
+                continue
+            except Exception:
+                pass
+                
+        # Si no tiene imagen en disco, registrarlo para buscar en catalogos.xlsx
+        if norm_cod not in codigos_pendientes:
+            codigos_pendientes[norm_cod] = []
+        codigos_pendientes[norm_cod].append(p)
+
+    # 2. Si hay códigos pendientes y existe catalogos.xlsx, extraer directo de Excel
+    if codigos_pendientes and os.path.exists(excel_path):
+        print(f"\n[EXCEL PRELISTA] Buscando fotos para {len(codigos_pendientes)} productos pendientes en '{excel_path}'...")
+        try:
+            wb = load_workbook(excel_path, data_only=True)
+            hojas = detectar_hojas_inventario(wb)
+            
+            # Buscar en cada hoja de inventario
+            for ws in hojas:
+                if not hasattr(ws, '_images') or not ws._images:
+                    continue
+                cols, start_row = detectar_columnas(ws)
+                col_c = cols.get("codigo", 2)
+                
+                # Mapear filas que corresponden a nuestros códigos en esta hoja
+                filas_target = {} # { row_number: norm_code }
+                max_r = min(ws.max_row + 10, 20000) if ws.max_row else 5000
+                consecutive_empty = 0
+                
+                for r in range(start_row, max_r):
+                    val = ws.cell(row=r, column=col_c).value
+                    if val and str(val).strip():
+                        norm_v = normalizar_codigo(val).upper()
+                        if norm_v in codigos_pendientes:
+                            filas_target[r] = norm_v
+                        consecutive_empty = 0
+                    else:
+                        consecutive_empty += 1
+                        if consecutive_empty >= 80:
+                            break
+                            
+                if not filas_target:
+                    continue
+                    
+                print(f"  [EXCEL PRELISTA] Hoja '{ws.title}': detectados {len(filas_target)} productos coincidentes. Extrayendo fotos...")
+                
+                # Extraer imágenes de las filas encontradas
+                for img in ws._images:
+                    try:
+                        ancla = getattr(img, 'anchor', None)
+                        fila = None
+                        if ancla is not None:
+                            if hasattr(ancla, '_from') and hasattr(ancla._from, 'row'):
+                                fila = ancla._from.row + 1
+                            elif hasattr(ancla, 'from_row'):
+                                fila = ancla.from_row + 1
+                            elif hasattr(ancla, 'row'):
+                                fila = ancla.row + 1
+                            elif isinstance(ancla, str):
+                                m = re.search(r'\d+', ancla)
+                                if m: fila = int(m.group())
+                                
+                        if fila is None:
+                            continue
+                            
+                        # Verificar si coincide con una fila de interés (+- 2 de tolerancia)
+                        norm_match = None
+                        for off in [0, -1, 1, -2, 2]:
+                            if (fila + off) in filas_target:
+                                norm_match = filas_target[fila + off]
+                                break
+                                
+                        if not norm_match or norm_match not in codigos_pendientes:
+                            continue
+                            
+                        raw_bytes = extraer_bytes_de_imagen(img)
+                        if raw_bytes and len(raw_bytes) > 200:
+                            img_pil = PILImage.open(io.BytesIO(raw_bytes))
+                            img_cropped = autocrop_image(img_pil)
+                            if img_cropped.width > 350 or img_cropped.height > 350:
+                                resample_filter = getattr(PILImage, "Resampling", None)
+                                filter_type = resample_filter.LANCZOS if resample_filter else getattr(PILImage, "ANTIALIAS", 3)
+                                img_cropped.thumbnail((350, 350), filter_type)
+                                
+                            clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", norm_match)
+                            dest_webp = os.path.join("temp_imgs", f"prod_{clean_cod}.webp")
+                            img_cropped.save(dest_webp, "WEBP", quality=65)
+                            
+                            with open(dest_webp, "rb") as f_w:
+                                webp_raw = f_w.read()
+                            b64_str = f"data:image/webp;base64,{base64.b64encode(webp_raw).decode('utf-8')}"
+                            
+                            # Asignar a todos los productos con este código
+                            for p_item in codigos_pendientes[norm_match]:
+                                p_item["imagen"] = b64_str
+                                
+                            del codigos_pendientes[norm_match]
+                    except Exception:
+                        pass
+                        
+            wb.close()
+            print(f"[EXCEL PRELISTA] Extracción finalizada. Pendientes sin foto: {len(codigos_pendientes)}.")
+        except Exception as e_wb:
+            print(f"[EXCEL PRELISTA ERROR] No se pudo leer {excel_path}: {e_wb}")
+
+    return productos
+
+def sincronizar_imagenes_prelista_existente():
+    """
+    Revisa prelista_data.json en el arranque. Si hay productos sin imagen, extrae de catalogos.xlsx
+    y actualiza tanto prelista_data.json como prelista.html con las fotos en Base64.
+    """
+    if not os.path.exists("prelista_data.json"):
+        return
+    try:
+        with open("prelista_data.json", "r", encoding="utf-8") as f_in:
+            data = json.load(f_in)
+        productos = data.get("productos", [])
+        if not productos:
+            return
+        
+        # Verificar si falta imagen o si las marcas necesitan sincronización
+        sin_foto = sum(1 for p in productos if not p.get("imagen"))
+        marcas_total_excesivas = sum(1 for p in productos if p.get("marca") == "TOTAL" and "TOTAL" not in str(p.get("detalle", "")).upper() and not str(p.get("codigo", "")).upper().startswith("T"))
+        if sin_foto > 0 or marcas_total_excesivas > 0:
+            print(f"[INICIO PRELISTA] Sincronizando fotos y marcas de prelista con Excel...")
+            productos = sincronizar_imagenes_para_prelista(productos)
+            data["productos"] = productos
+            data["actualizadoEn"] = datetime.now().isoformat()
+            with open("prelista_data.json", "w", encoding="utf-8") as f_out:
+                json.dump(data, f_out, indent=2, ensure_ascii=False)
+            
+            # Hornear en prelista.html
+            if os.path.exists("prelista.html"):
+                with open("prelista.html", "r", encoding="utf-8") as f_h:
+                    html_content = f_h.read()
+                baked_json = json.dumps(productos, ensure_ascii=False, indent=2)
+                new_baked_block = f"/* BAKED_PRELISTA_DATA_START */\n    const BAKED_PRELISTA_DATA = {baked_json};\n    /* BAKED_PRELISTA_DATA_END */"
+                if "/* BAKED_PRELISTA_DATA_START */" in html_content:
+                    html_content = re.sub(
+                        r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
+                        lambda m: new_baked_block,
+                        html_content,
+                        flags=re.DOTALL
+                    )
+                with open("prelista.html", "w", encoding="utf-8") as f_hw:
+                    f_hw.write(html_content)
+
+            # También sincronizar api/prelista.js para Vercel
+            if os.path.exists("api/prelista.js"):
+                try:
+                    with open("api/prelista.js", "r", encoding="utf-8") as f_api:
+                        api_content = f_api.read()
+                    demo_payload = {
+                        "success": True,
+                        "sheet": data.get("sheet", "Prelista"),
+                        "availableSheets": data.get("availableSheets", ["Prelista"]),
+                        "totalProductos": len(productos),
+                        "actualizadoEn": datetime.now().isoformat(),
+                        "productos": productos
+                    }
+                    demo_json_str = json.dumps(demo_payload, ensure_ascii=False, indent=2)
+                    new_demo_block = f"// DEMO_PRELISTA_START\nconst DEMO_PRELISTA = {demo_json_str};\n// DEMO_PRELISTA_END"
+                    if "// DEMO_PRELISTA_START" in api_content:
+                        api_content = re.sub(
+                            r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
+                            lambda m: new_demo_block,
+                            api_content,
+                            flags=re.DOTALL
+                        )
+                        with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
+                            f_api_w.write(api_content)
+                except Exception as e_api_err:
+                    print(f"[INICIO PRELISTA AVISO] No se pudo actualizar api/prelista.js: {e_api_err}")
+
+            print(f"[INICIO PRELISTA OK] ¡Fotos de prelista horneadas exitosamente!")
+    except Exception as e_sync:
+        print(f"[INICIO PRELISTA AVISO] No se pudo sincronizar fotos iniciales: {e_sync}")
+
 class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     
     # Registrar conexiones de red entrantes para ver quién se conecta al panel
@@ -111,6 +444,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 sheet = data.get("sheet", "Hoja 49")
                 productos = data.get("productos", [])
 
+                # Sincronizar y extraer imágenes directamente desde catalogos.xlsx y temp_imgs
+                productos = sincronizar_imagenes_para_prelista(productos)
+
                 # 1. Guardar prelista_data.json con todos los productos de prelista
                 with open("prelista_data.json", "w", encoding="utf-8") as f_data:
                     json.dump({
@@ -135,7 +471,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     if "/* BAKED_PRELISTA_DATA_START */" in html_content:
                         html_content = re.sub(
                             r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
-                            new_baked_block,
+                            lambda m: new_baked_block,
                             html_content,
                             flags=re.DOTALL
                         )
@@ -161,7 +497,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     if "// DEMO_PRELISTA_START" in api_content:
                         api_content = re.sub(
                             r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
-                            new_demo_block,
+                            lambda m: new_demo_block,
                             api_content,
                             flags=re.DOTALL
                         )
@@ -577,6 +913,70 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     self.wfile.write(resp.read())
             except Exception as e_script:
                 self.wfile.write(json.dumps({"success": False, "error": str(e_script)}).encode('utf-8'))
+            return
+
+        # 1.10 Endpoint API para sincronizar fotos de la prelista directamente desde Excel
+        elif parsed_url.path == "/api/prelista/sincronizar_fotos":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            try:
+                with open("prelista_data.json", "r", encoding="utf-8") as f_d:
+                    data = json.load(f_d)
+                prods = data.get("productos", [])
+                prods = sincronizar_imagenes_para_prelista(prods)
+                data["productos"] = prods
+                data["actualizadoEn"] = datetime.now().isoformat()
+                with open("prelista_data.json", "w", encoding="utf-8") as f_d_w:
+                    json.dump(data, f_d_w, indent=2, ensure_ascii=False)
+
+                if os.path.exists("prelista.html"):
+                    with open("prelista.html", "r", encoding="utf-8") as f_h:
+                        html_c = f_h.read()
+                    baked_json = json.dumps(prods, ensure_ascii=False, indent=2)
+                    new_baked = f"/* BAKED_PRELISTA_DATA_START */\n    const BAKED_PRELISTA_DATA = {baked_json};\n    /* BAKED_PRELISTA_DATA_END */"
+                    if "/* BAKED_PRELISTA_DATA_START */" in html_c:
+                        html_c = re.sub(
+                            r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
+                            lambda m: new_baked,
+                            html_c,
+                            flags=re.DOTALL
+                        )
+                    with open("prelista.html", "w", encoding="utf-8") as f_hw:
+                        f_hw.write(html_c)
+
+                # También actualizar api/prelista.js para Vercel
+                if os.path.exists("api/prelista.js"):
+                    try:
+                        with open("api/prelista.js", "r", encoding="utf-8") as f_api:
+                            api_c = f_api.read()
+                        demo_payload = {
+                            "success": True,
+                            "sheet": data.get("sheet", "Prelista"),
+                            "availableSheets": data.get("availableSheets", ["Prelista"]),
+                            "totalProductos": len(prods),
+                            "actualizadoEn": data.get("actualizadoEn", datetime.now().isoformat()),
+                            "productos": prods
+                        }
+                        demo_str = json.dumps(demo_payload, ensure_ascii=False, indent=2)
+                        new_demo = f"// DEMO_PRELISTA_START\nconst DEMO_PRELISTA = {demo_str};\n// DEMO_PRELISTA_END"
+                        if "// DEMO_PRELISTA_START" in api_c:
+                            api_c = re.sub(
+                                r'// DEMO_PRELISTA_START.*?// DEMO_PRELISTA_END',
+                                lambda m: new_demo,
+                                api_c,
+                                flags=re.DOTALL
+                            )
+                            with open("api/prelista.js", "w", encoding="utf-8") as f_api_w:
+                                f_api_w.write(api_c)
+                    except Exception:
+                        pass
+                con_foto = sum(1 for p in prods if p.get("imagen") and str(p["imagen"]).startswith("data:image/"))
+                resp = {"success": True, "total": len(prods), "conFoto": con_foto, "mensaje": f"Se sincronizaron {con_foto} fotos desde catalogos.xlsx y caché."}
+            except Exception as e_s:
+                resp = {"success": False, "error": str(e_s)}
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
         # 2. Servir el PDF de catálogo
@@ -1607,6 +2007,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         </div>
 
         <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+          <button class="btn-chip" onclick="sincronizarFotosPrelistaExcel()" style="flex: 1; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.35); font-weight: 800; font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Extraer y sincronizar fotos directo desde catalogos.xlsx">
+            <span>🖼️ Sincronizar Fotos Excel</span>
+          </button>
           <button class="btn-chip" onclick="publicarVercelDesdePrelista()" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-weight: 800; font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Subir los cambios de prelista.html a Vercel en la nube">
             <span>☁️ Publicar en Vercel Ahora</span>
           </button>
@@ -2510,6 +2913,26 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       .catch(err => {{
         alert("Error de conexión al guardar: " + err.message);
       }});
+    }}
+
+    function sincronizarFotosPrelistaExcel() {{
+      log(">>> [PRELISTA FOTOS] Buscando y extrayendo fotos desde catalogos.xlsx...", "info");
+      fetch('/api/prelista/sincronizar_fotos')
+        .then(r => r.json())
+        .then(res => {{
+          if (res.success) {{
+            log(`[PRELISTA FOTOS OK] ${{res.mensaje}}`, "success");
+            alert(`🎉 ¡Fotos sincronizadas con éxito!\\n\\n${{res.mensaje}}\\nTotal productos con foto: ${{res.conFoto}}`);
+            consultarPrelistaPanel();
+          }} else {{
+            log(`[PRELISTA FOTOS ERROR] ${{res.error}}`, "error");
+            alert(`Aviso: ${{res.error}}`);
+          }}
+        }})
+        .catch(err => {{
+          log(`[PRELISTA FOTOS ERROR] ${{err.message}}`, "error");
+          alert("Error al conectar: " + err.message);
+        }});
     }}
 
     function publicarVercelDesdePrelista() {{
@@ -3453,4 +3876,8 @@ def start_server():
         input("\nPresiona Enter para salir...")
 
 if __name__ == "__main__":
+    try:
+        sincronizar_imagenes_prelista_existente()
+    except Exception as e_sync_init:
+        print(f"[PRELISTA AVISO] Error al sincronizar imágenes iniciales: {e_sync_init}")
     start_server()
