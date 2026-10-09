@@ -396,8 +396,8 @@
     }
 
     .product-card {
-      background: #FFFFFF;
-      border: 1px solid #E2E8F0;
+      background: linear-gradient(135deg, var(--brand-tint, rgba(2, 132, 199, 0.14)) 0%, rgba(255, 255, 255, 0.92) 48%, #FFFFFF 100%);
+      border: 1.5px solid var(--brand-border-soft, #CBD5E1);
       border-radius: 18px;
       padding: 14px 16px;
       display: grid;
@@ -405,8 +405,20 @@
       gap: 14px;
       align-items: center;
       transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 4px 18px -2px var(--brand-glow, rgba(15, 23, 42, 0.06)), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
       position: relative;
+    }
+
+    .product-card:hover {
+      border-color: var(--brand-accent, #0284C7);
+      box-shadow: 0 10px 26px -4px var(--brand-glow, rgba(15, 23, 42, 0.14)), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+      transform: translateY(-2px);
+    }
+
+    .product-card.has-selection {
+      border-color: #10B981 !important;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(240, 253, 244, 0.94) 50%, #FFFFFF 100%) !important;
+      box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.22) !important;
     }
 
     .product-card:hover {
@@ -433,9 +445,9 @@
     .product-img-wrapper {
       width: 88px;
       height: 88px;
-      border-radius: 12px;
-      background: #F8FAFC;
-      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      background: #FFFFFF;
+      border: 1px solid rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -444,12 +456,12 @@
       position: relative;
       cursor: pointer;
       transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     }
 
     .product-img-wrapper:hover {
-      border-color: var(--primary);
-      background: #FFFFFF;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      border-color: var(--brand-accent, #0284C7);
+      box-shadow: 0 4px 12px var(--brand-glow, rgba(15, 23, 42, 0.12));
     }
 
     .product-img {
@@ -1312,8 +1324,8 @@
     }
 
     body.dark-mode .product-card {
-      background: #111827;
-      border-color: #1F2937;
+      background: linear-gradient(135deg, var(--brand-bg-dark, rgba(255, 255, 255, 0.08)) 0%, #111827 65%);
+      border-color: var(--brand-border-soft, #1F2937);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     }
 
@@ -7355,6 +7367,10 @@
     const BRAND_CONFIG = {
       "UYUSTOOLS": {
         name: "UYUSTOOLS",
+        tint: "rgba(202, 138, 4, 0.18)",
+        borderSoft: "rgba(202, 138, 4, 0.38)",
+        glow: "rgba(202, 138, 4, 0.22)",
+        bgDark: "rgba(234, 179, 8, 0.20)",
         color: "#CA8A04",
         bgLight: "#FEFCE8",
         bgDark: "rgba(234, 179, 8, 0.14)",
@@ -7372,6 +7388,10 @@
       },
       "TOTAL": {
         name: "TOTAL",
+        tint: "rgba(24, 110, 111, 0.16)",
+        borderSoft: "rgba(24, 110, 111, 0.35)",
+        glow: "rgba(24, 110, 111, 0.20)",
+        bgDark: "rgba(24, 110, 111, 0.20)",
         color: "#186E6F",
         bgLight: "#F0FDFA",
         bgDark: "rgba(24, 110, 111, 0.16)",
@@ -7389,6 +7409,10 @@
       },
       "DONG CHENG": {
         name: "DONG CHENG",
+        tint: "rgba(0, 91, 172, 0.15)",
+        borderSoft: "rgba(0, 91, 172, 0.34)",
+        glow: "rgba(0, 91, 172, 0.20)",
+        bgDark: "rgba(0, 91, 172, 0.20)",
         color: "#005BAC",
         bgLight: "#EFF6FF",
         bgDark: "rgba(0, 91, 172, 0.16)",
@@ -7406,6 +7430,10 @@
       },
       "LUTIAN": {
         name: "LUTIAN",
+        tint: "rgba(101, 163, 13, 0.16)",
+        borderSoft: "rgba(101, 163, 13, 0.34)",
+        glow: "rgba(101, 163, 13, 0.20)",
+        bgDark: "rgba(101, 163, 13, 0.20)",
         color: "#65A30D",
         bgLight: "#F7FEE7",
         bgDark: "rgba(101, 163, 13, 0.16)",
@@ -7423,6 +7451,10 @@
       },
       "MAKAWA": {
         name: "MAKAWA",
+        tint: "rgba(234, 88, 12, 0.16)",
+        borderSoft: "rgba(234, 88, 12, 0.34)",
+        glow: "rgba(234, 88, 12, 0.20)",
+        bgDark: "rgba(234, 88, 12, 0.20)",
         color: "#EA580C",
         bgLight: "#FFF7ED",
         bgDark: "rgba(234, 88, 12, 0.16)",
@@ -7440,6 +7472,10 @@
       },
       "FERRAWYY": {
         name: "FERRAWYY",
+        tint: "rgba(249, 115, 22, 0.16)",
+        borderSoft: "rgba(249, 115, 22, 0.34)",
+        glow: "rgba(249, 115, 22, 0.20)",
+        bgDark: "rgba(249, 115, 22, 0.20)",
         color: "#F97316",
         bgLight: "#FFF7ED",
         bgDark: "rgba(249, 115, 22, 0.16)",
@@ -7457,6 +7493,10 @@
       },
       "FERTON": {
         name: "FERTON",
+        tint: "rgba(217, 119, 6, 0.16)",
+        borderSoft: "rgba(217, 119, 6, 0.34)",
+        glow: "rgba(217, 119, 6, 0.20)",
+        bgDark: "rgba(217, 119, 6, 0.20)",
         color: "#D97706",
         bgLight: "#FFFBEB",
         bgDark: "rgba(217, 119, 6, 0.16)",
@@ -7474,6 +7514,10 @@
       },
       "WADFOW": {
         name: "WADFOW",
+        tint: "rgba(10, 78, 157, 0.16)",
+        borderSoft: "rgba(10, 78, 157, 0.34)",
+        glow: "rgba(10, 78, 157, 0.20)",
+        bgDark: "rgba(10, 78, 157, 0.20)",
         color: "#0A4E9D",
         bgLight: "#EFF6FF",
         bgDark: "rgba(10, 78, 157, 0.16)",
@@ -7491,6 +7535,10 @@
       },
       "MASTERMAQ": {
         name: "MASTERMAQ",
+        tint: "rgba(124, 58, 237, 0.15)",
+        borderSoft: "rgba(124, 58, 237, 0.32)",
+        glow: "rgba(124, 58, 237, 0.20)",
+        bgDark: "rgba(124, 58, 237, 0.20)",
         color: "#7C3AED",
         bgLight: "#F5F3FF",
         bgDark: "rgba(124, 58, 237, 0.16)",
@@ -7508,6 +7556,10 @@
       },
       "TOYAKI": {
         name: "TOYAKI",
+        tint: "rgba(220, 38, 38, 0.15)",
+        borderSoft: "rgba(220, 38, 38, 0.32)",
+        glow: "rgba(220, 38, 38, 0.20)",
+        bgDark: "rgba(220, 38, 38, 0.20)",
         color: "#DC2626",
         bgLight: "#FEF2F2",
         bgDark: "rgba(220, 38, 38, 0.16)",
@@ -7525,6 +7577,10 @@
       },
       "CROWN": {
         name: "CROWN",
+        tint: "rgba(202, 10, 16, 0.15)",
+        borderSoft: "rgba(202, 10, 16, 0.32)",
+        glow: "rgba(202, 10, 16, 0.20)",
+        bgDark: "rgba(202, 10, 16, 0.20)",
         color: "#CA0A10",
         bgLight: "#FEF2F2",
         bgDark: "rgba(202, 10, 16, 0.16)",
@@ -7542,6 +7598,10 @@
       },
       "KAMASA": {
         name: "KAMASA",
+        tint: "rgba(202, 138, 4, 0.18)",
+        borderSoft: "rgba(202, 138, 4, 0.38)",
+        glow: "rgba(202, 138, 4, 0.22)",
+        bgDark: "rgba(234, 179, 8, 0.20)",
         color: "#18181B",
         bgLight: "#FEFCE8",
         bgDark: "rgba(250, 204, 21, 0.14)",
@@ -7559,6 +7619,10 @@
       },
       "KAILI": {
         name: "KAILI",
+        tint: "rgba(229, 25, 33, 0.15)",
+        borderSoft: "rgba(229, 25, 33, 0.32)",
+        glow: "rgba(229, 25, 33, 0.20)",
+        bgDark: "rgba(229, 25, 33, 0.20)",
         color: "#E51921",
         bgLight: "#FEF2F2",
         bgDark: "rgba(229, 25, 33, 0.16)",
@@ -7576,6 +7640,10 @@
       },
       "ASAKI": {
         name: "ASAKI",
+        tint: "rgba(234, 88, 12, 0.16)",
+        borderSoft: "rgba(234, 88, 12, 0.34)",
+        glow: "rgba(234, 88, 12, 0.20)",
+        bgDark: "rgba(234, 88, 12, 0.20)",
         color: "#EA580C",
         bgLight: "#FFF7ED",
         bgDark: "rgba(234, 88, 12, 0.16)",
@@ -7593,6 +7661,10 @@
       },
       "NEVA": {
         name: "NEVA",
+        tint: "rgba(202, 138, 4, 0.18)",
+        borderSoft: "rgba(202, 138, 4, 0.38)",
+        glow: "rgba(202, 138, 4, 0.22)",
+        bgDark: "rgba(234, 179, 8, 0.20)",
         color: "#1E293B",
         bgLight: "#FEFCE8",
         bgDark: "rgba(250, 204, 21, 0.14)",
@@ -7610,6 +7682,10 @@
       },
       "RIO": {
         name: "RIO",
+        tint: "rgba(37, 99, 235, 0.15)",
+        borderSoft: "rgba(37, 99, 235, 0.34)",
+        glow: "rgba(37, 99, 235, 0.20)",
+        bgDark: "rgba(37, 99, 235, 0.20)",
         color: "#2563EB",
         bgLight: "#EFF6FF",
         bgDark: "rgba(37, 99, 235, 0.16)",
@@ -7627,6 +7703,10 @@
       },
       "OMEGA": {
         name: "OMEGA",
+        tint: "rgba(2, 132, 199, 0.15)",
+        borderSoft: "rgba(2, 132, 199, 0.32)",
+        glow: "rgba(2, 132, 199, 0.20)",
+        bgDark: "rgba(2, 132, 199, 0.20)",
         color: "#0284C7",
         bgLight: "#F0F9FF",
         bgDark: "rgba(2, 132, 199, 0.16)",
@@ -7638,6 +7718,10 @@
       },
       "AQUASTRONG": {
         name: "AQUASTRONG",
+        tint: "rgba(2, 132, 199, 0.15)",
+        borderSoft: "rgba(2, 132, 199, 0.32)",
+        glow: "rgba(2, 132, 199, 0.20)",
+        bgDark: "rgba(2, 132, 199, 0.20)",
         color: "#0284C7",
         bgLight: "#F0F9FF",
         bgDark: "rgba(2, 132, 199, 0.16)",
@@ -7649,6 +7733,10 @@
       },
       "PEGASUS": {
         name: "PEGASUS",
+        tint: "rgba(51, 65, 85, 0.12)",
+        borderSoft: "rgba(51, 65, 85, 0.28)",
+        glow: "rgba(51, 65, 85, 0.16)",
+        bgDark: "rgba(51, 65, 85, 0.20)",
         color: "#334155",
         bgLight: "#F8FAFC",
         bgDark: "rgba(51, 65, 85, 0.2)",
@@ -7660,6 +7748,10 @@
       },
       "DWT": {
         name: "DWT",
+        tint: "rgba(225, 29, 36, 0.15)",
+        borderSoft: "rgba(225, 29, 36, 0.32)",
+        glow: "rgba(225, 29, 36, 0.20)",
+        bgDark: "rgba(225, 29, 36, 0.20)",
         color: "#E11D24",
         bgLight: "#FEF2F2",
         bgDark: "rgba(225, 29, 36, 0.16)",
@@ -7675,19 +7767,27 @@
       const m = String(marca || '').toUpperCase().trim();
       for (const k of Object.keys(BRAND_CONFIG)) {
         if (m.includes(k) || k.includes(m)) {
-          return BRAND_CONFIG[k];
+          const cfg = BRAND_CONFIG[k];
+          return {
+            ...cfg,
+            tint: cfg.tint || "rgba(2, 132, 199, 0.14)",
+            borderSoft: cfg.borderSoft || "rgba(2, 132, 199, 0.32)",
+            glow: cfg.glow || "rgba(2, 132, 199, 0.18)"
+          };
         }
       }
       return {
         name: marca || "GENERAL",
         color: "#0284C7",
+        tint: "rgba(2, 132, 199, 0.14)",
+        borderSoft: "rgba(2, 132, 199, 0.32)",
         bgLight: "#F0F9FF",
-        bgDark: "rgba(2, 132, 199, 0.15)",
+        bgDark: "rgba(2, 132, 199, 0.20)",
         border: "#0284C7",
-        glow: "rgba(2, 132, 199, 0.15)",
-        badgeBg: "#0F172A",
-        badgeText: "#FFFFFF",
-        badgeBorder: "#CBD5E1",
+        glow: "rgba(2, 132, 199, 0.18)",
+        badgeBg: "#E0F2FE",
+        badgeText: "#0369A1",
+        badgeBorder: "#BAE6FD",
         chipBg: "#FFFFFF",
         chipBorder: "#CBD5E1",
         chipGlow: "0 2px 6px rgba(0,0,0,0.08)",
@@ -7825,7 +7925,7 @@
         return `
           <div class="product-card ${isSelected ? 'has-selection' : ''} ${isSoldOut ? 'is-sold-out' : ''}" 
                id="card-${p.codigo}"
-               style="--brand-accent: ${brand.color}; --brand-border: ${brand.border}; --brand-glow: ${brand.glow}; --brand-bg-light: ${brand.bgLight}; --brand-bg-dark: ${brand.bgDark || 'rgba(255, 255, 255, 0.05)'};">
+               style="--brand-accent: ${brand.color}; --brand-border-soft: ${brand.borderSoft || '#CBD5E1'}; --brand-glow: ${brand.glow}; --brand-tint: ${brand.tint || 'rgba(2, 132, 199, 0.14)'}; --brand-bg-dark: ${brand.bgDark || 'rgba(255, 255, 255, 0.08)'};">
             
             <!-- Foto del Producto con Zoom al tocar imagen o lupa -->
             <div class="product-img-wrapper" 
