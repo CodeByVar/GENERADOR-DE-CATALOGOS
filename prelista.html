@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-body: #F1F5F9;
+      --bg-body: #F8FAFC;
       --bg-card: #FFFFFF;
       --border-card: #E2E8F0;
       --text-main: #0F172A;
@@ -17,14 +17,14 @@
       --text-light: #94A3B8;
       --primary: #0284C7;
       --primary-hover: #0369A1;
-      --success: #16A34A;
-      --success-bg: #DCFCE7;
-      --success-border: #86EFAC;
-      --danger: #DC2626;
-      --danger-bg: #FEE2E2;
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      --success-border: #A7F3D0;
+      --danger: #EF4444;
+      --danger-bg: #FEF2F2;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
+      --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.09), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
     }
 
     * {
@@ -45,15 +45,15 @@
       line-height: 1.4;
     }
 
-    /* ──── CABECERA OSCURA DE ALTO CONTRASTE (MEDIO OSCURO Y CLARO) ──── */
+    /* ──── CABECERA OSCURA ELEGANTE ──── */
     .header {
-      background: linear-gradient(135deg, #090D16 0%, #111827 100%);
-      border-bottom: 1.5px solid #1F2937;
+      background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       position: sticky;
       top: 0;
       z-index: 100;
       padding: 10px 18px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
       color: #FFFFFF;
     }
 
@@ -224,63 +224,20 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* ──── FILTROS Y BÚSQUEDA (TEMA CLARO) ──── */
+    /* ──── FILTROS Y BÚSQUEDA (VISTA MODERNA Y MINIMALISTA) ──── */
     .controls-wrapper {
       max-width: 1200px;
-      margin: 16px auto 0 auto;
+      margin: 12px auto 0 auto;
       padding: 0 16px;
       width: 100%;
     }
 
-    .filters-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .filter-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .filter-label {
-      font-size: 7.5pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-    }
-
-    .filter-select {
-      background: #FFFFFF;
-      border: 1.5px solid var(--border-card);
-      border-radius: 10px;
-      padding: 8px 12px;
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 9pt;
-      font-weight: 600;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
-
     .search-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .search-box {
-      flex: 1;
+      width: 100%;
       position: relative;
       display: flex;
       align-items: center;
@@ -296,7 +253,7 @@
     .search-input {
       width: 100%;
       background: #FFFFFF;
-      border: 1.5px solid var(--border-card);
+      border: 1px solid var(--border-card);
       border-radius: 12px;
       padding: 10px 38px 10px 42px;
       color: var(--text-main);
@@ -305,6 +262,7 @@
       font-weight: 600;
       outline: none;
       transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
 
     .search-input:focus {
@@ -338,14 +296,48 @@
       color: #FFFFFF;
     }
 
-    .toggle-reserved-only {
+    .filters-row {
       display: flex;
-      align-items: center;
       gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .filter-item {
+      flex: 1;
+      min-width: 135px;
+    }
+
+    .filter-select {
+      width: 100%;
       background: #FFFFFF;
-      border: 1.5px solid var(--border-card);
-      border-radius: 12px;
-      padding: 9px 14px;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 8.5pt;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .filter-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+    }
+
+    .toggle-reserved-only {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 7px 12px;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
@@ -353,6 +345,7 @@
       font-weight: 700;
       color: var(--text-muted);
       transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
     .toggle-reserved-only:hover {
@@ -360,11 +353,17 @@
       color: var(--text-main);
     }
 
+    .toggle-reserved-only:has(input:checked) {
+      background: #ECFDF5;
+      border-color: #A7F3D0;
+      color: #047857;
+    }
+
     .toggle-reserved-only input {
       accent-color: var(--success);
       cursor: pointer;
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
     }
 
     .stats-bar {
@@ -373,7 +372,7 @@
       align-items: center;
       font-size: 8pt;
       color: var(--text-muted);
-      padding: 0 2px 10px 2px;
+      padding: 0 2px 8px 2px;
       flex-wrap: wrap;
       gap: 8px;
     }
@@ -399,56 +398,69 @@
     }
 
     .product-card {
-      background: linear-gradient(115deg, var(--brand-bg-light, #FFFFFF) 0%, #FFFFFF 65%);
-      border: 1.5px solid var(--border-card);
-      border-left: 6px solid var(--brand-accent, #0284C7);
-      border-radius: 14px;
-      padding: 14px 18px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 14px 16px;
       display: grid;
-      grid-template-columns: 92px 1fr auto;
-      gap: 16px;
+      grid-template-columns: 88px 1fr auto;
+      gap: 14px;
       align-items: center;
       transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
       position: relative;
+      overflow: hidden;
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--brand-accent, #0284C7);
+      border-radius: 4px 0 0 4px;
+      opacity: 0.85;
+      transition: width 0.2s ease, opacity 0.2s ease;
     }
 
     .product-card:hover {
-      border-color: var(--brand-border, #CBD5E1);
-      box-shadow: 0 8px 24px var(--brand-glow, rgba(0, 0, 0, 0.08));
+      border-color: #CBD5E1;
+      box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
       transform: translateY(-2px);
     }
 
-    body.dark-mode .product-card {
-      background: linear-gradient(115deg, var(--brand-bg-dark, rgba(255, 255, 255, 0.04)) 0%, #111827 65%);
-      border-color: var(--border-card);
-    }
-
-    body.dark-mode .product-card:hover {
-      border-color: var(--brand-border, #374151);
-      box-shadow: 0 8px 24px var(--brand-glow, rgba(0, 0, 0, 0.35));
+    .product-card:hover::before {
+      width: 5px;
+      opacity: 1;
     }
 
     .product-card.has-selection {
       border-color: #86EFAC !important;
-      border-left: 6px solid #16A34A !important;
       background: #F0FDF4 !important;
-      box-shadow: 0 6px 18px rgba(22, 163, 74, 0.15) !important;
+      box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.16) !important;
+    }
+
+    .product-card.has-selection::before {
+      background: #16A34A !important;
+      width: 5px !important;
+      opacity: 1 !important;
     }
 
     .product-card.is-sold-out {
       opacity: 0.58;
-      background: #FAFAFA;
+      background: #F8FAFC;
       filter: grayscale(0.2);
     }
 
-    /* Foto del producto con marco por marca y zoom */
+    /* Foto del producto con marco limpio y zoom */
     .product-img-wrapper {
-      width: 92px;
-      height: 92px;
+      width: 88px;
+      height: 88px;
       border-radius: 12px;
-      background: #FFFFFF;
-      border: 1.5px solid var(--brand-border, var(--border-card));
+      background: #F8FAFC;
+      border: 1px solid var(--border-card);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -460,8 +472,9 @@
     }
 
     .product-img-wrapper:hover {
-      border-color: var(--brand-accent, #0284C7);
-      box-shadow: 0 4px 12px var(--brand-glow, rgba(0, 0, 0, 0.1));
+      border-color: var(--primary);
+      background: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
     }
 
     .product-img {
@@ -480,18 +493,19 @@
       position: absolute;
       bottom: 4px;
       right: 4px;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       color: #FFFFFF;
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9pt;
-      opacity: 0.88;
+      font-size: 8.5pt;
+      opacity: 0.85;
       transition: all 0.2s ease;
       cursor: pointer;
       z-index: 5;
@@ -500,10 +514,10 @@
     .product-img-wrapper:hover .img-zoom-badge,
     .img-zoom-badge:hover {
       opacity: 1;
-      transform: scale(1.15);
+      transform: scale(1.12);
       background: rgba(2, 132, 199, 0.95);
       border-color: #FFFFFF;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
     .product-img-placeholder {
@@ -524,38 +538,41 @@
     .product-info-col {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .product-meta-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .code-pill {
-      background: #0F172A;
-      color: #FFFFFF;
+      background: #F1F5F9;
+      color: #0F172A;
+      border: 1px solid #CBD5E1;
       font-weight: 800;
-      font-size: 8.5pt;
-      padding: 2.5px 9px;
+      font-size: 8pt;
+      padding: 2px 8px;
       border-radius: 6px;
       letter-spacing: 0.4px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
     .brand-badge-pill {
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 2.5px 9px;
+      padding: 2.5px 8px;
       border-radius: 6px;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
       transition: transform 0.15s;
     }
 
@@ -565,21 +582,24 @@
 
     .stock-chip {
       font-size: 7.5pt;
-      font-weight: 800;
+      font-weight: 700;
       padding: 2.5px 8px;
-      border-radius: 6px;
+      border-radius: 20px;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .stock-chip.available {
       background: var(--success-bg);
-      color: #15803D;
+      color: #047857;
       border: 1px solid var(--success-border);
     }
 
     .stock-chip.sold-out {
       background: var(--danger-bg);
-      color: var(--danger);
+      color: #B91C1C;
       border: 1px solid #FECACA;
     }
 
@@ -603,12 +623,12 @@
       color: var(--text-main);
     }
 
-    /* ──── FILTRO DE CHIPS POR MARCA (CARDS ELEGANTES DE UN MISMO VUELO) ──── */
+    /* ──── FILTRO DE CHIPS POR MARCA ──── */
     .brand-filter-chips-container {
       margin-top: 2px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       overflow-x: auto;
       padding: 4px 2px 8px 2px;
       scrollbar-width: thin;
@@ -617,7 +637,7 @@
     }
 
     .brand-filter-chips-container::-webkit-scrollbar {
-      height: 5px;
+      height: 4px;
     }
     .brand-filter-chips-container::-webkit-scrollbar-thumb {
       background: #CBD5E1;
@@ -628,15 +648,15 @@
     }
 
     .brand-chip-btn {
-      height: 38px;
+      height: 36px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 7px;
       padding: 3px 12px;
       border-radius: 10px;
       background: #FFFFFF;
-      border: 1.5px solid var(--border-card);
+      border: 1px solid var(--border-card);
       font-size: 8.5pt;
       font-weight: 700;
       color: var(--text-main);
@@ -647,26 +667,27 @@
       box-sizing: border-box;
       flex-shrink: 0;
       position: relative;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
 
     .brand-chip-btn:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
     }
 
     .brand-chip-btn.active {
-      transform: translateY(-2px) scale(1.04);
-      outline: 2.5px solid #0284C7 !important;
+      transform: translateY(-1px) scale(1.02);
+      outline: 2px solid #0284C7 !important;
       outline-offset: 1px;
     }
 
     body.dark-mode .brand-chip-btn.active {
-      outline: 2.5px solid #38BDF8 !important;
+      outline: 2px solid #38BDF8 !important;
     }
 
     .brand-chip-logo {
-      height: 22px;
-      max-width: 72px;
+      height: 20px;
+      max-width: 68px;
       object-fit: contain;
       display: block;
       pointer-events: none;
@@ -676,13 +697,13 @@
       font-size: 7.5pt;
       padding: 2px 7px;
       border-radius: 10px;
-      background: rgba(0, 0, 0, 0.08);
+      background: rgba(0, 0, 0, 0.06);
       font-weight: 800;
       line-height: 1;
     }
 
     .brand-chip-btn.active .brand-chip-count {
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     /* ──── LIGHTBOX MODAL PARA FOTO EN GRANDE ──── */
@@ -780,61 +801,77 @@
       font-weight: 600;
     }
 
-    /* ──── SELECTOR DE CAJAS (SIN FLECHAS NATIVAS, FLUIDO) ──── */
-    /* ──── SELECTOR DE CAJAS (SIN FLECHAS NATIVAS, FLUIDO CON BOTONES + Y -) ──── */
+    /* ──── SELECTOR DE CAJAS (CÁPSULA MODERNA) ──── */
     .controls-col {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
+    }
+
+    .controls-col-label-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    .qty-label-text {
+      font-size: 7.5pt;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
     .qty-selector-container {
       display: inline-flex;
       align-items: center;
-      gap: 2px;
-      background: #F8FAFC;
-      border: 1.5px solid var(--border-card);
-      border-radius: 10px;
-      padding: 3px 5px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 2px 4px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
     .qty-selector-container:focus-within {
       border-color: var(--success);
       background: #FFFFFF;
-      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
     }
 
     .btn-step {
       background: #FFFFFF;
-      border: 1.5px solid #CBD5E1;
+      border: 1px solid #CBD5E1;
       color: var(--text-main);
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15pt;
+      font-size: 13pt;
       font-weight: 800;
       line-height: 1;
-      transition: all 0.15s;
+      transition: all 0.15s ease;
       user-select: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .btn-step:hover {
       background: var(--success);
       border-color: var(--success);
       color: #FFFFFF;
+      transform: scale(1.05);
     }
 
     .btn-step.btn-minus:hover {
-      background: #FEE2E2;
-      border-color: #F87171;
-      color: #DC2626;
+      background: #EF4444;
+      border-color: #EF4444;
+      color: #FFFFFF;
     }
 
     .btn-step:active {
@@ -851,11 +888,11 @@
     .qty-input {
       -moz-appearance: textfield;
       appearance: textfield;
-      width: 50px;
+      width: 44px;
       background: transparent;
       border: none;
       color: var(--text-main);
-      font-size: 11pt;
+      font-size: 10.5pt;
       font-weight: 800;
       text-align: center;
       outline: none;
@@ -909,27 +946,32 @@
     }
 
     .qty-calc-hint {
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 800;
-      color: #15803D;
+      color: #047857;
       background: var(--success-bg);
       border: 1px solid var(--success-border);
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 6px;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
-    /* ──── BARRA INFERIOR FLOTANTE ──── */
+    /* ──── BARRA INFERIOR FLOTANTE (GLASSMORPHISM) ──── */
     .bottom-bar {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: #FFFFFF;
-      border-top: 1.5px solid var(--border-card);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(226, 232, 240, 0.85);
       z-index: 200;
-      padding: 12px 18px;
-      box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.08);
+      padding: 10px 18px;
+      box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.07);
     }
 
     .bottom-bar-inner {
@@ -948,7 +990,7 @@
     }
 
     .total-boxes-display {
-      font-size: 14pt;
+      font-size: 13.5pt;
       font-weight: 800;
       color: var(--text-main);
       letter-spacing: -0.3px;
@@ -976,39 +1018,40 @@
       color: var(--text-main);
       font-size: 8.5pt;
       font-weight: 800;
-      padding: 11px 16px;
+      padding: 10px 15px;
       border-radius: 10px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .btn-view-summary:hover {
       background: #E2E8F0;
+      transform: translateY(-1px);
     }
 
     .btn-whatsapp-reserve {
-      background: linear-gradient(135deg, #16A34A, #15803D);
+      background: linear-gradient(135deg, #10B981, #059669);
       border: none;
       color: #FFFFFF;
       font-size: 9.5pt;
       font-weight: 800;
-      padding: 11px 22px;
+      padding: 10px 20px;
       border-radius: 12px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
       transition: all 0.2s ease;
     }
 
     .btn-whatsapp-reserve:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(22, 163, 74, 0.45);
-      background: linear-gradient(135deg, #22C55E, #15803D);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+      background: linear-gradient(135deg, #34D399, #059669);
     }
 
     /* ──── MODALES (BIENVENIDA Y RESUMEN) ──── */
@@ -1235,6 +1278,7 @@
       .product-card {
         grid-template-columns: 74px 1fr;
         gap: 12px;
+        padding: 12px 14px;
       }
       .product-img-wrapper {
         width: 74px;
@@ -1242,17 +1286,23 @@
       }
       .controls-col {
         grid-column: 1 / -1;
-        align-items: stretch;
-        border-top: 1px dashed var(--border-card);
-        padding-top: 10px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #F1F5F9;
+        padding-top: 8px;
+        margin-top: 4px;
+      }
+      .controls-col-label-group {
+        align-items: flex-start;
       }
       .qty-selector-container {
-        justify-content: center;
+        justify-content: flex-end;
       }
       .bottom-bar-inner {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
+        gap: 8px;
       }
       .bottom-actions-right {
         width: 100%;
@@ -1286,11 +1336,29 @@
       border-bottom-color: #1E293B;
     }
 
+    body.dark-mode .product-card {
+      background: #111827;
+      border-color: #1F2937;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    body.dark-mode .product-card::before {
+      background: var(--brand-accent, #38BDF8);
+    }
+
+    body.dark-mode .product-card:hover {
+      border-color: #374151;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
     body.dark-mode .product-card.has-selection {
       border-color: #22C55E !important;
-      border-left: 6px solid #22C55E !important;
-      background: linear-gradient(115deg, rgba(34, 197, 94, 0.18) 0%, #111827 70%) !important;
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.22) !important;
+      background: linear-gradient(115deg, rgba(34, 197, 94, 0.14) 0%, #111827 75%) !important;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.25) !important;
+    }
+
+    body.dark-mode .product-card.has-selection::before {
+      background: #22C55E !important;
     }
 
     body.dark-mode .product-card.is-sold-out {
@@ -1303,11 +1371,24 @@
       border-color: #1F2937;
     }
 
+    body.dark-mode .code-pill {
+      background: #1E293B;
+      color: #F1F5F9;
+      border-color: #334155;
+    }
+
+    body.dark-mode .search-input,
     body.dark-mode .filter-select,
-    body.dark-mode .search-input {
+    body.dark-mode .toggle-reserved-only {
       background: #111827;
       border-color: #1F2937;
       color: #F3F4F6;
+    }
+
+    body.dark-mode .toggle-reserved-only:has(input:checked) {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.35);
+      color: #4ADE80;
     }
 
     body.dark-mode .btn-clear-search {
@@ -1337,18 +1418,25 @@
     }
 
     body.dark-mode .btn-step {
-      background: #111827;
+      background: #1E293B;
+      border-color: #334155;
       color: #F3F4F6;
     }
 
     body.dark-mode .btn-step:hover {
-      background: #1F2937;
-      color: #38BDF8;
+      background: #10B981;
+      border-color: #10B981;
+      color: #FFFFFF;
+    }
+
+    body.dark-mode .btn-step.btn-minus:hover {
+      background: #EF4444;
+      border-color: #EF4444;
+      color: #FFFFFF;
     }
 
     body.dark-mode .qty-input {
       color: #F3F4F6;
-      background: transparent;
     }
 
     body.dark-mode .qty-calc-hint {
@@ -1357,12 +1445,17 @@
       border-color: rgba(34, 197, 94, 0.4) !important;
     }
 
-    /* BARRA INFERIOR FLOTANTE EN MODO OSCURO */
+    @media (max-width: 768px) {
+      body.dark-mode .controls-col {
+        border-top-color: #1F2937;
+      }
+    }
+
     body.dark-mode .bottom-bar {
-      background: rgba(15, 23, 42, 0.96) !important;
+      background: rgba(15, 23, 42, 0.94) !important;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-top: 1.5px solid #1F2937 !important;
+      border-top: 1px solid #1F2937 !important;
       box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.7) !important;
     }
 
@@ -1379,23 +1472,15 @@
       color: #94A3B8 !important;
     }
 
-    body.dark-mode .total-products-desc span {
-      color: #E2E8F0 !important;
-      font-weight: 700;
-    }
-
     body.dark-mode .btn-view-summary {
       background: #1E293B !important;
-      border: 1.5px solid #334155 !important;
+      border: 1px solid #334155 !important;
       color: #F8FAFC !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
     body.dark-mode .btn-view-summary:hover {
       background: #334155 !important;
-      border-color: #64748B !important;
       color: #FFFFFF !important;
-      transform: translateY(-1px);
     }
 
     /* MODALES EN MODO OSCURO */
@@ -1596,33 +1681,31 @@
     </div>
   </header>
 
-  <!-- CONTROLES, FILTROS Y BÚSQUEDA (VISTA LIMPIA PARA EL CLIENTE) -->
+  <!-- CONTROLES, FILTROS Y BÚSQUEDA (VISTA MODERNA Y COMPACTA) -->
   <section class="controls-wrapper">
+    <div class="search-row">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar por código o descripción..." oninput="handleSearch(this.value)">
+        <button id="btn-clear-search" class="btn-clear-search" onclick="clearSearch()" title="Limpiar búsqueda">✕</button>
+      </div>
+    </div>
+
     <div class="filters-row">
       <div class="filter-item">
-        <label class="filter-label">Marca</label>
         <select id="filter-brand" class="filter-select" onchange="renderProducts()">
           <option value="TODAS">Todas las marcas</option>
         </select>
       </div>
 
       <div class="filter-item">
-        <label class="filter-label">Disponibilidad</label>
         <select id="filter-stock" class="filter-select" onchange="renderProducts()">
           <option value="DISPONIBLES">Solo con cupo libre</option>
           <option value="TODOS">Todos (incluir agotados)</option>
         </select>
-      </div>
-    </div>
-
-    <div class="search-row">
-      <div class="search-box">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Buscar por código o descripción..." oninput="handleSearch(this.value)">
-        <button id="btn-clear-search" class="btn-clear-search" onclick="clearSearch()" title="Limpiar búsqueda">✕</button>
       </div>
 
       <label class="toggle-reserved-only">
@@ -1641,7 +1724,7 @@
         Mostrando <span id="stats-count" class="stats-highlight">0</span> producto(s) en tránsito
       </div>
       <div>
-        Total Cajas Disponibles para apartar: <span id="stats-total-boxes" class="stats-highlight">0</span> cajas
+        Cajas disponibles: <span id="stats-total-boxes" class="stats-highlight">0</span>
       </div>
     </div>
   </section>
@@ -7793,7 +7876,6 @@
               <img class="product-img" src="${initialImgSrc}" alt="${escapeHtml(p.codigo)}" loading="lazy" 
                    onerror="if(!this.src.startsWith('data:') && this.src !== '${fallbackPng}') { this.src='${fallbackPng}'; } else { this.style.display='none'; this.nextElementSibling.style.display='flex'; }">
               <div class="product-img-placeholder" style="display: none; background: ${brand.bgLight}; color: ${brand.color}; border: 1px dashed ${brand.border};">
-                
                 <span>${escapeHtml(p.marca || '')}</span>
               </div>
               <div class="img-zoom-badge" onclick="event.stopPropagation(); openImageLightboxByCode('${escapeJs(p.codigo)}')" title="Toca para ampliar foto">🔍</div>
@@ -7807,11 +7889,11 @@
                   ${escapeHtml(p.marca || brand.name)}
                 </span>
                 <span class="stock-chip ${isSoldOut ? 'sold-out' : 'available'}">
-                  ${isSoldOut ? '🔴 Agotado en Preventa' : `🟢 Cupo libre: ${p.stockReserva} cajas`}
+                  ${isSoldOut ? '🔴 Agotado' : `🟢 Cupo: ${p.stockReserva} cjs`}
                 </span>
                 ${cajasLlegan > 0 && cajasLlegan !== p.stockReserva ? `
                   <span style="font-size: 7.5pt; color: var(--text-muted); font-weight: 600;">
-                    (Llegan ${cajasLlegan} cajas)
+                    (Llegan ${cajasLlegan} cjs)
                   </span>
                 ` : ''}
               </div>
@@ -7830,8 +7912,11 @@
 
             <!-- Selector de Cantidad de Cajas -->
             <div class="controls-col">
-              <div style="font-size: 7.5pt; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
-                Cajas a apartar:
+              <div class="controls-col-label-group">
+                <div class="qty-label-text">Cajas a apartar:</div>
+                <div class="qty-calc-hint" id="hint-${p.codigo}" style="${isSelected ? '' : 'display: none;'}">
+                  ✔ <strong>${qty} Cajas</strong> seleccionadas
+                </div>
               </div>
               <div class="qty-selector-container">
                 <button type="button" class="btn-step btn-minus" onclick="changeQty('${p.codigo}', -1)" title="Reducir cajas">−</button>
@@ -7841,10 +7926,6 @@
                        onblur="handleQtyBlur('${p.codigo}')"
                        placeholder="0">
                 <button type="button" class="btn-step btn-plus" onclick="changeQty('${p.codigo}', 1)" title="Aumentar cajas">+</button>
-              </div>
-
-              <div class="qty-calc-hint" id="hint-${p.codigo}" style="${isSelected ? '' : 'display: none;'}">
-                ✔ <strong>${qty} Cajas</strong> seleccionadas
               </div>
             </div>
 
