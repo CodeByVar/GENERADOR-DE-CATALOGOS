@@ -9,19 +9,15 @@ echo =======================================================
 echo.
 cd /d "%~dp0"
 
-:: Verificar e instalar librerías automáticamente si faltan
-python -c "import openpyxl, PIL" >nul 2>&1
+python web_generator.py
 if %ERRORLEVEL% NEQ 0 (
-    echo [CONFIGURACIÓN] Verificando dependencias necesarias (Pillow, Openpyxl)...
-    python -m pip install --quiet pillow openpyxl
-    echo [CONFIGURACIÓN] Dependencias listas.
     echo.
+    echo Probando con comando py...
+    py web_generator.py
 )
 
-python web_generator.py
 echo.
 echo =======================================================
 echo   Proceso finalizado.
 echo =======================================================
 pause
-

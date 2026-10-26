@@ -20,9 +20,16 @@ if exist "catalogos.html" (
 
 echo.
 echo [2/4] Preparando cambios para Git...
+if not exist ".git" (
+    echo       Inicializando repositorio Git local...
+    git init
+    git branch -M main
+    git remote add origin https://github.com/CodeByVar/GENERADOR-DE-CATALOGOS.git
+)
+
 git config user.name "CodeByVar"
 git config user.email "jesusvargasvida@gmail.com"
-git add index.html catalogos.html catalogos_desktop.html catalogos_mobile.html prelista.html prelista_data.json prelista_excluidos.json vercel.json package.json generar_catalogo.py web_generator.py Publicar_en_Vercel.bat api/stock.js api/prelista.js Google_Apps_Script_Prelista.js brand_logos/* *.png *.jpg *.jpeg *.webp
+git add index.html catalogos.html catalogos_desktop.html catalogos_mobile.html prelista.html vercel.json generar_catalogo.py web_generator.py Publicar_en_Vercel.bat api/stock.js api/prelista.js Google_Apps_Script_Prelista.js *.png *.jpg *.jpeg *.webp
 git add -u
 
 echo.

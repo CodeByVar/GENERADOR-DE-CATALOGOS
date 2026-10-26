@@ -18,7 +18,7 @@ import ssl
 import json
 import subprocess
 import generar_catalogo
-from datetime import date, datetime
+from datetime import date
 
 if sys.platform.startswith('win'):
     try:
@@ -69,314 +69,6 @@ class RedirectStdout:
         sys.stdout = self.old_stdout
         sys.stderr = self.old_stderr
 
-def normalizar_marca_nombre(b):
-    if not b: return ''
-    b_u = str(b).upper().strip()
-    if 'UYUS' in b_u or 'UYU' in b_u: return 'UYUSTOOLS'
-    if 'TOTAL' in b_u: return 'TOTAL'
-    if 'DONG' in b_u or 'DONGCHENG' in b_u: return 'DONG CHENG'
-    if 'CROWN' in b_u: return 'CROWN'
-    if 'AQUA' in b_u: return 'AQUASTRONG'
-    if 'WADFOW' in b_u: return 'WADFOW'
-    if 'LUTIAN' in b_u: return 'LUTIAN'
-    if 'MAKAWA' in b_u: return 'MAKAWA'
-    if 'MASTER' in b_u: return 'MASTERMAQ'
-    if 'POWER' in b_u: return 'POWERMAQ'
-    if 'TOYAKI' in b_u: return 'TOYAKI'
-    if 'FERTON' in b_u: return 'FERTON'
-    if 'FERR' in b_u: return 'FERRAWYY'
-    if 'KAILI' in b_u: return 'KAILI'
-    if 'KAMASA' in b_u: return 'KAMASA'
-    if 'ASAKI' in b_u: return 'ASAKI'
-    if 'DWT' in b_u: return 'DWT'
-    if 'NEVA' in b_u: return 'NEVA'
-    if 'OMEGA' in b_u: return 'OMEGA'
-    if 'RIO' in b_u: return 'RIO'
-    if 'PEGASUS' in b_u: return 'PEGASUS'
-    return b
-
-def cargar_db_marcas_excel(excel_path="catalogos.xlsx"):
-    from generar_catalogo import load_workbook
-    code_to_brand = {}
-    if not os.path.exists(excel_path):
-        return code_to_brand
-    try:
-        wb = load_workbook(excel_path, read_only=True, data_only=True)
-        for sheet in wb.sheetnames:
-            ws = wb[sheet]
-            for row in ws.iter_rows(values_only=True):
-                row_str = [str(c).strip() if c is not None else '' for c in row]
-                if sheet == 'FORMATO INVENTARIO' and len(row_str) > 4:
-                    c = row_str[2].upper().strip()
-                    b = row_str[4].upper().strip()
-                    if c and b: code_to_brand[c] = b
-                elif 'INVENTARIO' in sheet.upper() and len(row_str) > 3:
-                    c = row_str[1].upper().strip()
-                    b = row_str[2].upper().strip() if len(row_str) > 2 else ''
-                    if c and b and len(c) > 2: code_to_brand[c] = b
-        wb.close()
-    except Exception as e:
-        print(f"[AVISO] Error cargando marcas de Excel: {e}")
-    return code_to_brand
-
-def resolver_marca_prelista(c_raw, d_raw, code_to_brand=None):
-    c = str(c_raw or '').upper().strip()
-    d = str(d_raw or '').upper().strip()
-    if code_to_brand and c in code_to_brand:
-        nb = normalizar_marca_nombre(code_to_brand[c])
-        if nb: return nb
-    if any(k in d for k in ['UYUSTOOLS', 'UYUS', ' UYU', '-UYU', 'UYU ']) or d.endswith('UYU') or 'UYU' in c:
-        return 'UYUSTOOLS'
-    if 'MAKAWA' in d or c.startswith('MK-') or c.startswith('MK'):
-        return 'MAKAWA'
-    if 'LUTIAN' in d or c.startswith('LT') or ('HIDROLAVADORA' in d and 'LUTIAN' in d):
-        return 'LUTIAN'
-    if 'MASTERMAQ' in d or 'MASTER' in d or c.startswith('MAX-'):
-        return 'MASTERMAQ'
-    if 'POWERMAQ' in d:
-        return 'POWERMAQ'
-    if 'TOYAKI' in d or c.startswith('TK-'):
-        return 'TOYAKI'
-    if 'DONG CHENG' in d or 'DONGCHENG' in d or 'DCA' in d or c.startswith('DC'):
-        return 'DONG CHENG'
-    if 'CROWN' in d or (c.startswith('CT') and len(c) >= 5 and c[2].isdigit()):
-        return 'CROWN'
-    if 'AQUASTRONG' in d or 'AQUAS' in d:
-        return 'AQUASTRONG'
-    if 'WADFOW' in d or c.startswith('WDF') or c.startswith('WSS') or (c.startswith('W') and len(c) >= 4 and any(c.startswith(p) for p in ['WTB','WAG','WWH','WDT','WPL','WCS','WFS','WCD','WES'])):
-        return 'WADFOW'
-    if 'FERTON' in d or c.startswith('FT'):
-        return 'FERTON'
-    if 'FERRAWYY' in d or 'FERRA' in d:
-        return 'FERRAWYY'
-    if 'KAILI' in d or c.startswith('KL'):
-        return 'KAILI'
-    if 'KAMASA' in d or c.startswith('KM'):
-        return 'KAMASA'
-    if 'ASAKI' in d or c.startswith('AK'):
-        return 'ASAKI'
-    if 'DWT' in d:
-        return 'DWT'
-    if 'NEVA' in d:
-        return 'NEVA'
-    if 'OMEGA' in d:
-        return 'OMEGA'
-    if 'RIO' in d:
-        return 'RIO'
-    if 'PEGASUS' in d:
-        return 'PEGASUS'
-    if 'TOTAL' in d or 'TOTA' in d or any(c.startswith(p) for p in ['TH', 'TS', 'TP', 'TG', 'TAC', 'TL', 'THT', 'TV', 'TOS', 'TIDLI', 'TIWLI', 'TMT', 'TBC', 'TW', 'TB', 'TCKLI', 'PMST', 'PMTS']):
-        return 'TOTAL'
-    return 'VARIOS'
-
-def sincronizar_imagenes_para_prelista(productos, excel_path="catalogos.xlsx"):
-    """
-    Sincroniza y extrae las fotos de cada producto de la prelista directamente
-    desde 'catalogos.xlsx' y la caché local en 'temp_imgs/'.
-    Convierte cada foto a un Data URI en Base64 (data:image/webp;base64,...)
-    para que se sirva al 100% en Vercel sin depender de rutas locales ni dar 404.
-    Además verifica y asigna la marca exacta de cada producto basándose en 'catalogos.xlsx'.
-    """
-    import io, base64
-    from PIL import Image as PILImage
-    from generar_catalogo import (
-        load_workbook, detectar_hojas_inventario, detectar_columnas,
-        extraer_bytes_de_imagen, autocrop_image, normalizar_codigo
-    )
-
-    if not os.path.exists("temp_imgs"):
-        os.makedirs("temp_imgs")
-
-    # Resolver marcas reales de cada producto
-    code_to_brand = cargar_db_marcas_excel(excel_path)
-    for p in productos:
-        m_curr = p.get("marca")
-        m_res = resolver_marca_prelista(p.get("codigo"), p.get("detalle"), code_to_brand)
-        if m_res and m_res != "VARIOS":
-            p["marca"] = m_res
-        elif not m_curr or m_curr == "TOTAL":
-            p["marca"] = m_res
-
-    # 1. Identificar productos que ya tienen imagen en disco vs los que necesitan extraerse de Excel
-    codigos_pendientes = {} # { norm_code: [producto_dicts] }
-    
-    for p in productos:
-        cod = str(p.get("codigo", "")).strip()
-        if not cod:
-            continue
-        clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", cod)
-        norm_cod = normalizar_codigo(cod).upper()
-        
-        # Si ya tiene una imagen Base64 válida, mantenerla
-        if p.get("imagen") and str(p["imagen"]).startswith("data:image/"):
-            continue
-
-        # Verificar si ya existe en disco
-        img_disk = os.path.join("temp_imgs", f"prod_{clean_cod}.webp")
-        if not os.path.exists(img_disk):
-            img_disk_png = os.path.join("temp_imgs", f"prod_{clean_cod}.png")
-            if os.path.exists(img_disk_png):
-                img_disk = img_disk_png
-                
-        if os.path.exists(img_disk) and os.path.getsize(img_disk) > 400:
-            try:
-                with open(img_disk, "rb") as f_i:
-                    raw_b = f_i.read()
-                mime = "image/webp" if img_disk.endswith(".webp") else "image/png"
-                p["imagen"] = f"data:{mime};base64,{base64.b64encode(raw_b).decode('utf-8')}"
-                continue
-            except Exception:
-                pass
-                
-        # Si no tiene imagen en disco, registrarlo para buscar en catalogos.xlsx
-        if norm_cod not in codigos_pendientes:
-            codigos_pendientes[norm_cod] = []
-        codigos_pendientes[norm_cod].append(p)
-
-    # 2. Si hay códigos pendientes y existe catalogos.xlsx, extraer directo de Excel
-    if codigos_pendientes and os.path.exists(excel_path):
-        print(f"\n[EXCEL PRELISTA] Buscando fotos para {len(codigos_pendientes)} productos pendientes en '{excel_path}'...")
-        try:
-            wb = load_workbook(excel_path, data_only=True)
-            hojas = detectar_hojas_inventario(wb)
-            
-            # Buscar en cada hoja de inventario
-            for ws in hojas:
-                if not hasattr(ws, '_images') or not ws._images:
-                    continue
-                cols, start_row = detectar_columnas(ws)
-                col_c = cols.get("codigo", 2)
-                
-                # Mapear filas que corresponden a nuestros códigos en esta hoja
-                filas_target = {} # { row_number: norm_code }
-                max_r = min(ws.max_row + 10, 20000) if ws.max_row else 5000
-                consecutive_empty = 0
-                
-                for r in range(start_row, max_r):
-                    val = ws.cell(row=r, column=col_c).value
-                    if val and str(val).strip():
-                        norm_v = normalizar_codigo(val).upper()
-                        if norm_v in codigos_pendientes:
-                            filas_target[r] = norm_v
-                        consecutive_empty = 0
-                    else:
-                        consecutive_empty += 1
-                        if consecutive_empty >= 80:
-                            break
-                            
-                if not filas_target:
-                    continue
-                    
-                print(f"  [EXCEL PRELISTA] Hoja '{ws.title}': detectados {len(filas_target)} productos coincidentes. Extrayendo fotos...")
-                
-                # Extraer imágenes de las filas encontradas
-                for img in ws._images:
-                    try:
-                        ancla = getattr(img, 'anchor', None)
-                        fila = None
-                        if ancla is not None:
-                            if hasattr(ancla, '_from') and hasattr(ancla._from, 'row'):
-                                fila = ancla._from.row + 1
-                            elif hasattr(ancla, 'from_row'):
-                                fila = ancla.from_row + 1
-                            elif hasattr(ancla, 'row'):
-                                fila = ancla.row + 1
-                            elif isinstance(ancla, str):
-                                m = re.search(r'\d+', ancla)
-                                if m: fila = int(m.group())
-                                
-                        if fila is None:
-                            continue
-                            
-                        # Verificar si coincide con una fila de interés (+- 2 de tolerancia)
-                        norm_match = None
-                        for off in [0, -1, 1, -2, 2]:
-                            if (fila + off) in filas_target:
-                                norm_match = filas_target[fila + off]
-                                break
-                                
-                        if not norm_match or norm_match not in codigos_pendientes:
-                            continue
-                            
-                        raw_bytes = extraer_bytes_de_imagen(img)
-                        if raw_bytes and len(raw_bytes) > 200:
-                            img_pil = PILImage.open(io.BytesIO(raw_bytes))
-                            img_cropped = autocrop_image(img_pil)
-                            if img_cropped.width > 350 or img_cropped.height > 350:
-                                resample_filter = getattr(PILImage, "Resampling", None)
-                                filter_type = resample_filter.LANCZOS if resample_filter else getattr(PILImage, "ANTIALIAS", 3)
-                                img_cropped.thumbnail((350, 350), filter_type)
-                                
-                            clean_cod = re.sub(r'[\\/*?:"<>| ]', "_", norm_match)
-                            dest_webp = os.path.join("temp_imgs", f"prod_{clean_cod}.webp")
-                            img_cropped.save(dest_webp, "WEBP", quality=65)
-                            
-                            with open(dest_webp, "rb") as f_w:
-                                webp_raw = f_w.read()
-                            b64_str = f"data:image/webp;base64,{base64.b64encode(webp_raw).decode('utf-8')}"
-                            
-                            # Asignar a todos los productos con este código
-                            for p_item in codigos_pendientes[norm_match]:
-                                p_item["imagen"] = b64_str
-                                
-                            del codigos_pendientes[norm_match]
-                    except Exception:
-                        pass
-                        
-            wb.close()
-            print(f"[EXCEL PRELISTA] Extracción finalizada. Pendientes sin foto: {len(codigos_pendientes)}.")
-        except Exception as e_wb:
-            print(f"[EXCEL PRELISTA ERROR] No se pudo leer {excel_path}: {e_wb}")
-
-    return productos
-
-def sincronizar_imagenes_prelista_existente():
-    """
-    Revisa prelista_data.json en el arranque. Si hay productos sin imagen, extrae de catalogos.xlsx
-    y actualiza tanto prelista_data.json como prelista.html con las fotos en Base64.
-    """
-    if not os.path.exists("prelista_data.json"):
-        return
-    try:
-        with open("prelista_data.json", "r", encoding="utf-8") as f_in:
-            data = json.load(f_in)
-        productos = data.get("productos", [])
-        if not productos:
-            return
-        
-        # Verificar si falta imagen o si las marcas necesitan sincronización
-        sin_foto = sum(1 for p in productos if not p.get("imagen"))
-        marcas_total_excesivas = sum(1 for p in productos if p.get("marca") == "TOTAL" and "TOTAL" not in str(p.get("detalle", "")).upper() and not str(p.get("codigo", "")).upper().startswith("T"))
-        if sin_foto > 0 or marcas_total_excesivas > 0:
-            print(f"[INICIO PRELISTA] Sincronizando fotos y marcas de prelista con Excel...")
-            productos = sincronizar_imagenes_para_prelista(productos)
-            data["productos"] = productos
-            data["actualizadoEn"] = datetime.now().isoformat()
-            with open("prelista_data.json", "w", encoding="utf-8") as f_out:
-                json.dump(data, f_out, indent=2, ensure_ascii=False)
-            
-            # Hornear en prelista.html
-            if os.path.exists("prelista.html"):
-                with open("prelista.html", "r", encoding="utf-8") as f_h:
-                    html_content = f_h.read()
-                baked_json = json.dumps(productos, ensure_ascii=False, indent=2)
-                new_baked_block = f"/* BAKED_PRELISTA_DATA_START */\n    const BAKED_PRELISTA_DATA = {baked_json};\n    /* BAKED_PRELISTA_DATA_END */"
-                if "/* BAKED_PRELISTA_DATA_START */" in html_content:
-                    html_content = re.sub(
-                        r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
-                        lambda m: new_baked_block,
-                        html_content,
-                        flags=re.DOTALL
-                    )
-                with open("prelista.html", "w", encoding="utf-8") as f_hw:
-                    f_hw.write(html_content)
-
-            # Nota: No inyectar catálogo/fotos en api/prelista.js para no superar el límite de 1MB de Vercel Edge Runtime
-
-            print(f"[INICIO PRELISTA OK] ¡Fotos de prelista horneadas exitosamente!")
-    except Exception as e_sync:
-        print(f"[INICIO PRELISTA AVISO] No se pudo sincronizar fotos iniciales: {e_sync}")
-
 class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     
     # Registrar conexiones de red entrantes para ver quién se conecta al panel
@@ -401,78 +93,9 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         with open(file_path, 'rb') as f:
             self.wfile.write(f.read())
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', '*')
-        self.end_headers()
-
     def do_POST(self):
-        parsed_url = urllib.parse.urlparse(self.path)
-        if parsed_url.path == "/api/prelista/guardar":
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_body = self.rfile.read(content_length)
-            try:
-                data = json.loads(post_body.decode('utf-8'))
-                excluidos = data.get("excluidos", [])
-                sheet = data.get("sheet", "Hoja 49")
-                productos = data.get("productos", [])
-
-                # Sincronizar y extraer imágenes directamente desde catalogos.xlsx y temp_imgs
-                productos = sincronizar_imagenes_para_prelista(productos)
-
-                # 1. Guardar prelista_data.json con todos los productos de prelista
-                with open("prelista_data.json", "w", encoding="utf-8") as f_data:
-                    json.dump({
-                        "success": True,
-                        "sheet": sheet,
-                        "totalProductos": len(productos),
-                        "actualizadoEn": datetime.now().isoformat(),
-                        "productos": productos
-                    }, f_data, indent=2, ensure_ascii=False)
-
-                # 2. Guardar prelista_excluidos.json por compatibilidad
-                with open("prelista_excluidos.json", "w", encoding="utf-8") as f_ex:
-                    json.dump({"sheet": sheet, "excluidos": excluidos}, f_ex, indent=2, ensure_ascii=False)
-
-                # 3. Grabar directamente los productos en prelista.html (Bake estático instantáneo)
-                if os.path.exists("prelista.html"):
-                    with open("prelista.html", "r", encoding="utf-8") as f_html:
-                        html_content = f_html.read()
-
-                    baked_json = json.dumps(productos, ensure_ascii=False, indent=2)
-                    new_baked_block = f"/* BAKED_PRELISTA_DATA_START */\n    const BAKED_PRELISTA_DATA = {baked_json};\n    /* BAKED_PRELISTA_DATA_END */"
-                    if "/* BAKED_PRELISTA_DATA_START */" in html_content:
-                        html_content = re.sub(
-                            r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
-                            lambda m: new_baked_block,
-                            html_content,
-                            flags=re.DOTALL
-                        )
-                    with open("prelista.html", "w", encoding="utf-8") as f_html_w:
-                        f_html_w.write(html_content)
-
-                # Nota: No inyectar catálogo/fotos en api/prelista.js para no superar el límite de 1MB de Vercel Edge Runtime
-
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json; charset=utf-8')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(json.dumps({
-                    "success": True, 
-                    "total": len(productos),
-                    "sheet": sheet,
-                    "mensaje": f"Se grabaron {len(productos)} productos en prelista.html con éxito."
-                }).encode('utf-8'))
-            except Exception as e_save:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json; charset=utf-8')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(json.dumps({"success": False, "error": str(e_save)}).encode('utf-8'))
-            return
-
+        # Desactivado por seguridad en red local (intranet) para evitar que clientes
+        # externos abran programas o carpetas en la máquina principal.
         self.send_error(404, "Not found")
 
     def do_GET(self):
@@ -542,13 +165,28 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             writer = SSEStdoutWriter(self)
             writer.write(">>> [VERCEL] Preparando despliegue de catálogo online...\n")
             try:
+                # 0. Asegurar repositorio Git configurado
+                if not os.path.exists(".git"):
+                    writer.write(">>> [VERCEL] Inicializando repositorio Git local...\n")
+                    subprocess.run(["git", "init"], capture_output=True)
+                    subprocess.run(["git", "branch", "-M", "main"], capture_output=True)
+
+                remotes = subprocess.run(["git", "remote", "-v"], capture_output=True, text=True).stdout
+                if "origin" not in remotes:
+                    writer.write(">>> [VERCEL] Conectando con GitHub (origin)...\n")
+                    subprocess.run(["git", "remote", "add", "origin", "https://github.com/CodeByVar/GENERADOR-DE-CATALOGOS.git"], capture_output=True)
+                    subprocess.run(["git", "branch", "-M", "main"], capture_output=True)
+
+                subprocess.run(["git", "config", "user.name", "CodeByVar"], capture_output=True)
+                subprocess.run(["git", "config", "user.email", "jesusvargasvida@gmail.com"], capture_output=True)
+
                 import shutil
                 if os.path.exists("catalogos.html"):
                     shutil.copyfile("catalogos.html", "index.html")
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
                 import glob
-                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_data.json", "prelista_excluidos.json", "vercel.json", "package.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
+                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "vercel.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
                 for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
                     add_files.extend(glob.glob(img_pat))
                 subprocess.run(["git", "add"] + add_files, capture_output=True)
@@ -800,109 +438,16 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
             
             script_url = "https://script.google.com/macros/s/AKfycbwZluWpdw3riIr35gdrHhgdn7cRLcoNOuqQffxbnPIFqFbu2EgsxZffipAs0c4_gDpbKg/exec"
             query_str = parsed_url.query
-            params = urllib.parse.parse_qs(query_str) if query_str else {}
-            sheet_val = params.get('sheet', [''])[0]
-            force_val = params.get('force', [''])[0]
-
-            # Si se piden múltiples hojas separadas por coma o '+'
-            if sheet_val and (',' in sheet_val or '+' in sheet_val):
-                sheet_names = [s.strip() for s in re.split(r'[,+]', sheet_val) if s.strip()]
-                merged_prods = []
-                prods_map = {}
-                available_sheets = []
-                c = ssl.create_default_context()
-                c.check_hostname = False
-                c.verify_mode = ssl.CERT_NONE
-                
-                for s_name in sheet_names:
-                    s_qs = f"sheet={urllib.parse.quote(s_name)}"
-                    if force_val:
-                        s_qs += "&force=1"
-                    try:
-                        r = urllib.request.Request(f"{script_url}?{s_qs}", headers={'User-Agent': 'Mozilla/5.0'})
-                        with urllib.request.urlopen(r, context=c, timeout=25) as resp:
-                            s_data = json.loads(resp.read().decode('utf-8'))
-                            if s_data.get("success") and isinstance(s_data.get("productos"), list):
-                                if s_data.get("availableSheets") and len(s_data["availableSheets"]) > len(available_sheets):
-                                    available_sheets = s_data["availableSheets"]
-                                for prod in s_data["productos"]:
-                                    cod = str(prod.get("codigo", "")).strip().upper()
-                                    if not cod:
-                                        continue
-                                    if cod in prods_map:
-                                        ex = prods_map[cod]
-                                        ex["cajasVienen"] = int(ex.get("cajasVienen", 0)) + int(prod.get("cajasVienen", 0))
-                                        ex["stockReserva"] = int(ex.get("stockReserva", 0)) + int(prod.get("stockReserva", 0))
-                                        if "_origenHojas" not in ex:
-                                            ex["_origenHojas"] = []
-                                        if s_name not in ex["_origenHojas"]:
-                                            ex["_origenHojas"].append(s_name)
-                                    else:
-                                        prod["_origenHojas"] = [s_name]
-                                        prods_map[cod] = prod
-                                        merged_prods.append(prod)
-                    except Exception:
-                        pass
-                
-                resp_payload = {
-                    "success": True,
-                    "sheet": " + ".join(sheet_names),
-                    "availableSheets": available_sheets,
-                    "totalProductos": len(merged_prods),
-                    "productos": merged_prods
-                }
-                self.wfile.write(json.dumps(resp_payload, ensure_ascii=False).encode('utf-8'))
-                return
-
             target_url = f"{script_url}?{query_str}" if query_str else script_url
             try:
                 r = urllib.request.Request(target_url, headers={'User-Agent': 'Mozilla/5.0'})
                 c = ssl.create_default_context()
                 c.check_hostname = False
                 c.verify_mode = ssl.CERT_NONE
-                with urllib.request.urlopen(r, context=c, timeout=25) as resp:
+                with urllib.request.urlopen(r, context=c, timeout=14) as resp:
                     self.wfile.write(resp.read())
             except Exception as e_script:
                 self.wfile.write(json.dumps({"success": False, "error": str(e_script)}).encode('utf-8'))
-            return
-
-        # 1.10 Endpoint API para sincronizar fotos de la prelista directamente desde Excel
-        elif parsed_url.path == "/api/prelista/sincronizar_fotos":
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_header('Cache-Control', 'no-cache')
-            self.end_headers()
-            try:
-                with open("prelista_data.json", "r", encoding="utf-8") as f_d:
-                    data = json.load(f_d)
-                prods = data.get("productos", [])
-                prods = sincronizar_imagenes_para_prelista(prods)
-                data["productos"] = prods
-                data["actualizadoEn"] = datetime.now().isoformat()
-                with open("prelista_data.json", "w", encoding="utf-8") as f_d_w:
-                    json.dump(data, f_d_w, indent=2, ensure_ascii=False)
-
-                if os.path.exists("prelista.html"):
-                    with open("prelista.html", "r", encoding="utf-8") as f_h:
-                        html_c = f_h.read()
-                    baked_json = json.dumps(prods, ensure_ascii=False, indent=2)
-                    new_baked = f"/* BAKED_PRELISTA_DATA_START */\n    const BAKED_PRELISTA_DATA = {baked_json};\n    /* BAKED_PRELISTA_DATA_END */"
-                    if "/* BAKED_PRELISTA_DATA_START */" in html_c:
-                        html_c = re.sub(
-                            r'/\* BAKED_PRELISTA_DATA_START \*/.*?/\* BAKED_PRELISTA_DATA_END \*/',
-                            lambda m: new_baked,
-                            html_c,
-                            flags=re.DOTALL
-                        )
-                    with open("prelista.html", "w", encoding="utf-8") as f_hw:
-                        f_hw.write(html_c)
-
-                # Nota: No inyectar catálogo/fotos en api/prelista.js para no superar el límite de 1MB de Vercel Edge Runtime
-                con_foto = sum(1 for p in prods if p.get("imagen") and str(p["imagen"]).startswith("data:image/"))
-                resp = {"success": True, "total": len(prods), "conFoto": con_foto, "mensaje": f"Se sincronizaron {con_foto} fotos desde catalogos.xlsx y caché."}
-            except Exception as e_s:
-                resp = {"success": False, "error": str(e_s)}
-            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
         # 2. Servir el PDF de catálogo
@@ -1832,137 +1377,64 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
 
       <!-- TAB 6: Prelista / Mercadería en Tránsito (Google Sheets) -->
       <div class="tab-content" id="tab-prelista">
-        <!-- 1. Fila de Hoja / Contenedor Google Sheets -->
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-panel); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-              <span style="font-size: 8pt; font-weight: 800; color: #38BDF8;">📦 Hojas Google Sheets:</span>
-              <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 5px 8px; border-radius: 6px; outline: none; cursor: pointer;">
-                <option value="">(Detectando hojas en vivo...)</option>
-              </select>
-              
-              <button type="button" class="btn-chip" onclick="cargarHojaSeleccionada(false)" title="Cargar solo esta hoja reemplazando la lista" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); font-weight: 700; font-size: 7.5pt; padding: 5px 8px; cursor: pointer;">
-                🔄 Cargar
-              </button>
-
-              <button type="button" class="btn-chip" onclick="cargarHojaSeleccionada(true)" title="Sumar / anexar los productos de esta hoja a la lista sin borrar los existentes" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-weight: 800; font-size: 7.5pt; padding: 5px 10px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
-                ➕ Sumar Hoja
-              </button>
-
-              <button type="button" class="btn-chip" id="btn-toggle-multi-sheets" onclick="toggleMultiSheetsPanel()" title="Marcar varias hojas con casillas y agregarlas todas juntas" style="background: rgba(245, 158, 11, 0.18); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); font-weight: 700; font-size: 7.5pt; padding: 5px 9px; cursor: pointer;">
-                📑 Elegir Varias...
-              </button>
-            </div>
-            
-            <div style="display: flex; gap: 6px;">
-              <button type="button" class="btn-chip" onclick="consultarPrelistaPanel(null, true)" title="Refrescar datos en vivo desde Google Sheets" style="display: flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); cursor: pointer; font-size: 7.5pt;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                <span>Sincronizar</span>
-              </button>
-              <a href="/prelista.html" target="_blank" class="btn-chip" style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35); text-decoration: none; font-size: 7.5pt;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                <span>Ver Web Prelista</span>
-              </a>
-            </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 8pt; font-weight: 800; color: #38BDF8;">📦 Hoja / Contenedor:</span>
+            <select id="prelista-panel-sheet-select" style="background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; font-size: 8pt; font-weight: 700; padding: 4px 8px; border-radius: 6px; outline: none;" onchange="consultarPrelistaPanel(this.value)">
+              <option value="Hoja 48">Hoja 48</option>
+              <option value="Hoja 47">Hoja 47</option>
+              <option value="Hoja 46">Hoja 46</option>
+            </select>
           </div>
-
-          <!-- Panel Desplegable: Selección de Múltiples Hojas -->
-          <div id="multi-sheets-panel" style="display: none; background: rgba(9, 13, 22, 0.95); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 6px; padding: 10px; margin-bottom: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 6px;">
-              <span style="font-size: 7.5pt; font-weight: 800; color: #38BDF8;">📑 MARCA LAS HOJAS QUE DESEAS COMBINAR:</span>
-              <div style="display: flex; gap: 4px;">
-                <button type="button" class="btn-chip" onclick="marcarRecientesHojas(2)" style="font-size: 6.8pt; padding: 2px 6px;">Últimas 2</button>
-                <button type="button" class="btn-chip" onclick="marcarRecientesHojas(3)" style="font-size: 6.8pt; padding: 2px 6px;">Últimas 3</button>
-                <button type="button" class="btn-chip" onclick="desmarcarTodasHojas()" style="font-size: 6.8pt; padding: 2px 6px;">Desmarcar</button>
-                <button type="button" onclick="toggleMultiSheetsPanel()" style="background: none; border: none; color: #94A3B8; font-size: 9pt; cursor: pointer; padding: 0 4px;" title="Cerrar panel">✕</button>
-              </div>
-            </div>
-            
-            <div id="multi-sheets-checkboxes-grid" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 110px; overflow-y: auto; padding: 4px; margin-bottom: 8px;">
-              <!-- Se generará dinámicamente -->
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 6px;">
-              <button type="button" class="btn-chip" onclick="cargarHojasSeleccionadasMultiple(false)" style="background: rgba(56, 189, 248, 0.2); color: #38BDF8; border-color: rgba(56, 189, 248, 0.4); font-size: 7.5pt; font-weight: 700; padding: 5px 10px; cursor: pointer;">
-                🔄 Cargar Marcadas (Reemplazar)
-              </button>
-              <button type="button" class="btn-chip" onclick="cargarHojasSeleccionadasMultiple(true)" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-size: 7.5pt; font-weight: 800; padding: 5px 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);">
-                ➕ Sumar Marcadas a la Lista
-              </button>
-            </div>
-          </div>
-
-          <!-- Fila Informativa de Hojas Incluidas Actualmente -->
-          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 7.5pt; padding-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
-            <span style="color: #94A3B8; font-weight: 700;">Hojas en esta prelista:</span>
-            <div id="loaded-sheets-badges" style="display: flex; gap: 4px; flex-wrap: wrap;">
-              <span style="background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 4px; padding: 2px 6px; font-weight: 600;">(Ninguna hoja cargada aún)</span>
-            </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-chip" onclick="consultarPrelistaPanel(null, true)" title="Refrescar datos en vivo desde Google Sheets" style="display: flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.35); cursor: pointer;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span>Sincronizar</span>
+            </button>
+            <a href="/prelista.html" target="_blank" class="btn-chip" style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.35); text-decoration: none;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              <span>Abrir Web Prelista</span>
+            </a>
           </div>
         </div>
 
-        <!-- 2. Entrada Manual de Códigos y Número de Cajas -->
+        <!-- Entrada Manual de Códigos para Prelista -->
         <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-panel); border-radius: 8px; padding: 8px; margin-bottom: 8px;">
-          <div style="font-size: 7.5pt; font-weight: 800; color: #38BDF8; margin-bottom: 6px;">
-            <span>➕ AGREGAR CÓDIGOS Y NÚMERO DE CAJAS A LA PRELISTA:</span>
+          <div style="font-size: 7.5pt; font-weight: 800; color: var(--text-muted); margin-bottom: 4px;">
+            <span>➕ METER CÓDIGOS MANUALES AL GENERADOR / PRELISTA:</span>
           </div>
-          <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-            <input type="text" id="prelista-input-code" placeholder="Código (ej: TPBX0171)" style="flex: 2; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-size: 8pt; outline: none;">
-            <input type="number" id="prelista-input-boxes" placeholder="Cajas" min="1" value="10" style="width: 75px; background: var(--bg-console); border: 1px solid var(--border-panel); color: #34D399; font-weight: bold; padding: 6px 8px; border-radius: 6px; font-size: 8pt; text-align: center; outline: none;">
-            <button class="btn-chip" onclick="agregarItemManualPrelista()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 12px; font-weight: 800; font-size: 8pt; white-space: nowrap; cursor: pointer;">
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="prelista-manual-code-input" placeholder="Escribe un código o varios separados por comas (ej: THWS030301, TPBX0171)..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-size: 8pt; font-family: inherit; outline: none;">
+            <button class="btn-chip" onclick="agregarCodigoManualPrelista()" style="background: var(--primary); color: #0F172A; border: none; padding: 6px 10px; font-weight: 800; font-size: 8pt; white-space: nowrap; cursor: pointer;">
               ➕ Agregar
             </button>
           </div>
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <input type="text" id="prelista-multi-input" placeholder="O pega varios (ej: DSM07-115 10, DZR110 5, DMY02-235 8)..." style="flex-grow: 1; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFFFFF; padding: 5px 8px; border-radius: 6px; font-size: 7.5pt; outline: none;">
-            <button class="btn-chip" onclick="agregarMultiplesCodigosPrelista()" style="background: rgba(56, 189, 248, 0.2); color: #38BDF8; border-color: rgba(56, 189, 248, 0.4); font-size: 7.5pt; padding: 5px 8px; white-space: nowrap;">
-              📥 Cargar Varios
-            </button>
-          </div>
         </div>
 
-        <!-- 3. BOTÓN PRINCIPAL DE GENERAR / GRABAR DIRECTO EN LA WEB -->
-        <div style="margin-bottom: 8px;">
-          <button type="button" id="btn-save-prelista-web" onclick="guardarYGrabarWebPrelista()" style="width: 100%; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: #FFFFFF; border: 1.5px solid #38BDF8; border-radius: 8px; padding: 10px 14px; font-weight: 800; font-size: 9pt; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); transition: all 0.2s;">
-            <span style="font-size: 13pt;">🚀</span>
-            <span>GUARDAR Y GRABAR EN WEB PRELISTA (<span id="lbl-prelista-count">0</span> productos)</span>
-          </button>
-          <div style="font-size: 7pt; color: #94A3B8; text-align: center; margin-top: 4px;">
-            Graba directamente los productos en <b>prelista.html</b> para que tus clientes los vean al instante sin demoras.
-          </div>
-        </div>
-
+        <!-- Botones de Acción de Prelista -->
         <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-          <button class="btn-chip" onclick="sincronizarFotosPrelistaExcel()" style="flex: 1; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.35); font-weight: 800; font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Extraer y sincronizar fotos directo desde catalogos.xlsx">
-            <span>🖼️ Sincronizar Fotos Excel</span>
-          </button>
-          <button class="btn-chip" onclick="publicarVercelDesdePrelista()" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-weight: 800; font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Subir los cambios de prelista.html a Vercel en la nube">
-            <span>☁️ Publicar en Vercel Ahora</span>
-          </button>
-          <button class="btn-chip" onclick="cargarCodigosPrelistaAlGenerador()" style="flex: 1; background: rgba(255, 255, 255, 0.08); font-size: 7.5pt; padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Copiar códigos de esta prelista al catálogo principal">
-            <span>📋 Cargar al Catálogo</span>
-          </button>
-          <button class="btn-chip danger" onclick="vaciarPrelistaCache()" style="font-size: 7.5pt; padding: 6px 8px;" title="Limpiar la lista previa">
-            <span>🗑️ Limpiar</span>
+          <button class="btn-chip" id="btn-load-prelista-codes" onclick="cargarCodigosPrelistaAlGenerador()" style="flex-grow: 1; background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.2)); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38BDF8; font-weight: 800; font-size: 8pt; padding: 7px 10px; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;" title="Cargar todos los códigos de esta hoja al generador">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            <span id="btn-load-prelista-label">📥 Cargar Códigos de Prelista al Generador</span>
           </button>
         </div>
 
-        <!-- 4. Tabla Previa de Mercadería en Tránsito -->
-        <div style="max-height: 220px; overflow-y: auto; background: var(--bg-console); border: 1px solid var(--border-panel); border-radius: 6px; padding: 4px;">
+        <!-- Tabla Previa de Mercadería en Tránsito -->
+        <div style="max-height: 160px; overflow-y: auto; background: var(--bg-console); border: 1px solid var(--border-panel); border-radius: 6px; padding: 4px;">
           <table style="width: 100%; border-collapse: collapse; font-size: 7.5pt; text-align: left;">
             <thead>
               <tr style="color: var(--text-muted); border-bottom: 1px solid var(--border-panel);">
-                <th style="padding: 4px 6px;">CÓDIGO</th>
-                <th style="padding: 4px 6px;">DETALLE</th>
-                <th style="padding: 4px 6px; text-align: center;">CAJAS</th>
-                <th style="padding: 4px 6px; text-align: center;">LIBRES</th>
-                <th style="padding: 4px 6px;">PRECIO CAJA</th>
-                <th style="padding: 4px 6px; text-align: center;">ACCIÓN</th>
+                <th style="padding: 3px 6px;">CÓDIGO</th>
+                <th style="padding: 3px 6px;">DETALLE</th>
+                <th style="padding: 3px 6px;">VIENEN</th>
+                <th style="padding: 3px 6px;">LIBRES</th>
+                <th style="padding: 3px 6px;">PRECIO CAJA</th>
+                <th style="padding: 3px 6px; text-align: center;">ACCIÓN</th>
               </tr>
             </thead>
             <tbody id="prelista-panel-table-body">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-dim);">Abre esta pestaña o haz clic en "Sincronizar Hoja" para consultar Google Sheets...</td>
+                <td colspan="6" style="text-align: center; padding: 15px; color: var(--text-dim);">Abre esta pestaña o haz clic en "Sincronizar" para consultar Google Sheets...</td>
               </tr>
             </tbody>
           </table>
@@ -2356,158 +1828,48 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         if (raw) parseWhatsAppOrder(raw);
       }}
       if (tabId === 'prelista') {{
-        if (!prelistaProductsCache || prelistaProductsCache.length === 0) {{
-          consultarPrelistaPanel();
-        }}
+        consultarPrelistaPanel();
       }}
     }}
 
-    // ─── 0.5. PRELISTA EN EL GENERADOR (MULTIPLE HOJAS) ───
+    // ─── 0.5. PRELISTA EN EL GENERADOR ───
     let prelistaProductsCache = [];
-    let prelistaLoadedSheets = new Set();
-    let availableSheetsCache = [];
 
-    function updateLoadedSheetsBadges() {{
-      const container = document.getElementById('loaded-sheets-badges');
-      if (!container) return;
-      if (prelistaLoadedSheets.size === 0) {{
-        container.innerHTML = `<span style="background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 4px; padding: 2px 6px; font-weight: 600;">(Ninguna hoja cargada aún)</span>`;
-        return;
-      }}
-      container.innerHTML = Array.from(prelistaLoadedSheets).map(s => {{
-        const count = prelistaProductsCache.filter(p => (p._origenHojas || []).includes(s)).length;
-        const countTxt = count > 0 ? ` (${{count}})` : '';
-        return `
-          <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(56, 189, 248, 0.18); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; padding: 2px 6px; font-weight: 700;">
-            <span>📦 ${{s}}${{countTxt}}</span>
-            <button type="button" onclick="quitarHojaDePrelista('${{s}}')" title="Quitar productos de ${{s}}" style="background: none; border: none; color: #F87171; font-weight: bold; cursor: pointer; padding: 0 2px; font-size: 8pt; line-height: 1;">✕</button>
-          </span>
-        `;
-      }}).join('');
-    }}
-
-    function updatePrelistaBadge() {{
-      const lbl = document.getElementById('lbl-prelista-count');
-      if (lbl) lbl.textContent = prelistaProductsCache.length;
-      const btnLbl = document.getElementById('btn-load-prelista-label');
-      if (btnLbl) {{
-        btnLbl.innerText = `📋 Cargar Códigos al Catálogo (${{prelistaProductsCache.length}} items)`;
-      }}
-      updateLoadedSheetsBadges();
-    }}
-
-    function fusionarProductosPrelista(nuevosProductos, nombreHoja, modoSumar) {{
-      if (!modoSumar) {{
-        prelistaProductsCache = [];
-        prelistaLoadedSheets.clear();
-      }}
-      
-      if (nombreHoja) {{
-        prelistaLoadedSheets.add(nombreHoja);
-      }}
-
-      let agregadosNuevos = 0;
-      let cajasSumadas = 0;
-
-      nuevosProductos.forEach(np => {{
-        const cod = String(np.codigo || '').toUpperCase().trim();
-        if (!cod) return;
-        
-        const existing = prelistaProductsCache.find(p => String(p.codigo || '').toUpperCase().trim() === cod);
-        if (existing) {{
-          const addCajas = parseInt(np.cajasVienen) || 0;
-          const addReserva = parseInt(np.stockReserva) || addCajas;
-          existing.cajasVienen = (parseInt(existing.cajasVienen) || 0) + addCajas;
-          existing.stockReserva = (parseInt(existing.stockReserva) || 0) + addReserva;
-          if (!existing._origenHojas) existing._origenHojas = [];
-          if (nombreHoja && !existing._origenHojas.includes(nombreHoja)) {{
-            existing._origenHojas.push(nombreHoja);
-          }}
-          cajasSumadas++;
-        }} else {{
-          const cloned = {{ ...np }};
-          cloned._origenHojas = nombreHoja ? [nombreHoja] : ['General'];
-          prelistaProductsCache.push(cloned);
-          agregadosNuevos++;
-        }}
-      }});
-
-      return {{ agregadosNuevos, cajasSumadas }};
-    }}
-
-    function actualizarSelectYCasillasHojas(sheets, currentSelectedSheet) {{
-      const sel = document.getElementById('prelista-panel-sheet-select');
-      if (sel) {{
-        const prevVal = sel.value;
-        sel.innerHTML = '';
-        sheets.forEach(s => {{
-          const opt = document.createElement('option');
-          opt.value = s;
-          opt.textContent = `📦 ${{s}}`;
-          if (s === currentSelectedSheet || (!currentSelectedSheet && s === prevVal)) {{
-            opt.selected = true;
-          }}
-          sel.appendChild(opt);
-        }});
-        if (currentSelectedSheet) sel.value = currentSelectedSheet;
-      }}
-
-      const grid = document.getElementById('multi-sheets-checkboxes-grid');
-      if (grid) {{
-        grid.innerHTML = sheets.map(s => {{
-          const isAlreadyLoaded = prelistaLoadedSheets.has(s);
-          return `
-            <label style="display: inline-flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.85); border: 1px solid ${{isAlreadyLoaded ? '#10B981' : 'rgba(56, 189, 248, 0.3)'}}; border-radius: 5px; padding: 3px 7px; cursor: pointer; user-select: none; font-size: 7.5pt; font-weight: 700; color: #FFFFFF;">
-              <input type="checkbox" value="${{s}}" class="chk-multi-sheet" ${{isAlreadyLoaded ? 'checked' : ''}} style="accent-color: #0284C7; cursor: pointer;">
-              <span>📦 ${{s}}</span>
-            </label>
-          `;
-        }}).join('');
-      }}
-    }}
-
-    async function consultarPrelistaPanel(sheetName, isForced, appendMode = false) {{
+    async function consultarPrelistaPanel(sheetName, isForced) {{
       const tbody = document.getElementById('prelista-panel-table-body');
       const sel = document.getElementById('prelista-panel-sheet-select');
-      
-      const targetSheet = (sheetName !== undefined && sheetName !== null && sheetName !== '')
-        ? sheetName 
-        : (sel && sel.value ? sel.value : '');
+      const activeSheet = sheetName || (sel ? sel.value : 'Hoja 48');
       
       if (tbody) {{
-        const accionMsg = appendMode ? 'Sumando datos' : 'Consultando datos';
-        const sheetMsg = targetSheet || 'la hoja más reciente';
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">${{accionMsg}} de ${{sheetMsg}} en Google Sheets...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">Consultando datos de ${{activeSheet}} en Google Sheets...</td></tr>`;
       }}
 
       try {{
-        const queryParts = [];
-        if (targetSheet) queryParts.push(`sheet=${{encodeURIComponent(targetSheet)}}`);
-        if (isForced) queryParts.push('force=1');
-        const qs = queryParts.join('&');
-
-        const res = await fetch(`/api/prelista${{qs ? '?' + qs : ''}}`);
+        const res = await fetch(`/api/prelista?sheet=${{encodeURIComponent(activeSheet)}}${{isForced ? '&force=1' : ''}}`);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         
         if (data && Array.isArray(data.productos)) {{
-          const sheetNameLoaded = data.sheet || targetSheet || 'Hoja';
+          prelistaProductsCache = data.productos;
           
-          if (Array.isArray(data.availableSheets) && data.availableSheets.length > 0) {{
-            availableSheetsCache = data.availableSheets;
-            actualizarSelectYCasillasHojas(data.availableSheets, sheetNameLoaded);
+          if (sel && Array.isArray(data.availableSheets)) {{
+            sel.innerHTML = '';
+            data.availableSheets.forEach(s => {{
+              const opt = document.createElement('option');
+              opt.value = s;
+              opt.textContent = s;
+              if (s === data.sheet) opt.selected = true;
+              sel.appendChild(opt);
+            }});
           }}
 
-          const stats = fusionarProductosPrelista(data.productos, sheetNameLoaded, appendMode);
-
-          updatePrelistaBadge();
-          renderPrelistaPanelTable(prelistaProductsCache);
-
-          if (appendMode) {{
-            log(`[PRELISTA] ¡Hoja ${{sheetNameLoaded}} sumada! (${{stats.agregadosNuevos}} nuevos, ${{stats.cajasSumadas}} coincidencias). Total: ${{prelistaProductsCache.length}} productos.`, 'success');
-          }} else {{
-            log(`[PRELISTA] ¡Éxito! ${{data.productos.length}} productos en tránsito obtenidos de ${{sheetNameLoaded}}.`, 'success');
+          const btnLbl = document.getElementById('btn-load-prelista-label');
+          if (btnLbl) {{
+            btnLbl.innerText = `📥 Cargar Códigos de Prelista al Generador (${{data.productos.length}} items)`;
           }}
+
+          renderPrelistaPanelTable(data.productos);
+          log(`[PRELISTA] ¡Éxito! ${{data.productos.length}} productos en tránsito obtenidos de ${{data.sheet}}.`, 'success');
         }} else {{
           throw new Error(data.error || "Formato de datos no reconocido");
         }}
@@ -2519,147 +1881,27 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }}
     }}
 
-    function cargarHojaSeleccionada(esSumar) {{
-      const sel = document.getElementById('prelista-panel-sheet-select');
-      const targetSheet = sel ? sel.value : '';
-      if (!targetSheet) {{
-        alert("Por favor selecciona una hoja de la lista.");
-        return;
-      }}
-      if (!esSumar && prelistaProductsCache.length > 0 && prelistaLoadedSheets.size > 1) {{
-        if (!confirm(`Tienes ${{prelistaProductsCache.length}} productos combinados de varias hojas.\\n\\n¿Deseas REEMPLAZAR todo y cargar únicamente "${{targetSheet}}"?\\n(Si deseas conservar los actuales y añadir esta hoja, haz clic en Cancelar y luego en "➕ Sumar Hoja")`)) {{
-          return;
-        }}
-      }}
-      consultarPrelistaPanel(targetSheet, true, esSumar);
-    }}
-
-    function toggleMultiSheetsPanel() {{
-      const panel = document.getElementById('multi-sheets-panel');
-      if (!panel) return;
-      const isHidden = panel.style.display === 'none' || panel.style.display === '';
-      panel.style.display = isHidden ? 'block' : 'none';
-      if (isHidden && availableSheetsCache.length > 0) {{
-        actualizarSelectYCasillasHojas(availableSheetsCache, null);
-      }}
-    }}
-
-    function marcarRecientesHojas(count) {{
-      const checks = document.querySelectorAll('.chk-multi-sheet');
-      checks.forEach((chk, idx) => {{
-        chk.checked = idx < count;
-      }});
-    }}
-
-    function desmarcarTodasHojas() {{
-      const checks = document.querySelectorAll('.chk-multi-sheet');
-      checks.forEach(chk => {{ chk.checked = false; }});
-    }}
-
-    async function cargarHojasSeleccionadasMultiple(esSumar) {{
-      const checks = Array.from(document.querySelectorAll('.chk-multi-sheet:checked')).map(c => c.value);
-      if (checks.length === 0) {{
-        alert("Marca al menos una casilla de hoja para cargar.");
-        return;
-      }}
-
-      if (!esSumar && prelistaProductsCache.length > 0) {{
-        if (!confirm(`¿Deseas reemplazar la prelista actual y cargar únicamente las ${{checks.length}} hojas marcadas (${{checks.join(', ')}})?`)) {{
-          return;
-        }}
-      }}
-
-      const tbody = document.getElementById('prelista-panel-table-body');
-      if (tbody) {{
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: #38BDF8;">Cargando y combinando ${{checks.length}} hojas: ${{checks.join(', ')}}...</td></tr>`;
-      }}
-
-      if (!esSumar) {{
-        prelistaProductsCache = [];
-        prelistaLoadedSheets.clear();
-      }}
-
-      let errores = [];
-      let hojasCargadas = 0;
-
-      for (const s of checks) {{
-        try {{
-          const res = await fetch(`/api/prelista?sheet=${{encodeURIComponent(s)}}&force=1`);
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          const data = await res.json();
-          if (data && Array.isArray(data.productos)) {{
-            fusionarProductosPrelista(data.productos, s, true);
-            hojasCargadas++;
-            log(`[PRELISTA] Hoja ${{s}} procesada (${{data.productos.length}} productos).`, 'info');
-          }} else {{
-            errores.push(`${{s}}: ${{data.error || 'Sin productos'}}`);
-          }}
-        }} catch(err) {{
-          errores.push(`${{s}}: ${{err.message}}`);
-        }}
-      }}
-
-      updatePrelistaBadge();
-      renderPrelistaPanelTable(prelistaProductsCache);
-
-      const panel = document.getElementById('multi-sheets-panel');
-      if (panel) panel.style.display = 'none';
-
-      if (hojasCargadas > 0) {{
-        log(`[PRELISTA ÉXITO] ¡${{hojasCargadas}} hojas combinadas! Total en prelista: ${{prelistaProductsCache.length}} productos.`, 'success');
-        alert(`🎉 ¡ÉXITO!\\n\\nSe combinaron ${{hojasCargadas}} hojas:\\n• ${{checks.join('\\n• ')}}\\n\\nTotal acumulado: ${{prelistaProductsCache.length}} productos listos en la prelista.`);
-      }}
-      if (errores.length > 0) {{
-        alert(`⚠️ Hubo advertencias al cargar algunas hojas:\\n${{errores.join('\\n')}}`);
-      }}
-    }}
-
-    function quitarHojaDePrelista(sheetName) {{
-      if (!confirm(`¿Deseas quitar los productos de "${{sheetName}}" de la prelista actual?`)) return;
-      prelistaLoadedSheets.delete(sheetName);
-      
-      prelistaProductsCache = prelistaProductsCache.filter(p => {{
-        if (!p._origenHojas || p._origenHojas.length === 0) return true;
-        if (p._origenHojas.length === 1 && p._origenHojas[0] === sheetName) {{
-          return false;
-        }}
-        p._origenHojas = p._origenHojas.filter(h => h !== sheetName);
-        return true;
-      }});
-
-      renderPrelistaPanelTable(prelistaProductsCache);
-      updatePrelistaBadge();
-      log(`[PRELISTA] Hoja ${{sheetName}} retirada de la lista. Quedan ${{prelistaProductsCache.length}} productos.`, 'info');
-    }}
-
     function renderPrelistaPanelTable(prods) {{
       const tbody = document.getElementById('prelista-panel-table-body');
       if (!tbody) return;
 
       if (!prods || prods.length === 0) {{
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No hay productos en esta prelista. Agrega códigos arriba o sincroniza una hoja.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: var(--text-muted);">No hay productos en esta hoja de prelista.</td></tr>`;
         return;
       }}
 
       tbody.innerHTML = prods.map(p => {{
-        const origenBadge = (p._origenHojas && p._origenHojas.length > 0)
-          ? `<div style="font-size: 6.5pt; color: #38BDF8; font-weight: 600; margin-top: 1px;">📦 ${{p._origenHojas.join(' + ')}}</div>`
-          : '';
+        const isAdded = selectedCodesSet.has(p.codigo.toUpperCase());
         return `
-          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-            <td style="padding: 4px 6px; font-weight: 800; color: #FFFFFF;">
-              <div>${{p.codigo}}</div>
-              ${{origenBadge}}
-            </td>
-            <td style="padding: 4px 6px; color: var(--text-main); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{p.detalle}}">${{p.detalle}}</td>
-            <td style="padding: 4px 6px; text-align: center;">
-              <input type="number" min="1" value="${{p.cajasVienen}}" onchange="cambiarCajasPrelista('${{p.codigo}}', this.value)" style="width: 52px; background: #090D16; border: 1px solid #38BDF8; color: #34D399; font-weight: bold; border-radius: 4px; padding: 2px 4px; text-align: center; font-size: 7.5pt;">
-            </td>
-            <td style="padding: 4px 6px; text-align: center; font-weight: 700; color: ${{p.stockReserva > 0 ? '#34D399' : '#F87171'}};">${{p.stockReserva}} cjs</td>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: ${{isAdded ? 'rgba(56, 189, 248, 0.08)' : 'transparent'}};">
+            <td style="padding: 4px 6px; font-weight: 800; color: #FFFFFF;">${{p.codigo}}</td>
+            <td style="padding: 4px 6px; color: var(--text-main); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${{p.detalle}}">${{p.detalle}}</td>
+            <td style="padding: 4px 6px; color: var(--text-muted);">${{p.cajasVienen}} cjs</td>
+            <td style="padding: 4px 6px; font-weight: 700; color: ${{p.stockReserva > 0 ? '#34D399' : '#F87171'}};">${{p.stockReserva}} cjs</td>
             <td style="padding: 4px 6px; color: var(--primary); font-weight: 700;">US$ ${{Number(p.precioRefUni || 0).toFixed(2)}}</td>
             <td style="padding: 4px 6px; text-align: center;">
-              <button type="button" class="btn-chip danger" onclick="eliminarItemPrelista('${{p.codigo}}')" style="font-size: 7pt; padding: 2px 6px; cursor: pointer;" title="Quitar este producto de la prelista">
-                ❌ Quitar
+              <button class="btn-chip" onclick="toggleCodigoPrelista('${{p.codigo}}')" style="font-size: 7pt; padding: 2px 6px; background: ${{isAdded ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}}; color: ${{isAdded ? '#FCA5A5' : '#34D399'}};">
+                ${{isAdded ? '✕ Quitar' : '➕ Añadir'}}
               </button>
             </td>
           </tr>
@@ -2667,207 +1909,20 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       }}).join('');
     }}
 
-    function eliminarItemPrelista(codigo) {{
+    function toggleCodigoPrelista(codigo) {{
       const u = codigo.toUpperCase().trim();
-      const idx = prelistaProductsCache.findIndex(p => p.codigo.toUpperCase().trim() === u);
-      if (idx !== -1) {{
-        prelistaProductsCache.splice(idx, 1);
-        renderPrelistaPanelTable(prelistaProductsCache);
-        updatePrelistaBadge();
-        log(`[PRELISTA] Producto ${{u}} quitado de la lista previa.`, 'info');
-      }}
-    }}
-
-    function cambiarCajasPrelista(codigo, val) {{
-      const u = codigo.toUpperCase().trim();
-      const item = prelistaProductsCache.find(p => p.codigo.toUpperCase().trim() === u);
-      if (item) {{
-        const n = parseInt(val) || 1;
-        item.cajasVienen = n;
-        item.stockReserva = n;
-        renderPrelistaPanelTable(prelistaProductsCache);
-      }}
-    }}
-
-    function agregarItemManualPrelista() {{
-      const codeInput = document.getElementById('prelista-input-code');
-      const boxInput = document.getElementById('prelista-input-boxes');
-      const cod = (codeInput ? codeInput.value : '').trim().toUpperCase();
-      const boxes = parseInt(boxInput ? boxInput.value : 10) || 10;
-      if (!cod) {{
-        alert("Escribe el código del producto que deseas agregar a la prelista.");
-        if (codeInput) codeInput.focus();
-        return;
-      }}
-      
-      const invProd = allInventoryProducts.find(p => (p.cod || '').toUpperCase() === cod);
-      const detalle = invProd ? `${{invProd.nombre}} ${{invProd.marca}}` : `PRODUCTO ${{cod}}`;
-      const marca = invProd ? invProd.marca : 'GENERAL';
-      const unidad = invProd ? (invProd.size || 'UNI') : 'UNI';
-      const cantCaja = invProd ? (invProd.inner || 1) : 1;
-      const precio = invProd ? (invProd.precioMayor || 0) : 0;
-
-      const existing = prelistaProductsCache.find(p => p.codigo.toUpperCase() === cod);
-      if (existing) {{
-        existing.cajasVienen = boxes;
-        existing.stockReserva = boxes;
+      if (selectedCodesSet.has(u)) {{
+        selectedCodesSet.delete(u);
       }} else {{
-        prelistaProductsCache.unshift({{
-          id: "P_MANUAL_" + Date.now(),
-          codigo: cod,
-          detalle: detalle,
-          marca: marca,
-          cajasVienen: boxes,
-          cantPorCaja: cantCaja,
-          unidad: unidad,
-          precioMayor: precio,
-          precioCaja: precio,
-          precioEspecial: precio,
-          precioRefUni: precio,
-          precioCajaTotal: precio * cantCaja,
-          stockReserva: boxes,
-          agotado: false,
-          _origenHojas: ['Manual']
-        }});
+        selectedCodesSet.add(u);
       }}
-      if (codeInput) codeInput.value = '';
+      syncSetToTextarea();
       renderPrelistaPanelTable(prelistaProductsCache);
-      updatePrelistaBadge();
-      log(`[PRELISTA] Producto ${{cod}} (${{boxes}} cajas) agregado.`, 'success');
-    }}
-
-    function agregarMultiplesCodigosPrelista() {{
-      const multiInput = document.getElementById('prelista-multi-input');
-      const val = multiInput ? multiInput.value.trim() : '';
-      if (!val) {{
-        alert("Pega o escribe códigos con sus cajas (ej: DSM07-115 10, DZR110 5, DMY02-235 8).");
-        return;
-      }}
-      const tokens = val.split(/[\\r\\n,]+/);
-      let count = 0;
-      tokens.forEach(tok => {{
-        const parts = tok.trim().split(/\\s+/);
-        if (parts.length > 0 && parts[0]) {{
-          const cod = parts[0].toUpperCase().trim();
-          const boxes = parts.length > 1 ? (parseInt(parts[1]) || 10) : 10;
-          if (cod.length >= 2) {{
-            const invProd = allInventoryProducts.find(p => (p.cod || '').toUpperCase() === cod);
-            const detalle = invProd ? `${{invProd.nombre}} ${{invProd.marca}}` : `PRODUCTO ${{cod}}`;
-            const marca = invProd ? invProd.marca : 'GENERAL';
-            const cantCaja = invProd ? (invProd.inner || 1) : 1;
-            const precio = invProd ? (invProd.precioMayor || 0) : 0;
-
-            const existing = prelistaProductsCache.find(p => p.codigo.toUpperCase() === cod);
-            if (existing) {{
-              existing.cajasVienen = boxes;
-              existing.stockReserva = boxes;
-            }} else {{
-              prelistaProductsCache.push({{
-                id: "P_MANUAL_" + Math.random().toString(36).substr(2, 9),
-                codigo: cod,
-                detalle: detalle,
-                marca: marca,
-                cajasVienen: boxes,
-                cantPorCaja: cantCaja,
-                unidad: invProd ? (invProd.size || 'UNI') : 'UNI',
-                precioMayor: precio,
-                precioCaja: precio,
-                precioEspecial: precio,
-                precioRefUni: precio,
-                precioCajaTotal: precio * cantCaja,
-                stockReserva: boxes,
-                agotado: false,
-                _origenHojas: ['Manual']
-              }});
-            }}
-            count++;
-          }}
-        }}
-      }});
-      if (multiInput) multiInput.value = '';
-      renderPrelistaPanelTable(prelistaProductsCache);
-      updatePrelistaBadge();
-      log(`[PRELISTA] Se cargaron ${{count}} productos a la prelista.`, 'success');
-      alert(`🎉 ¡Listo! Se cargaron ${{count}} producto(s) a la prelista.`);
-    }}
-
-    function vaciarPrelistaCache() {{
-      if (confirm("¿Estás seguro de vaciar la lista de prelista?")) {{
-        prelistaProductsCache = [];
-        prelistaLoadedSheets.clear();
-        renderPrelistaPanelTable(prelistaProductsCache);
-        updatePrelistaBadge();
-      }}
-    }}
-
-    function guardarYGrabarWebPrelista() {{
-      if (!prelistaProductsCache || prelistaProductsCache.length === 0) {{
-        alert("Primero sincroniza una o más hojas o agrega códigos para guardar.");
-        return;
-      }}
-      const sel = document.getElementById('prelista-panel-sheet-select');
-      const sheetNames = Array.from(prelistaLoadedSheets);
-      const sheet = sheetNames.length > 0 
-        ? sheetNames.join(' + ') 
-        : (sel && sel.value ? sel.value : 'Prelista General');
-      
-      log(`[PRELISTA] Guardando y grabando ${{prelistaProductsCache.length}} productos (${{sheet}}) directamente en prelista.html...`, 'info');
-      
-      fetch('/api/prelista/guardar', {{
-        method: 'POST',
-        headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{
-          sheet: sheet,
-          productos: prelistaProductsCache,
-          excluidos: []
-        }})
-      }})
-      .then(r => r.json())
-      .then(res => {{
-        if (res.success) {{
-          log(`[PRELISTA ÉXITO] ${{res.mensaje || 'Grabado con éxito.'}}`, 'success');
-          alert(`🎉 ¡WEB PRELISTA GRABADA CON ÉXITO!\\n\\n` +
-                `• Hojas combinadas: ${{sheet}}\\n` +
-                `• Se grabaron ${{prelistaProductsCache.length}} productos en 'prelista.html'.\\n` +
-                `• Ya no requiere conexión lenta ni selección de hoja para tus clientes.\\n\\n` +
-                `🚀 SIGUIENTE PASO:\\n` +
-                `Haz clic en '☁️ Publicar en Vercel Ahora' para subirla en vivo.`);
-        }} else {{
-          alert("Error al grabar: " + (res.error || "Desconocido"));
-        }}
-      }})
-      .catch(err => {{
-        alert("Error de conexión al guardar: " + err.message);
-      }});
-    }}
-
-    function sincronizarFotosPrelistaExcel() {{
-      log(">>> [PRELISTA FOTOS] Buscando y extrayendo fotos desde catalogos.xlsx...", "info");
-      fetch('/api/prelista/sincronizar_fotos')
-        .then(r => r.json())
-        .then(res => {{
-          if (res.success) {{
-            log(`[PRELISTA FOTOS OK] ${{res.mensaje}}`, "success");
-            alert(`🎉 ¡Fotos sincronizadas con éxito!\\n\\n${{res.mensaje}}\\nTotal productos con foto: ${{res.conFoto}}`);
-            consultarPrelistaPanel();
-          }} else {{
-            log(`[PRELISTA FOTOS ERROR] ${{res.error}}`, "error");
-            alert(`Aviso: ${{res.error}}`);
-          }}
-        }})
-        .catch(err => {{
-          log(`[PRELISTA FOTOS ERROR] ${{err.message}}`, "error");
-          alert("Error al conectar: " + err.message);
-        }});
-    }}
-
-    function publicarVercelDesdePrelista() {{
-      publicarEnVercel();
     }}
 
     function cargarCodigosPrelistaAlGenerador() {{
       if (prelistaProductsCache.length === 0) {{
-        alert("Primero sincroniza o agrega productos a la prelista.");
+        alert("Primero sincroniza la prelista para cargar sus códigos.");
         return;
       }}
       let agregados = 0;
@@ -2879,8 +1934,32 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         }}
       }});
       syncSetToTextarea();
-      log(`[PRELISTA] Se copiaron ${{agregados}} códigos de prelista a la selección activa.`, 'success');
-      alert(`🎉 ¡Listo! Se copiaron ${{agregados}} códigos de la prelista al Catálogo Principal.\\nTotal códigos listos: ${{selectedCodesSet.size}}`);
+      renderPrelistaPanelTable(prelistaProductsCache);
+      log(`[PRELISTA] Se cargaron ${{agregados}} códigos de la prelista a la selección activa.`, 'success');
+      alert(`🎉 ¡Listo! Se cargaron ${{agregados}} códigos de la prelista al Generador de Catálogos.\\nTotal actual listos: ${{selectedCodesSet.size}} códigos.`);
+    }}
+
+    function agregarCodigoManualPrelista() {{
+      const input = document.getElementById('prelista-manual-code-input');
+      const val = input ? input.value.trim() : '';
+      if (!val) {{
+        alert("Escribe uno o varios códigos separados por coma o espacio.");
+        return;
+      }}
+      const tokens = val.split(/[\\s,;]+/);
+      let count = 0;
+      tokens.forEach(t => {{
+        const u = t.toUpperCase().trim();
+        if (u && u.length >= 2) {{
+          selectedCodesSet.add(u);
+          count++;
+        }}
+      }});
+      syncSetToTextarea();
+      input.value = '';
+      renderPrelistaPanelTable(prelistaProductsCache);
+      log(`[MANUAL] Se agregaron ${{count}} código(s) manuales a la lista activa.`, 'success');
+      alert(`¡Listo! Se agregaron ${{count}} código(s) manuales.`);
     }}
 
     // ─── 1. BÚSQUEDA PREDICTIVA ───
@@ -3802,8 +2881,4 @@ def start_server():
         input("\nPresiona Enter para salir...")
 
 if __name__ == "__main__":
-    try:
-        sincronizar_imagenes_prelista_existente()
-    except Exception as e_sync_init:
-        print(f"[PRELISTA AVISO] Error al sincronizar imágenes iniciales: {e_sync_init}")
     start_server()

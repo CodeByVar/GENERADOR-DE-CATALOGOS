@@ -1,0 +1,5 @@
+# Dependencias del Generador de Catálogos - Importadora Rivero
+openpyxl>=3.1.2
+pillow>=10.0.0
+svglib>=1.5.1
+reportlab>=3.6.12
