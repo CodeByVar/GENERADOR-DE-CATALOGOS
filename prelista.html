@@ -1042,6 +1042,13 @@
   <section class="controls-wrapper">
     <div class="filters-row">
       <div class="filter-item">
+        <label class="filter-label">Contenedor / Hoja</label>
+        <select id="filter-sheet" class="filter-select" onchange="renderProducts()">
+          <option value="TODOS">Todos los contenedores</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
         <label class="filter-label">Marca</label>
         <select id="filter-brand" class="filter-select" onchange="renderProducts()">
           <option value="TODAS">Todas las marcas</option>
@@ -1342,15 +1349,31 @@
       if (btnText) btnText.textContent = "Cargando...";
 
       try {
-        const fetchUrl = `/api/prelista?sheet=${encodeURIComponent(currentSheet)}${isManual ? '&force=1' : ''}`;
-        const res = await fetch(fetchUrl);
-        if (!res.ok) throw new Error("Error en la conexión");
+        let data = null;
 
-        const data = await res.json();
+        // 1. Intentar cargar datos consolidados desde prelista_data.json
+        try {
+          const resLocal = await fetch('/prelista_data.json?t=' + Date.now());
+          if (resLocal.ok) {
+            const jsonLocal = await resLocal.json();
+            if (jsonLocal && Array.isArray(jsonLocal.productos) && jsonLocal.productos.length > 0) {
+              data = jsonLocal;
+            }
+          }
+        } catch(eLocal) {}
+
+        // 2. Si no hay archivo local, consultar la API en vivo
+        if (!data) {
+          const fetchUrl = `/api/prelista?sheet=${encodeURIComponent(currentSheet || 'CONSOLIDADA')}${isManual ? '&force=1' : ''}`;
+          const res = await fetch(fetchUrl);
+          if (res.ok) data = await res.json();
+        }
+
         if (data && Array.isArray(data.productos)) {
           allProducts = data.productos;
           if (data.sheet) currentSheet = data.sheet;
 
+          populateSheetFilter();
           populateBrandFilter();
           renderProducts();
 
@@ -1366,7 +1389,30 @@
       }
     }
 
-    // 4. POBLAR FILTRO DE MARCAS
+    // 4. POBLAR FILTRO DE CONTENEDOR / HOJA
+    function populateSheetFilter() {
+      const select = document.getElementById('filter-sheet');
+      if (!select) return;
+      const sheets = new Set();
+      allProducts.forEach(p => {
+        if (p.origenHoja) {
+          p.origenHoja.split(',').forEach(s => sheets.add(s.trim()));
+        }
+      });
+      const currentVal = select.value;
+      select.innerHTML = '<option value="TODOS">Todos los contenedores</option>';
+      Array.from(sheets).sort().forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        select.appendChild(opt);
+      });
+      if (sheets.has(currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    // 4.1 POBLAR FILTRO DE MARCAS
     function populateBrandFilter() {
       const select = document.getElementById('filter-brand');
       if (!select) return;
@@ -1392,12 +1438,16 @@
     function renderProducts() {
       const container = document.getElementById('products-list');
       const searchTerm = (document.getElementById('search-input').value || '').trim().toUpperCase();
+      const sheetFilter = (document.getElementById('filter-sheet')?.value || 'TODOS');
       const brandFilter = document.getElementById('filter-brand').value;
       const stockFilter = document.getElementById('filter-stock').value;
       const onlyReserved = document.getElementById('check-only-reserved').checked;
 
       let filtered = allProducts.filter(p => {
         if (onlyReserved && (!cart[p.codigo] || cart[p.codigo] <= 0)) {
+          return false;
+        }
+        if (sheetFilter !== 'TODOS' && !(p.origenHoja || '').includes(sheetFilter)) {
           return false;
         }
         if (brandFilter !== 'TODAS' && p.marca !== brandFilter) {
@@ -1460,6 +1510,7 @@
               <div class="product-meta-row">
                 <span class="code-pill">${p.codigo}</span>
                 <span class="brand-tag">${p.marca}</span>
+                <span class="brand-tag" style="background: rgba(2, 132, 199, 0.1); border-color: rgba(2, 132, 199, 0.3); color: #0284C7;">📦 ${escapeHtml(p.origenHoja || currentSheet || 'En Tránsito')}</span>
                 <span class="stock-chip ${isSoldOut ? 'sold-out' : 'available'}">
                   ${isSoldOut ? '🔴 Agotado en Preventa' : `🟢 Cupo libre: ${p.stockReserva} cajas`}
                 </span>

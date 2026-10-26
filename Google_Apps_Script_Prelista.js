@@ -107,12 +107,6 @@ function normalizarTexto(txt) {
 
 function extraerDatosPrelista(targetSheetName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = null;
-
-  // 1. Seleccionar la hoja indicada o buscar la más reciente (ej: Hoja 48)
-  if (targetSheetName) {
-    sheet = ss.getSheetByName(targetSheetName);
-  }
 
   var sheets = ss.getSheets();
   var availableSheets = [];
@@ -123,8 +117,66 @@ function extraerDatosPrelista(targetSheetName) {
     }
   }
 
+  // 1. Si se solicita consolidar varias hojas (CONSOLIDADA / ALL o varias hojas separadas por comas)
+  var isConsolidated = (targetSheetName === "CONSOLIDADA" || targetSheetName === "ALL" || targetSheetName === "GENERAL" || (targetSheetName && targetSheetName.indexOf(",") >= 0));
+  if (isConsolidated) {
+    var targetList = [];
+    if (targetSheetName && targetSheetName.indexOf(",") >= 0) {
+      var parts = targetSheetName.split(",");
+      for (var p = 0; p < parts.length; p++) {
+        var trimmed = parts[p].trim();
+        if (trimmed) targetList.push(trimmed);
+      }
+    } else {
+      // Tomar las primeras 6 a 8 hojas más recientes
+      targetList = availableSheets.slice(0, 8);
+    }
+
+    var allConsolidatedProds = [];
+    var seenCodes = {};
+
+    for (var t = 0; t < targetList.length; t++) {
+      var sh = ss.getSheetByName(targetList[t]);
+      if (!sh) continue;
+      var prodsSh = extraerProductosDeHojaIndividual(sh);
+      for (var pi = 0; pi < prodsSh.length; pi++) {
+        var item = prodsSh[pi];
+        item.origenHoja = targetList[t];
+        var codeUp = (item.codigo || "").toUpperCase().trim();
+        if (!codeUp) continue;
+
+        if (seenCodes[codeUp]) {
+          var exist = seenCodes[codeUp];
+          exist.cajasVienen = (exist.cajasVienen || 0) + (item.cajasVienen || 0);
+          exist.stockReserva = (exist.stockReserva || 0) + (item.stockReserva || 0);
+          if (exist.origenHoja.indexOf(targetList[t]) < 0) {
+            exist.origenHoja += ", " + targetList[t];
+          }
+        } else {
+          seenCodes[codeUp] = item;
+          allConsolidatedProds.push(item);
+        }
+      }
+    }
+
+    return {
+      success: true,
+      sheet: "Lista General Consolidada",
+      isConsolidated: true,
+      availableSheets: availableSheets,
+      totalProductos: allConsolidatedProds.length,
+      actualizadoEn: new Date().toISOString(),
+      productos: allConsolidatedProds
+    };
+  }
+
+  // 2. Modo estándar de una sola hoja
+  var sheet = null;
+  if (targetSheetName) {
+    sheet = ss.getSheetByName(targetSheetName);
+  }
+
   if (!sheet) {
-    // Si no se especificó o no se encontró, tomar la primera hoja tipo "Hoja XX" o la hoja activa
     if (availableSheets.length > 0) {
       sheet = ss.getSheetByName(availableSheets[0]);
     } else {
@@ -136,18 +188,23 @@ function extraerDatosPrelista(targetSheetName) {
     return { success: false, error: "No se encontró ninguna hoja válida en el documento." };
   }
 
+  var prods = extraerProductosDeHojaIndividual(sheet);
+  return {
+    success: true,
+    sheet: sheet.getName(),
+    availableSheets: availableSheets,
+    totalProductos: prods.length,
+    actualizadoEn: new Date().toISOString(),
+    productos: prods
+  };
+}
+
+function extraerProductosDeHojaIndividual(sheet) {
   var actualSheetName = sheet.getName();
   var lastRow = sheet.getLastRow();
   var lastCol = sheet.getLastColumn();
 
-  if (lastRow < 3) {
-    return {
-      success: true,
-      sheet: actualSheetName,
-      availableSheets: availableSheets,
-      productos: []
-    };
-  }
+  if (lastRow < 3) return [];
 
   // 2. Escanear encabezados en las primeras 5 filas
   var headerScanRows = Math.min(5, lastRow);
@@ -303,15 +360,7 @@ function extraerDatosPrelista(targetSheetName) {
     });
   }
 
-  return {
-    success: true,
-    sheet: actualSheetName,
-    availableSheets: availableSheets,
-    tipoCambio: tipoCambioDetectado,
-    totalProductos: productos.length,
-    actualizadoEn: new Date().toISOString(),
-    productos: productos
-  };
+  return productos;
 }
 
 function parseNumero(val, defecto) {
