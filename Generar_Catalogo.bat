@@ -1,27 +1,64 @@
 @echo off
-chcp 65001 >nul
-set PYTHONIOENCODING=utf-8
-title Generador de Catálogos - Importadora Rivero
+setlocal EnableDelayedExpansion
+title Generador de Catalogos - Importadora Rivero
 cls
+
 echo =======================================================
-echo   GENERANDO CATÁLOGO DE IMPORTADORA RIVERO...
+echo      SISTEMA DE CATALOGOS - IMPORTADORA RIVERO
 echo =======================================================
 echo.
+
 cd /d "%~dp0"
 
-:: Verificar e instalar librerías automáticamente si faltan
-python -c "import openpyxl, PIL" >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo [CONFIGURACIÓN] Verificando dependencias necesarias (Pillow, Openpyxl)...
-    python -m pip install --quiet pillow openpyxl
-    echo [CONFIGURACIÓN] Dependencias listas.
+:: 1. Buscar el ejecutable de Python disponible
+set "PY_CMD="
+
+python --version >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=python"
+) else (
+    py --version >nul 2>&1
+    if not errorlevel 1 (
+        set "PY_CMD=py"
+    ) else (
+        if exist "%LOCALAPPDATA%\Python\bin\python.exe" (
+            set "PY_CMD=%LOCALAPPDATA%\Python\bin\python.exe"
+        ) else if exist "%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe" (
+            set "PY_CMD=%LOCALAPPDATA%\Python\pythoncore-3.14-64\python.exe"
+        )
+    )
+)
+
+if not defined PY_CMD (
+    echo [ERROR] No se encontro Python instalado en el sistema.
+    echo Asegurate de instalar Python y marcar la casilla 'Add Python to PATH'.
+    echo.
+    pause
+    exit /b 1
+)
+
+:: 2. Verificar dependencias necesarias
+%PY_CMD% -c "import openpyxl, PIL, svglib, reportlab" >nul 2>&1
+if errorlevel 1 (
+    echo [CONFIGURACION] Instalando dependencias necesarias: Pillow, openpyxl, svglib, reportlab...
+    %PY_CMD% -m pip install --quiet pillow openpyxl svglib reportlab
+    echo [CONFIGURACION] Dependencias listas.
     echo.
 )
 
-python web_generator.py
+:: 3. Iniciar el servidor web interactivo
+echo [INICIO] Abriendo el generador web en tu navegador...
+echo [ENLACE] Local: http://localhost:5000
 echo.
 echo =======================================================
-echo   Proceso finalizado.
+echo Presiona Ctrl+C en esta ventana para detener el servidor.
+echo =======================================================
+echo.
+
+%PY_CMD% web_generator.py
+
+echo.
+echo =======================================================
+echo   Servidor finalizado.
 echo =======================================================
 pause
-
