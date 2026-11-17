@@ -473,6 +473,118 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "error": str(e_save)}).encode('utf-8'))
             return
 
+        elif parsed_url.path == "/api/ofertas/guardar":
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                import base64
+                data = json.loads(post_body.decode('utf-8'))
+                ofertas = data.get("ofertas", [])
+                os.makedirs("ofertas", exist_ok=True)
+                
+                # Procesar imágenes en base64 para guardarlas en la carpeta ofertas/
+                for i, ofr in enumerate(ofertas):
+                    img_data = ofr.get("imagen", "")
+                    if img_data and img_data.startswith("data:image"):
+                        try:
+                            header, b64_str = img_data.split(",", 1)
+                            ext = ".jpg"
+                            if "png" in header.lower(): ext = ".png"
+                            elif "webp" in header.lower(): ext = ".webp"
+                            
+                            safe_slug = re.sub(r'[^a-zA-Z0-9]', '_', ofr.get("titulo", f"oferta_{i}")).lower().strip('_')[:25] or f"oferta_{i}"
+                            filename = f"oferta_{safe_slug}_{int(datetime.now().timestamp())}_{i}{ext}"
+                            file_path = os.path.join("ofertas", filename).replace("\\", "/")
+                            
+                            with open(file_path, "wb") as f_img:
+                                f_img.write(base64.b64decode(b64_str))
+                            
+                            ofr["imagen"] = file_path
+                        except Exception as e_dec:
+                            print(f"[AVISO] Error al decodificar imagen de oferta: {e_dec}")
+                
+                with open("ofertas_data.json", "w", encoding="utf-8") as f_out:
+                    json.dump({"ofertas": ofertas, "actualizadoEn": datetime.now().isoformat()}, f_out, indent=2, ensure_ascii=False)
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "total": len(ofertas),
+                    "mensaje": f"Se guardaron {len(ofertas)} oferta(s) correctamente."
+                }).encode('utf-8'))
+            except Exception as e_of:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e_of)}).encode('utf-8'))
+            return
+
+        elif parsed_url.path == "/api/ofertas/auto_rellenar":
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                from smart_ofertas_extractor import extrae_info_oferta, build_product_index
+                req_data = json.loads(post_body.decode('utf-8')) if post_body else {}
+                db_prods = build_product_index()
+
+                # Caso A: Auto-rellenar TODAS las ofertas
+                if req_data.get("all") is True:
+                    ofertas = req_data.get("ofertas", [])
+                    if not ofertas and os.path.exists("ofertas_data.json"):
+                        with open("ofertas_data.json", "r", encoding="utf-8") as f_of:
+                            ofertas = json.load(f_of).get("ofertas", [])
+
+                    for ofr in ofertas:
+                        img_path = ofr.get("imagen", "")
+                        if img_path:
+                            ext_data = extrae_info_oferta(img_path, db_prods=db_prods)
+                            if ext_data.get("precio"): ofr["precio"] = ext_data["precio"]
+                            if ext_data.get("titulo"): ofr["titulo"] = ext_data["titulo"]
+                            if ext_data.get("badge"): ofr["badge"] = ext_data["badge"]
+                            if ext_data.get("wa_msg"): ofr["wa_msg"] = ext_data["wa_msg"]
+                            if ext_data.get("descripcion"): ofr["descripcion"] = ext_data["descripcion"]
+
+                    with open("ofertas_data.json", "w", encoding="utf-8") as f_out:
+                        json.dump({"ofertas": ofertas, "actualizadoEn": datetime.now().isoformat()}, f_out, indent=2, ensure_ascii=False)
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "success": True,
+                        "ofertas": ofertas,
+                        "mensaje": f"Se procesaron {len(ofertas)} oferta(s) con OCR e Inteligencia."
+                    }, ensure_ascii=False).encode('utf-8'))
+                    return
+
+                # Caso B: Auto-rellenar una sola oferta (por imagen o path)
+                img_target = req_data.get("imagen") or req_data.get("img_path", "")
+                if img_target:
+                    ext_data = extrae_info_oferta(img_target, db_prods=db_prods)
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "success": True,
+                        "data": ext_data
+                    }, ensure_ascii=False).encode('utf-8'))
+                    return
+                else:
+                    raise ValueError("No se proporcionó imagen para analizar.")
+            except Exception as e_ar:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e_ar)}).encode('utf-8'))
+            return
+
         self.send_error(404, "Not found")
 
     def do_GET(self):
@@ -548,8 +660,8 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                     writer.write(">>> [VERCEL] Sincronizado catalogos.html con index.html.\n")
                 
                 import glob
-                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_data.json", "prelista_excluidos.json", "vercel.json", "package.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
-                for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp"]:
+                add_files = ["index.html", "catalogos.html", "catalogos_desktop.html", "catalogos_mobile.html", "prelista.html", "prelista_data.json", "prelista_excluidos.json", "ofertas_data.json", "vercel.json", "package.json", "generar_catalogo.py", "web_generator.py", "Publicar_en_Vercel.bat", "api/stock.js", "api/prelista.js"]
+                for img_pat in ["*.png", "*.jpg", "*.jpeg", "*.webp", "ofertas/*", "brand_logos/*"]:
                     add_files.extend(glob.glob(img_pat))
                 subprocess.run(["git", "add"] + add_files, capture_output=True)
                 subprocess.run(["git", "add", "-u"], capture_output=True)
@@ -591,6 +703,92 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(data).encode('utf-8'))
             except Exception as e:
                 self.wfile.write(json.dumps({"error": str(e), "productos": [], "marcas": {}, "categorias": {}}).encode('utf-8'))
+            return
+
+        # 1.65 Endpoint API para obtener las ofertas vigentes
+        elif parsed_url.path == "/api/ofertas/listar":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            try:
+                if os.path.exists("ofertas_data.json"):
+                    with open("ofertas_data.json", "r", encoding="utf-8") as f_of:
+                        data = json.load(f_of)
+                else:
+                    data = {"ofertas": []}
+                self.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e), "ofertas": []}).encode('utf-8'))
+            return
+
+        # 1.66 Endpoint API para escanear carpeta ofertas y extraer info inteligente
+        elif parsed_url.path == "/api/ofertas/escanear_carpeta":
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            try:
+                import glob
+                from smart_ofertas_extractor import extrae_info_oferta, build_product_index
+                os.makedirs("ofertas", exist_ok=True)
+                existing = []
+                if os.path.exists("ofertas_data.json"):
+                    try:
+                        with open("ofertas_data.json", "r", encoding="utf-8") as f_of:
+                            existing = json.load(f_of).get("ofertas", [])
+                    except Exception:
+                        existing = []
+
+                existing_imgs = {o.get("imagen", "").replace("\\", "/"): o for o in existing}
+                valid_exts = ('.png', '.jpg', '.jpeg', '.webp')
+                folder_imgs = sorted([
+                    f.replace("\\", "/") for f in glob.glob("ofertas/*.*")
+                    if os.path.splitext(f)[1].lower() in valid_exts and not os.path.basename(f).startswith("_temp")
+                ])
+
+                db_prods = build_product_index()
+                updated_list = []
+
+                for f_img in folder_imgs:
+                    if f_img in existing_imgs:
+                        item = existing_imgs[f_img]
+                        # Si no tiene precio o su título es muy corto, enriquecer
+                        if not item.get("precio") or len(item.get("titulo", "")) < 15:
+                            info = extrae_info_oferta(f_img, db_prods=db_prods)
+                            if not item.get("precio") and info.get("precio"):
+                                item["precio"] = info["precio"]
+                            if len(item.get("titulo", "")) < 15 and info.get("titulo"):
+                                item["titulo"] = info["titulo"]
+                            if not item.get("badge") and info.get("badge"):
+                                item["badge"] = info["badge"]
+                            if not item.get("wa_msg") and info.get("wa_msg"):
+                                item["wa_msg"] = info["wa_msg"]
+                        updated_list.append(item)
+                    else:
+                        info = extrae_info_oferta(f_img, db_prods=db_prods)
+                        updated_list.append({
+                            "id": f"of_{int(datetime.now().timestamp()*1000)}_{len(updated_list)}",
+                            "titulo": info.get("titulo") or os.path.basename(f_img),
+                            "precio": info.get("precio", ""),
+                            "badge": info.get("badge", "HASTA AGOTAR STOCK"),
+                            "descripcion": info.get("descripcion", ""),
+                            "wa_msg": info.get("wa_msg", ""),
+                            "imagen": f_img,
+                            "activa": True,
+                            "creada": datetime.now().isoformat()
+                        })
+
+                with open("ofertas_data.json", "w", encoding="utf-8") as f_out:
+                    json.dump({"ofertas": updated_list, "actualizadoEn": datetime.now().isoformat()}, f_out, indent=2, ensure_ascii=False)
+
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "ofertas": updated_list,
+                    "mensaje": f"Se sincronizaron {len(updated_list)} oferta(s) con la carpeta local."
+                }, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
             return
 
         # 1.7 Endpoint API para sincronizar y probar stock en vivo desde Google Apps Script
@@ -1674,6 +1872,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17l10 5 10-5M2 12l10 5 10-5M2 7l10 5 10-5"></path></svg>
           <span style="color: #38BDF8; font-weight: 800;">🚢 Prelista</span>
         </button>
+        <button class="smart-tab-btn" onclick="switchSmartTab('ofertas')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <span style="color: #F97316; font-weight: 800;">🔥 Ofertas</span>
+        </button>
       </div>
 
       <!-- Barra de Estado de Selección Activa -->
@@ -1969,7 +2171,119 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         </div>
       </div>
 
-      <!-- Ajustes de Generación -->
+      <!-- TAB 7: Ofertas y Promociones Vigentes -->
+      <div class="tab-content" id="tab-ofertas">
+        <!-- Banner informativo -->
+        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.12)); border: 1px solid rgba(249, 115, 22, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 8.5pt; color: #FB923C;">
+              <span>🔥 OFERTAS Y PROMOCIONES VIGENTES</span>
+            </div>
+            <span style="background: rgba(249, 115, 22, 0.2); color: #FDBA74; font-size: 7pt; font-weight: 800; padding: 2px 7px; border-radius: 4px;">OCR & MULTI-SUBIDA</span>
+          </div>
+          <div style="font-size: 7.5pt; color: var(--text-muted); margin-top: 3px; line-height: 1.3;">
+            Sube volantes o fotos de ofertas (puedes subir <b>muchas fotos a la vez</b>). Aparecen en la primera fila destacada del catálogo con enlace directo a WhatsApp. El sistema <b>extrae automáticamente el precio y producto con OCR e Inteligencia</b>.
+          </div>
+        </div>
+
+        <!-- Formulario para agregar / subir ofertas -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-panel); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 8pt; font-weight: 800; color: #FFFFFF;">➕ SUBIR VOLANTES / IMÁGENES DE OFERTA</span>
+            <span style="font-size: 7pt; color: #38BDF8; font-weight: 700;">¡Soporta selección de múltiples fotos!</span>
+          </div>
+          
+          <!-- Drop zone / Selector de imagen con soporte múltiple -->
+          <div id="oferta-dropzone" onclick="document.getElementById('oferta-file-input').click()" style="border: 2px dashed rgba(249, 115, 22, 0.45); background: rgba(249, 115, 22, 0.05); border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 10px;">
+            <input type="file" id="oferta-file-input" accept="image/*" multiple style="display: none;" onchange="onOfertaFileChosen(this)">
+            
+            <div id="oferta-file-preview-box" style="display: none; align-items: center; justify-content: center; gap: 10px;">
+              <img id="oferta-file-preview-img" src="" style="width: 70px; height: 70px; object-fit: contain; border-radius: 6px; border: 1px solid var(--border-panel); background: #0B0E14;">
+              <div style="text-align: left;">
+                <div id="oferta-file-name" style="font-size: 8pt; font-weight: 700; color: #F97316;"></div>
+                <div style="font-size: 7pt; color: var(--text-dim);">Haz clic aquí para cambiar o agregar más imágenes</div>
+              </div>
+            </div>
+            
+            <div id="oferta-dropzone-prompt">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              <div style="font-size: 8.5pt; font-weight: 800; color: #F97316;">📸 Toca aquí para seleccionar una o VARIAS fotos / volantes</div>
+              <div style="font-size: 7pt; color: var(--text-dim); margin-top: 2px;">Arrastra o selecciona tus imágenes JPG, PNG o WEBP. Puedes elegir 5, 10 o 20 a la vez.</div>
+            </div>
+          </div>
+
+          <!-- Estado / Progreso de subida múltiple -->
+          <div id="oferta-upload-status" style="display: none; padding: 8px 12px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 6px; font-size: 7.5pt; color: #60A5FA; margin-bottom: 10px; font-weight: 600;"></div>
+
+          <!-- Campos de la oferta manual / ajuste individual -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <span style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Título / Producto en Oferta:</span>
+                <button type="button" class="btn-chip" onclick="extraerInfoOfertaActualForm()" style="font-size: 6.5pt; padding: 2px 6px; background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4);" title="Extraer automáticamente título y precio de la foto">
+                  ✨ Auto-Extraer datos de la foto (OCR)
+                </button>
+              </div>
+              <input type="text" id="oferta-input-titulo" placeholder="Ej: DEMOLEDOR SDS-MAX 1500W DONG CHENG DZG10" style="width: 100%; box-sizing: border-box; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FFF; padding: 6px 10px; border-radius: 6px; font-size: 8pt; font-family: inherit; font-weight: 600;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <span style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Precio / Descuento (opcional):</span>
+                <input type="text" id="oferta-input-precio" placeholder="Ej: 1.150 BS" style="width: 100%; box-sizing: border-box; background: var(--bg-console); border: 1px solid var(--border-panel); color: #FBBF24; padding: 6px 10px; border-radius: 6px; font-size: 8pt; font-family: inherit; font-weight: 700;">
+              </div>
+              <div>
+                <span style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Etiqueta / Badge:</span>
+                <input type="text" id="oferta-input-badge" placeholder="Ej: HASTA AGOTAR STOCK" value="HASTA AGOTAR STOCK" style="width: 100%; box-sizing: border-box; background: var(--bg-console); border: 1px solid var(--border-panel); color: #EF4444; padding: 6px 10px; border-radius: 6px; font-size: 8pt; font-family: inherit; font-weight: 700;">
+              </div>
+            </div>
+
+            <div>
+              <span style="font-size: 7.5pt; font-weight: 700; color: var(--text-muted);">Mensaje de WhatsApp para el cliente (opcional):</span>
+              <input type="text" id="oferta-input-wa-msg" placeholder="Ej: Hola Importadora Rivero, deseo consultar sobre la oferta de..." style="width: 100%; box-sizing: border-box; background: var(--bg-console); border: 1px solid var(--border-panel); color: #22C55E; padding: 6px 10px; border-radius: 6px; font-size: 7.5pt; font-family: inherit;">
+            </div>
+
+            <div style="display: flex; gap: 6px; margin-top: 4px;">
+              <button type="button" class="btn-chip" onclick="agregarOfertaAlListado()" style="flex: 2; background: linear-gradient(135deg, #F97316, #EA580C); color: white; border: none; padding: 8px 12px; font-weight: 800; font-size: 8pt; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);">
+                <span>➕ Agregar a la Lista de Ofertas</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de Herramientas y Acciones Rápidas -->
+        <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-panel); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between;">
+          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn-chip" onclick="autoRellenarTodasLasOfertas()" style="background: linear-gradient(135deg, #9333EA, #7E22CE); color: white; border: none; font-weight: 800; font-size: 7.5pt; padding: 5px 10px;" title="Analiza todas las fotos con OCR y extrae sus precios y modelos oficiales">
+              <span>✨ Auto-Rellenar TODAS con OCR</span>
+            </button>
+            <button type="button" class="btn-chip" onclick="escanearCarpetaOfertas()" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 7.5pt; padding: 5px 10px;" title="Detectar imágenes agregadas directamente en la carpeta 'ofertas/'">
+              <span>🔄 Escanear Carpeta 'ofertas/'</span>
+            </button>
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" class="btn-chip" onclick="activarTodasOfertas(true)" style="font-size: 7pt; padding: 4px 8px; background: rgba(34, 197, 94, 0.15); color: #4ADE80; border: 1px solid rgba(34, 197, 94, 0.3);">👁️ Activar Todas</button>
+            <button type="button" class="btn-chip" onclick="activarTodasOfertas(false)" style="font-size: 7pt; padding: 4px 8px; background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3);">⏸️ Pausar Todas</button>
+            <button type="button" class="btn-chip danger" onclick="vaciarTodasLasOfertas()" style="font-size: 7pt; padding: 4px 8px;" title="Eliminar todas las ofertas del catálogo">🗑️ Vaciar</button>
+          </div>
+        </div>
+
+        <!-- Lista de ofertas configuradas (CON EDICIÓN DIRECTA EN CADA ITEM) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 8pt; font-weight: 800; color: var(--text-main);">📋 Ofertas en el Catálogo (<span id="ofertas-count-badge">0</span>):</span>
+          <span style="font-size: 7pt; color: var(--text-dim);">✏️ Puedes editar títulos y precios directamente en cada tarjeta</span>
+        </div>
+
+        <div id="ofertas-panel-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 360px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;">
+          <!-- Items dinámicos con campos editables en vivo -->
+        </div>
+
+        <!-- Botón Guardar Ofertas -->
+        <button type="button" id="btn-save-ofertas" class="btn-chip" onclick="guardarOfertasEnServidor()" style="width: 100%; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 11px 16px; font-weight: 800; font-size: 9pt; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          <span>💾 Guardar Cambios en Ofertas</span>
+        </button>
+      </div>
       <div class="toggle-row">
         <div>
           <span class="label-text" style="font-weight: 600; font-size: 8.5pt;">Descargar base desde Google Drive</span>
@@ -2338,7 +2652,7 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     }}
 
     function switchSmartTab(tabId) {{
-      const tabs = ['manual', 'search', 'brands', 'templates', 'order', 'prelista'];
+      const tabs = ['manual', 'search', 'brands', 'templates', 'order', 'prelista', 'ofertas'];
       tabs.forEach(t => {{
         const el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('active', t === tabId);
@@ -2359,6 +2673,413 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
         if (!prelistaProductsCache || prelistaProductsCache.length === 0) {{
           consultarPrelistaPanel();
         }}
+      }}
+      if (tabId === 'ofertas') {{
+        cargarOfertasPanel();
+      }}
+    }}
+
+    // ─── 0.6. GESTOR DE OFERTAS Y PROMOCIONES VIGENTES (MULTI-SUBIDA Y OCR INTELIGENTE) ───
+    let ofertasListCache = [];
+    let currentUploadedOfertaBase64 = null;
+    let currentUploadedOfertaFileName = '';
+
+    function onOfertaFileChosen(input) {{
+      if (!input.files || input.files.length === 0) return;
+      
+      // Si el usuario seleccionó múltiples fotos
+      if (input.files.length > 1) {{
+        procesarMultiplesArchivosOfertas(input.files);
+        return;
+      }}
+      
+      // Subida de una sola foto
+      const file = input.files[0];
+      currentUploadedOfertaFileName = file.name;
+      const reader = new FileReader();
+      reader.onload = async function(e) {{
+        currentUploadedOfertaBase64 = e.target.result;
+        document.getElementById('oferta-dropzone-prompt').style.display = 'none';
+        const prevBox = document.getElementById('oferta-file-preview-box');
+        prevBox.style.display = 'flex';
+        document.getElementById('oferta-file-preview-img').src = currentUploadedOfertaBase64;
+        document.getElementById('oferta-file-name').innerText = file.name;
+        
+        // Auto-extraer datos con OCR e Inteligencia automáticamente
+        extraerInfoOfertaActualForm();
+      }};
+      reader.readAsDataURL(file);
+    }}
+
+    async function extraerInfoOfertaActualForm() {{
+      if (!currentUploadedOfertaBase64) {{
+        alert("Por favor selecciona primero una imagen.");
+        return;
+      }}
+      const titInput = document.getElementById('oferta-input-titulo');
+      const precInput = document.getElementById('oferta-input-precio');
+      const badgeInput = document.getElementById('oferta-input-badge');
+      const waInput = document.getElementById('oferta-input-wa-msg');
+      
+      const originalPlaceholder = titInput.placeholder;
+      titInput.placeholder = "🔍 Leyendo imagen con OCR e identificando producto...";
+      log("[OCR] Analizando volante/imagen con OCR...", "info");
+      
+      try {{
+        const res = await fetch('/api/ofertas/auto_rellenar', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ imagen: currentUploadedOfertaBase64 }})
+        }});
+        const resData = await res.json();
+        if (resData.success && resData.data) {{
+          const d = resData.data;
+          if (d.titulo) titInput.value = d.titulo;
+          if (d.precio) precInput.value = d.precio;
+          if (d.badge) badgeInput.value = d.badge;
+          if (d.wa_msg) waInput.value = d.wa_msg;
+          log(`[OCR ÉXITO] ¡Datos extraídos! ${{d.titulo || ''}} (${{d.precio || 'sin precio'}})`, "success");
+        }} else {{
+          log("[OCR AVISO] No se pudo leer texto en la imagen, usando nombre de archivo.", "warning");
+          if (!titInput.value) {{
+            titInput.value = currentUploadedOfertaFileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase();
+          }}
+        }}
+      }} catch(err) {{
+        console.error("Error en auto_rellenar:", err);
+      }} finally {{
+        titInput.placeholder = originalPlaceholder;
+      }}
+    }}
+
+    async function procesarMultiplesArchivosOfertas(fileList) {{
+      const statusBox = document.getElementById('oferta-upload-status');
+      if (statusBox) {{
+        statusBox.style.display = 'block';
+        statusBox.innerHTML = `⏳ Cargando y procesando <b>${{fileList.length}}</b> imágenes con OCR e Inteligencia... Por favor espera un momento.`;
+      }}
+      log(`[MULTI-OFERTAS] Procesando lote de ${{fileList.length}} imágenes de ofertas...`, "info");
+      
+      let procesadas = 0;
+      for (let i = 0; i < fileList.length; i++) {{
+        const file = fileList[i];
+        try {{
+          const base64Data = await new Promise((resolve, reject) => {{
+            const r = new FileReader();
+            r.onload = () => resolve(r.target.result);
+            r.onerror = reject;
+            r.readAsDataURL(file);
+          }});
+
+          // Llamar al endpoint de OCR para auto-extraer título y precio
+          let info = {{
+            titulo: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase(),
+            precio: "",
+            badge: "HASTA AGOTAR STOCK",
+            wa_msg: ""
+          }};
+          try {{
+            const resOcr = await fetch('/api/ofertas/auto_rellenar', {{
+              method: 'POST',
+              headers: {{ 'Content-Type': 'application/json' }},
+              body: JSON.stringify({{ imagen: base64Data }})
+            }});
+            const ocrJson = await resOcr.json();
+            if (ocrJson.success && ocrJson.data) {{
+              if (ocrJson.data.titulo) info.titulo = ocrJson.data.titulo;
+              if (ocrJson.data.precio) info.precio = ocrJson.data.precio;
+              if (ocrJson.data.badge) info.badge = ocrJson.data.badge;
+              if (ocrJson.data.wa_msg) info.wa_msg = ocrJson.data.wa_msg;
+            }}
+          }} catch(e_ocr) {{
+            console.warn("Fallo OCR en archivo:", file.name, e_ocr);
+          }}
+
+          if (!info.wa_msg) {{
+            info.wa_msg = `Hola Importadora Rivero, deseo consultar sobre la oferta de ${{info.titulo}}` + (info.precio ? ` a ${{info.precio}}` : '');
+          }}
+
+          const nuevaOferta = {{
+            id: 'of_' + Date.now() + '_' + i,
+            titulo: info.titulo,
+            precio: info.precio,
+            badge: info.badge,
+            wa_msg: info.wa_msg,
+            imagen: base64Data,
+            activa: true,
+            creada: new Date().toISOString()
+          }};
+
+          ofertasListCache.push(nuevaOferta);
+          procesadas++;
+          if (statusBox) {{
+            statusBox.innerHTML = `⏳ Procesadas <b>${{procesadas}}/${{fileList.length}}</b> ofertas... (${{file.name}})`;
+          }}
+        }} catch(errFile) {{
+          console.error("Error al procesar archivo:", file.name, errFile);
+        }}
+      }}
+
+      renderOfertasList();
+      if (statusBox) {{
+        statusBox.innerHTML = `✅ ¡Se procesaron y auto-rellenaron <b>${{procesadas}}</b> ofertas con éxito! Recuerda hacer clic en 'Guardar Cambios en Ofertas'.`;
+        setTimeout(() => {{ statusBox.style.display = 'none'; }}, 8000);
+      }}
+      log(`[MULTI-OFERTAS OK] Se agregaron ${{procesadas}} ofertas a la lista.`, "success");
+    }}
+
+    async function cargarOfertasPanel() {{
+      try {{
+        const res = await fetch('/api/ofertas/listar');
+        const data = await res.json();
+        ofertasListCache = data.ofertas || [];
+        renderOfertasList();
+      }} catch(e) {{
+        console.error("Error al cargar ofertas:", e);
+      }}
+    }}
+
+    function renderOfertasList() {{
+      const container = document.getElementById('ofertas-panel-list');
+      const countBadge = document.getElementById('ofertas-count-badge');
+      if (countBadge) countBadge.innerText = ofertasListCache.length;
+      if (!container) return;
+
+      if (ofertasListCache.length === 0) {{
+        container.innerHTML = `<div style="text-align: center; color: var(--text-dim); padding: 20px; font-size: 8pt; border: 1px dashed var(--border-panel); border-radius: 8px;">No hay ofertas cargadas aún. Sube tus volantes arriba o haz clic en 'Escanear Carpeta'.</div>`;
+        return;
+      }}
+
+      const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+      let html = '';
+      ofertasListCache.forEach((of, idx) => {{
+        const activa = of.activa !== false;
+        const imgSrc = of.imagen || '';
+
+        html += `
+          <div style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid ${{activa ? 'rgba(249, 115, 22, 0.5)' : 'var(--border-panel)'}}; border-radius: 8px; padding: 10px 12px; display: flex; gap: 12px; align-items: flex-start; transition: all 0.2s;">
+            <!-- Miniatura de la oferta -->
+            <div style="position: relative; flex-shrink: 0; cursor: pointer;" onclick="verImagenOfertaModal('${{esc(imgSrc)}}', '${{esc(of.titulo)}}')" title="Clic para ampliar volante">
+              <img src="${{imgSrc}}" style="width: 76px; height: 76px; object-fit: contain; border-radius: 6px; background: #0B0E14; border: 1px solid var(--border-panel);" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22><rect width=%2218%22 height=%2218%22 x=%223%22 y=%223%22 rx=%222%22/></svg>'">
+              <div style="position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.75); color: #FFF; font-size: 6pt; padding: 1px 4px; border-radius: 3px;">🔍 Ver</div>
+            </div>
+
+            <!-- Campos Editables Directos -->
+            <div style="flex-grow: 1; min-width: 0;">
+              <!-- Fila Título / Nombre del Producto -->
+              <div style="margin-bottom: 5px;">
+                <input type="text" value="${{esc(of.titulo || '')}}" placeholder="Título / Nombre del producto en oferta..." oninput="actualizarCampoOferta(${{idx}}, 'titulo', this.value)" style="width: 100%; box-sizing: border-box; background: #0B0E14; border: 1px solid #334155; color: #FFFFFF; font-weight: 700; font-size: 8pt; padding: 5px 8px; border-radius: 5px; outline: none;">
+              </div>
+
+              <!-- Fila Precio y Badge -->
+              <div style="display: flex; gap: 8px; margin-bottom: 5px;">
+                <input type="text" value="${{esc(of.precio || '')}}" placeholder="💰 Precio (ej: 1.150 BS)" oninput="actualizarCampoOferta(${{idx}}, 'precio', this.value)" style="flex: 1; min-width: 0; box-sizing: border-box; background: #0B0E14; border: 1px solid #334155; color: #FBBF24; font-weight: 800; font-size: 8pt; padding: 4px 6px; border-radius: 5px; outline: none;">
+                <input type="text" value="${{esc(of.badge || 'HASTA AGOTAR STOCK')}}" placeholder="🏷️ Etiqueta / Badge" oninput="actualizarCampoOferta(${{idx}}, 'badge', this.value)" style="flex: 1; min-width: 0; box-sizing: border-box; background: #0B0E14; border: 1px solid #334155; color: #F87171; font-weight: 700; font-size: 8pt; padding: 4px 6px; border-radius: 5px; outline: none;">
+              </div>
+
+              <!-- Fila Mensaje de WhatsApp -->
+              <div>
+                <input type="text" value="${{esc(of.wa_msg || '')}}" placeholder="📲 Mensaje directo al WhatsApp del cliente..." oninput="actualizarCampoOferta(${{idx}}, 'wa_msg', this.value)" style="width: 100%; box-sizing: border-box; background: #0B0E14; border: 1px solid #334155; color: #22C55E; font-size: 7.5pt; padding: 4px 6px; border-radius: 5px; outline: none;">
+              </div>
+            </div>
+
+            <!-- Acciones Laterales -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; height: 76px;">
+              <button type="button" class="btn-chip" onclick="autoRellenarItemIndividual(${{idx}})" title="Extraer automáticamente datos de esta foto con OCR" style="padding: 3px 6px; font-size: 6.5pt; background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4); font-weight: 700;">✨ OCR</button>
+              <label class="switch" style="width: 32px; height: 18px;" title="${{activa ? 'Oferta visible en catálogo' : 'Oferta oculta / pausada'}}">
+                <input type="checkbox" ${{activa ? 'checked' : ''}} onchange="toggleOfertaActiva(${{idx}})">
+                <span class="slider" style="border-radius: 18px;"></span>
+              </label>
+              <button type="button" class="btn-chip danger" onclick="eliminarOferta(${{idx}})" title="Eliminar oferta" style="padding: 3px 6px; font-size: 7pt;">🗑️</button>
+            </div>
+          </div>
+        `;
+      }});
+      container.innerHTML = html;
+    }}
+
+    function actualizarCampoOferta(idx, campo, valor) {{
+      if (ofertasListCache[idx]) {{
+        ofertasListCache[idx][campo] = valor;
+        const btnSave = document.getElementById('btn-save-ofertas');
+        if (btnSave && !btnSave.innerText.includes('*')) {{
+          btnSave.innerHTML = `<span>💾 Guardar Cambios en Ofertas * (cambios sin guardar)</span>`;
+        }}
+      }}
+    }}
+
+    async function autoRellenarItemIndividual(idx) {{
+      if (!ofertasListCache[idx]) return;
+      const ofr = ofertasListCache[idx];
+      log(`[OCR] Auto-rellenando oferta #${{idx+1}} desde su imagen...`, "info");
+      try {{
+        const res = await fetch('/api/ofertas/auto_rellenar', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ imagen: ofr.imagen }})
+        }});
+        const json = await res.json();
+        if (json.success && json.data) {{
+          if (json.data.titulo) ofr.titulo = json.data.titulo;
+          if (json.data.precio) ofr.precio = json.data.precio;
+          if (json.data.badge) ofr.badge = json.data.badge;
+          if (json.data.wa_msg) ofr.wa_msg = json.data.wa_msg;
+          renderOfertasList();
+          log(`[OCR OK] Oferta #${{idx+1}} actualizada: ${{ofr.titulo}} (${{ofr.precio}})`, "success");
+        }} else {{
+          alert("No se pudo extraer texto claro de esta imagen.");
+        }}
+      }} catch(e) {{
+        console.error("Error auto-rellenando item:", e);
+      }}
+    }}
+
+    async function autoRellenarTodasLasOfertas() {{
+      if (ofertasListCache.length === 0) {{
+        alert("No hay ofertas en la lista para analizar.");
+        return;
+      }}
+      if (!confirm(`¿Deseas analizar las ${{ofertasListCache.length}} ofertas con OCR e Inteligencia para auto-rellenar títulos y precios?`)) {{
+        return;
+      }}
+      log("[OCR LOTE] Analizando todas las imágenes de ofertas...", "info");
+      try {{
+        const res = await fetch('/api/ofertas/auto_rellenar', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ all: true, ofertas: ofertasListCache }})
+        }});
+        const json = await res.json();
+        if (json.success && json.ofertas) {{
+          ofertasListCache = json.ofertas;
+          renderOfertasList();
+          log(`[OCR LOTE OK] ¡${{json.mensaje}}!`, "success");
+          alert("¡Se auto-rellenaron todas las ofertas! Revisa los campos y presiona 'Guardar Cambios en Ofertas'.");
+        }} else {{
+          alert("Error: " + (json.error || "No se pudo completar el análisis."));
+        }}
+      }} catch(e) {{
+        alert("Excepción al auto-rellenar: " + e);
+      }}
+    }}
+
+    async function escanearCarpetaOfertas() {{
+      log("[OFERTAS] Escaneando carpeta local 'ofertas/'...", "info");
+      try {{
+        const res = await fetch('/api/ofertas/escanear_carpeta');
+        const json = await res.json();
+        if (json.success && json.ofertas) {{
+          ofertasListCache = json.ofertas;
+          renderOfertasList();
+          log(`[OFERTAS OK] ${{json.mensaje}}`, "success");
+          alert(`¡Sincronización completa! Se encontraron ${{ofertasListCache.length}} ofertas.`);
+        }} else {{
+          alert("Error al escanear: " + (json.error || "desconocido"));
+        }}
+      }} catch(e) {{
+        alert("Excepción al escanear: " + e);
+      }}
+    }}
+
+    function activarTodasOfertas(estado) {{
+      ofertasListCache.forEach(o => {{ o.activa = estado; }});
+      renderOfertasList();
+    }}
+
+    function vaciarTodasLasOfertas() {{
+      if (confirm("¿Estás seguro de que deseas vaciar TODAS las ofertas de la lista?")) {{
+        ofertasListCache = [];
+        renderOfertasList();
+      }}
+    }}
+
+    function toggleOfertaActiva(idx) {{
+      if (ofertasListCache[idx]) {{
+        ofertasListCache[idx].activa = !ofertasListCache[idx].activa;
+        renderOfertasList();
+      }}
+    }}
+
+    function eliminarOferta(idx) {{
+      if (confirm(`¿Quitar la oferta "${{ofertasListCache[idx]?.titulo || ''}}"?`)) {{
+        ofertasListCache.splice(idx, 1);
+        renderOfertasList();
+      }}
+    }}
+
+    function verImagenOfertaModal(src, title) {{
+      const win = window.open("", "_blank");
+      if (win) {{
+        win.document.write(`<html><head><title>${{title || 'Oferta'}}</title></head><body style="margin:0; background:#0B0E14; display:flex; align-items:center; justify-content:center; height:100vh;"><img src="${{src}}" style="max-width:95vw; max-height:95vh; object-fit:contain; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.8);"></body></html>`);
+      }}
+    }}
+
+    function agregarOfertaAlListado() {{
+      if (!currentUploadedOfertaBase64) {{
+        alert("Por favor selecciona o sube primero una imagen para la oferta.");
+        return;
+      }}
+      const tit = document.getElementById('oferta-input-titulo').value.trim();
+      if (!tit) {{
+        alert("Por favor ingresa un título o nombre para la oferta.");
+        return;
+      }}
+      const precio = document.getElementById('oferta-input-precio').value.trim();
+      const badge = document.getElementById('oferta-input-badge').value.trim();
+      const waMsg = document.getElementById('oferta-input-wa-msg').value.trim();
+
+      const nueva = {{
+        id: 'of_' + Date.now(),
+        titulo: tit,
+        precio: precio,
+        badge: badge,
+        wa_msg: waMsg || (`Hola Importadora Rivero, deseo consultar sobre la oferta de ${{tit}}` + (precio ? ` a ${{precio}}` : '')),
+        imagen: currentUploadedOfertaBase64,
+        activa: true,
+        creada: new Date().toISOString()
+      }};
+
+      ofertasListCache.unshift(nueva);
+      renderOfertasList();
+
+      // Resetear inputs del formulario
+      currentUploadedOfertaBase64 = null;
+      currentUploadedOfertaFileName = '';
+      document.getElementById('oferta-file-input').value = '';
+      document.getElementById('oferta-dropzone-prompt').style.display = 'block';
+      document.getElementById('oferta-file-preview-box').style.display = 'none';
+      document.getElementById('oferta-input-titulo').value = '';
+      document.getElementById('oferta-input-precio').value = '';
+      document.getElementById('oferta-input-wa-msg').value = '';
+
+      log(`[OFERTA] Se agregó '${{tit}}' al listado de ofertas. Recuerda hacer clic en 'Guardar Cambios en Ofertas'.`, 'success');
+    }}
+
+    async function guardarOfertasEnServidor() {{
+      const btn = document.getElementById('btn-save-ofertas');
+      if (btn) btn.disabled = true;
+      try {{
+        log("[OFERTAS] Guardando ofertas en el servidor...", "info");
+        const res = await fetch('/api/ofertas/guardar', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ ofertas: ofertasListCache }})
+        }});
+        const resData = await res.json();
+        if (resData.success) {{
+          log(`[OFERTAS OK] ¡${{resData.mensaje}}!`, "success");
+          alert("¡Ofertas guardadas con éxito! Para que se reflejen en la web, presiona 'Generar Catálogo'.");
+          cargarOfertasPanel();
+        }} else {{
+          log(`[OFERTAS ERROR] ${{resData.error}}`, "error");
+          alert("Error al guardar ofertas: " + resData.error);
+        }}
+      }} catch(e) {{
+        log(`[OFERTAS EXCEPCIÓN] ${{e}}`, "error");
+        alert("Excepción al guardar: " + e);
+      }} finally {{
+        if (btn) btn.disabled = false;
       }}
     }}
 
@@ -3563,6 +4284,10 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
       const whatsapp = document.getElementById('whatsapp').value;
       const filterStock = document.getElementById('filter_stock')?.checked || false;
       
+      if (whatsapp) {{
+        try {{ localStorage.setItem('rivero_whatsapp_pedidos', whatsapp); }} catch(e){{}}
+      }}
+      
       consoleDiv.innerHTML = '';
       log(">>> Iniciando petición al backend...");
       if (filterStock) {{
@@ -3716,6 +4441,13 @@ class CatalogWebHandler(http.server.BaseHTTPRequestHandler):
     }});
 
     updateDownloadHtmlLink();
+    cargarOfertasPanel();
+    try {{
+      const savedWa = localStorage.getItem('rivero_whatsapp_pedidos');
+      if (savedWa && document.getElementById('whatsapp') && !document.getElementById('whatsapp').value) {{
+        document.getElementById('whatsapp').value = savedWa;
+      }}
+    }} catch(e){{}}
   </script>
 </body>
 </html>

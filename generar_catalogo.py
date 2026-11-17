@@ -1034,6 +1034,18 @@ def exportar_a_pdf(excel_path, pdf_path, sheet_name, forzar_imagenes=False):
     print("\n>>> Iniciando exportación rápida a PDF desde base de datos...")
     return generar(descargar_nube=False, forzar_imagenes=forzar_imagenes)
 
+def cargar_ofertas_activas(json_path="ofertas_data.json"):
+    if not os.path.exists(json_path):
+        return []
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        ofertas = data.get("ofertas", [])
+        return [o for o in ofertas if o.get("activa", True)]
+    except Exception as e:
+        print(f"  [AVISO] Error al leer {json_path}: {e}")
+        return []
+
 def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", output_filename="catalogos.html", forzar_imagenes=False, db_norm=None, db_clean=None, whatsapp_phone=None):
     import os
     import re
@@ -2916,10 +2928,207 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
       box-shadow: 0 6px 18px rgba(37, 211, 102, 0.55);
     }
 
-    /* ──── TOAST Y NOTIFICACIONES ──── */
+    /* ──── SECCIÓN DE OFERTAS Y PROMOCIONES VIGENTES ──── */
+    .ofertas-section-wrapper {
+      margin: 20px 0 28px 0;
+      padding: 18px 22px 22px 22px;
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      border-radius: 18px;
+      box-shadow: 0 10px 32px rgba(15, 23, 42, 0.18), 0 0 0 1.5px rgba(249, 115, 22, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .ofertas-section-wrapper::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.28) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .ofertas-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 12px;
+    }
+    .ofertas-badge-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFFFFF;
+      font-size: 13pt;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .ofertas-fire-anim {
+      font-size: 17pt;
+      animation: pulseFire 1.5s infinite;
+      display: inline-block;
+    }
+    @keyframes pulseFire {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+    .ofertas-count-tag {
+      background: linear-gradient(135deg, #EF4444, #F97316);
+      color: #FFFFFF;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    }
+    .ofertas-subtitle-text {
+      color: #CBD5E1;
+      font-size: 8.5pt;
+      font-weight: 600;
+    }
+    .ofertas-scroll-track {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 6px 4px 14px 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: #F97316 rgba(255,255,255,0.08);
+    }
+    .ofertas-scroll-track::-webkit-scrollbar {
+      height: 7px;
+    }
+    .ofertas-scroll-track::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #EF4444, #F97316);
+      border-radius: 10px;
+    }
+    .oferta-card {
+      flex: 0 0 275px;
+      width: 275px;
+      max-width: 285px;
+      scroll-snap-align: start;
+      background: #FFFFFF;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      border: 2px solid rgba(249, 115, 22, 0.45);
+      position: relative;
+    }
+    .oferta-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.38);
+      border-color: #F97316;
+    }
+    .oferta-img-container {
+      position: relative;
+      width: 100%;
+      height: 245px;
+      background: #0B0E14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .oferta-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      display: block;
+    }
+    .oferta-card:hover .oferta-img {
+      transform: scale(1.05);
+    }
+    .oferta-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      color: #FFFFFF;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+    .oferta-click-hint {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%);
+      color: #FFFFFF;
+      font-size: 7.5pt;
+      font-weight: 700;
+      padding: 22px 10px 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      opacity: 0.95;
+      transition: opacity 0.2s;
+    }
+    .oferta-info-box {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-grow: 1;
+      justify-content: space-between;
+      background: #FFFFFF;
+    }
+    .oferta-card-title {
+      font-size: 9.5pt;
+      font-weight: 800;
+      color: #0F172A;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .oferta-card-price {
+      font-size: 11pt;
+      font-weight: 800;
+      color: #D97706;
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+    .btn-oferta-wa {
+      background: #25D366;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 8pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(37, 211, 102, 0.35);
+      transition: all 0.2s;
+      margin-top: 4px;
+      font-family: inherit;
+    }
+    .btn-oferta-wa:hover {
+      background: #1EBE5D;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.5);
     }
 
     @media print {
@@ -3064,6 +3273,11 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     html_out.append('    </div>') # cover-content
     html_out.append('  </div>') # cover-page
     
+    # ─── CARGAR OFERTAS Y PROMOCIONES VIGENTES ───
+    ofertas_activas = cargar_ofertas_activas()
+    if ofertas_activas:
+        print(f"  [OFERTAS] Se cargaron {len(ofertas_activas)} oferta(s) vigente(s) para la cabecera del catálogo.")
+
     # ─── BARRA DE BÚSQUEDA INTERACTIVA EN VIVO Y FILTRO POR MARCA ───
     html_out.append('  <div id="catalog-search-sticky-bar" class="catalog-search-sticky-bar">')
     html_out.append('    <div class="catalog-search-inner">')
@@ -3081,12 +3295,82 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
     html_out.append('    </div>')
     html_out.append('    <div class="brand-filter-chips">')
     html_out.append(f'      <button type="button" class="brand-chip active" data-brand-chip="all" onclick="filterByBrand(\'all\')">Todas ({total_prods})</button>')
+    if ofertas_activas:
+        html_out.append(f'      <button type="button" class="brand-chip brand-chip-ofertas" onclick="scrollToOfertas()" style="background: linear-gradient(135deg, #EF4444, #F97316) !important; color: #FFFFFF !important; font-weight: 800 !important; border: none !important; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4) !important;">🔥 Ofertas ({len(ofertas_activas)})</button>')
     for b_name_chip in brands_orden:
         b_count_chip = sum(len(prods) for prods in brands_prods[b_name_chip].values())
         safe_b_chip = b_name_chip.replace('"', '&quot;').replace("'", "&#39;")
         html_out.append(f'      <button type="button" class="brand-chip" data-brand-chip="{safe_b_chip}" onclick="filterByBrand(\'{safe_b_chip}\')">{safe_b_chip} ({b_count_chip})</button>')
     html_out.append('    </div>')
     html_out.append('  </div>')
+    
+    # ─── AGREGAR SECCIÓN DE OFERTAS Y PROMOCIONES VIGENTES (PRIMERA FILA) ───
+    if ofertas_activas:
+        html_out.append('  <div id="seccion-ofertas-vigentes" class="ofertas-section-wrapper">')
+        html_out.append('    <div class="ofertas-section-header">')
+        html_out.append('      <div class="ofertas-badge-title">')
+        html_out.append('        <span class="ofertas-fire-anim">🔥</span>')
+        html_out.append('        <span>OFERTAS Y PROMOCIONES VIGENTES</span>')
+        html_out.append(f'        <span class="ofertas-count-tag">{len(ofertas_activas)} DISPONIBLES</span>')
+        html_out.append('      </div>')
+        html_out.append('      <div class="ofertas-subtitle-text">')
+        html_out.append('        📲 Toca cualquier imagen para consultar o pedir directo por WhatsApp')
+        html_out.append('      </div>')
+        html_out.append('    </div>')
+        html_out.append('    <div class="ofertas-scroll-track">')
+        
+        for ofr in ofertas_activas:
+            o_tit = str(ofr.get("titulo", "OFERTA ESPECIAL")).strip()
+            o_prec = str(ofr.get("precio", "")).strip()
+            o_badge = str(ofr.get("badge", "HASTA AGOTAR STOCK")).strip()
+            o_desc = str(ofr.get("descripcion", "")).strip()
+            o_img = ofr.get("imagen", "")
+            o_msg = str(ofr.get("wa_msg", "")).strip()
+            o_phone = str(ofr.get("wa_phone", "")).strip()
+            
+            # Codificar imagen en base64 para que sea autónoma
+            img_src = to_base64_src(o_img) if (o_img and os.path.exists(o_img)) else o_img
+            
+            # Escapar para HTML y JS
+            safe_tit_html = o_tit.replace('"', '&quot;').replace("'", "&#39;")
+            safe_search = f"{o_tit} {o_prec} {o_badge} {o_desc}".replace('"', '&quot;')
+            safe_tit_js = o_tit.replace('\\', '\\\\').replace("'", "\\'").replace('"', '\\"')
+            safe_prec_js = o_prec.replace('\\', '\\\\').replace("'", "\\'").replace('"', '\\"')
+            safe_msg_js = o_msg.replace('\\', '\\\\').replace("'", "\\'").replace('"', '\\"')
+            safe_phone_js = o_phone.replace('\\', '\\\\').replace("'", "\\'").replace('"', '\\"')
+            
+            badge_html = f'<span class="oferta-badge">{o_badge}</span>' if o_badge else ''
+            prec_html = f'<div class="oferta-card-price">💰 {o_prec}</div>' if o_prec else ''
+            desc_html = f'<div style="font-size: 7.5pt; color: #64748B; line-height: 1.2;">{o_desc}</div>' if o_desc else ''
+            
+            html_out.append(f'      <div class="oferta-card" data-oferta-search="{safe_search}" onclick="consultarOfertaWhatsApp(\'{safe_tit_js}\', \'{safe_prec_js}\', \'{safe_msg_js}\', \'{safe_phone_js}\')" title="Toca para consultar esta oferta por WhatsApp">')
+            html_out.append('        <div class="oferta-img-container">')
+            if img_src:
+                html_out.append(f'          <img src="{img_src}" alt="{safe_tit_html}" class="oferta-img" loading="lazy" />')
+            else:
+                html_out.append('          <div class="no-photo" style="color:#FFF;">OFERTA</div>')
+            if badge_html:
+                html_out.append(f'          {badge_html}')
+            html_out.append('          <div class="oferta-click-hint">')
+            html_out.append('            <svg viewBox="0 0 24 24" width="16" height="16" fill="#FFFFFF"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>')
+            html_out.append('            <span>Toca para consultar</span>')
+            html_out.append('          </div>')
+            html_out.append('        </div>')
+            html_out.append('        <div class="oferta-info-box">')
+            html_out.append(f'          <div class="oferta-card-title">{safe_tit_html}</div>')
+            if prec_html:
+                html_out.append(f'          {prec_html}')
+            if desc_html:
+                html_out.append(f'          {desc_html}')
+            html_out.append('          <button type="button" class="btn-oferta-wa">')
+            html_out.append('            <svg viewBox="0 0 24 24" width="14" height="14" fill="#FFFFFF"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>')
+            html_out.append('            <span>Consultar por WhatsApp</span>')
+            html_out.append('          </button>')
+            html_out.append('        </div>')
+            html_out.append('      </div>')
+            
+        html_out.append('    </div>') # ofertas-scroll-track
+        html_out.append('  </div>') # seccion-ofertas-vigentes
     
     # ─── AGREGAR SECCIONES DE MARCAS ───
     for b_name in brands_orden:
@@ -3709,6 +3993,27 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
         sec.style.display = hasVisible ? '' : 'none';
       }});
 
+      // Manejo de la sección de ofertas en el buscador
+      const secOfertas = document.getElementById('seccion-ofertas-vigentes');
+      if (secOfertas) {{
+        if (!q && activeBrand === 'ALL') {{
+          secOfertas.style.display = '';
+          secOfertas.querySelectorAll('.oferta-card').forEach(c => c.style.display = '');
+        }} else if (q) {{
+          const ofrCards = secOfertas.querySelectorAll('.oferta-card');
+          let ofrVisible = 0;
+          ofrCards.forEach(c => {{
+            const tit = normalizeSearchStr(c.getAttribute('data-oferta-search') || '');
+            const match = words.every(w => tit.includes(w));
+            c.style.display = match ? '' : 'none';
+            if (match) ofrVisible++;
+          }});
+          secOfertas.style.display = ofrVisible > 0 ? '' : 'none';
+        }} else {{
+          secOfertas.style.display = 'none';
+        }}
+      }}
+
       const countEl = document.getElementById('search-match-count');
       if (countEl) countEl.innerText = visibleCount;
 
@@ -4186,13 +4491,42 @@ def generar_html_y_imagenes(db, codigos, imagenes_por_fila, layout="desktop", ou
 
       window.open(targetUrl, '_blank');
     }}
+
+    function consultarOfertaWhatsApp(titulo, precio, customMsg, customPhone) {{
+      const phone = customPhone || BUSINESS_PHONE || '';
+      let msg = customMsg;
+      if (!msg) {{
+        msg = `Hola Importadora Rivero, deseo consultar sobre la siguiente oferta:\\n* Producto: *${{titulo}}*`;
+        if (precio) msg += `\\n* Precio/Detalle: *${{precio}}*`;
+        msg += `\\n\\n¿Tienen disponibilidad para pedido? Muchas gracias.`;
+      }}
+      const encoded = encodeURIComponent(msg);
+      let targetUrl = '';
+      if (phone) {{
+        targetUrl = `https://wa.me/${{phone}}?text=${{encoded}}`;
+      }} else {{
+        targetUrl = `https://api.whatsapp.com/send?text=${{encoded}}`;
+      }}
+      window.open(targetUrl, '_blank');
+    }}
+
+    function scrollToOfertas() {{
+      const sec = document.getElementById('seccion-ofertas-vigentes');
+      if (sec) {{
+        const stickyBar = document.getElementById('catalog-search-sticky-bar');
+        const offset = stickyBar ? stickyBar.offsetHeight + 18 : 95;
+        const pos = sec.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({{ top: pos, behavior: 'smooth' }});
+      }}
+    }}
   </script>
 </body>
 </html>""")
     
     html_path = output_filename
     with open(html_path, "w", encoding="utf-8") as f_html:
-        f_html.write("\n".join(html_out))
+        for line in html_out:
+            f_html.write(line + "\n")
         
     if hashes_updated:
         try:
